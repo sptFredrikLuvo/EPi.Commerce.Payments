@@ -63,18 +63,7 @@ public ActionResult KlarnaConfirm(string klarnaOrder)
 {
     var location = new Uri(klarnaOrder);
 
-    var allPayments = PaymentManager.GetPaymentMethods(SiteContext.Current.LanguageName).PaymentMethod;
-    var checkoutMethod = allPayments.FirstOrDefault(x => x.SystemKeyword.Equals("KlarnaCheckout"));
-    if (checkoutMethod != null)
-    {
-        var method = new KlarnaCheckoutMethod
-        {
-            Name = checkoutMethod.Name,
-            CommercePaymentMethodId = checkoutMethod.PaymentMethodId.ToString()
-        };
-
-        ConfirmCart(method);
-    }
+    ConfirmCart();
 
     var response = _checkoutClient.Confirm(location);
 
