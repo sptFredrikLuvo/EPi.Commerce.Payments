@@ -113,7 +113,7 @@ Next step is configuring Klarna Checkout klient for use with EPiServer dependenc
 
 ```
 For<ICheckoutClient>().Use<CheckoutClient>()
-    .Ctor<Uri>("orderBaseUri").EqualToAppSetting("KlarnaCheckout:OrderBaseUrl")
+    .Ctor<Uri>("orderBaseUri").Is(new Uri(ConfigurationManager.AppSettings["KlarnaCheckout:OrderBaseUrl"]))
     .Ctor<string>("merchantId").EqualToAppSetting("KlarnaCheckout:MerchantId")
     .Ctor<string>("sharedSecret").EqualToAppSetting("KlarnaCheckout:SharedSecret");
 ```
