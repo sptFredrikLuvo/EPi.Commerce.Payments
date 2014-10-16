@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.EPi.Commerce.Payments.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Klarna.Checkout", "Geta.Klarna.Checkout\Geta.Klarna.Checkout.csproj", "{712C1D24-15C2-42BD-B74A-FD037AA5846A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Integration", "Tests.Integration\Tests.Integration.csproj", "{7F5E26CB-3F71-4CA9-89AA-3BF2E844472F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{712C1D24-15C2-42BD-B74A-FD037AA5846A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{712C1D24-15C2-42BD-B74A-FD037AA5846A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{712C1D24-15C2-42BD-B74A-FD037AA5846A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F5E26CB-3F71-4CA9-89AA-3BF2E844472F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F5E26CB-3F71-4CA9-89AA-3BF2E844472F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F5E26CB-3F71-4CA9-89AA-3BF2E844472F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F5E26CB-3F71-4CA9-89AA-3BF2E844472F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
