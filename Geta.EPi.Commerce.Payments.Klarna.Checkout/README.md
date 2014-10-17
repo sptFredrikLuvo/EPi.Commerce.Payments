@@ -118,6 +118,30 @@ For<ICheckoutClient>().Use<CheckoutClient>()
     .Ctor<string>("sharedSecret").EqualToAppSetting("KlarnaCheckout:SharedSecret");
 ```
 
+### Configure Commerce Manager
+
+Login into Commerce Manager and open **Administration -> Order System -> Payments**. Then click **New** and in **Overview** tab fill:
+
+- **Name**
+- **System Keyword** - use some Keyword which you can use later to find this payment method in your code
+- **Language**
+- **Class Name** - choose **Mediachase.Commerce.Plugins.Payment.GenericPaymentGateway**
+- **Payment Class** - choose **Mediachase.Commerce.Orders.OtherPayment**
+- **IsActive** - **Yes**
+- select shipping methods available for this payment
+
+In **Markets** tab select market for which this payment will be available.
+
 ## Creating NuGet package
 
 Project contains _pack.bat_ file for easier packaging. It calls _nuget.exe_ (assuming it's in your environment PATH) with _-IncludeReferencedProjects_ to include referenced Geta.Klarna.Checkout assembly. You also can provide output directory as a parameter for _pack.bat_.
+
+## More info
+
+### Klarna Checkout API reference
+
+https://developers.klarna.com/en/api-references-v1/klarna-checkout
+
+### Klarna Checkout documentation
+
+https://developers.klarna.com/en/klarna-checkout
