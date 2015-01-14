@@ -1,5 +1,3 @@
-EPi.Commerce.Payments
-=====================
 # What is Geta.EPi.Commerce.Payments?
 
 Geta.EPi.Commerce.Payments is collection of payment modules to integrate with EPiServer Commerce.
