@@ -8,7 +8,7 @@ This library consists of two assemblies - Geta.EPi.Commerce.Payments.Klarna.Chec
 
 ## How to get started?
 
-Start by installing NuGet package (use [Geta NuGet](http://nuget.geta.no/)):
+Start by installing NuGet package (use [NuGet](http://nuget.episerver.com/)):
 
     Install-Package Geta.EPi.Commerce.Payments.Klarna.Checkout
 
