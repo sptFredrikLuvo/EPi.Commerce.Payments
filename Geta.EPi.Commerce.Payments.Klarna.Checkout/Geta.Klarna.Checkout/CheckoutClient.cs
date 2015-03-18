@@ -8,7 +8,7 @@ namespace Geta.Klarna.Checkout
     public interface ICheckoutClient
     {
         CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris);
-        CheckoutResponse Confirm(Uri location);
+        ConfirmResponse Confirm(Uri location);
         void Acknowledge(Uri location);
     }
 
@@ -54,13 +54,15 @@ namespace Geta.Klarna.Checkout
             return new CheckoutResponse(order.Location, order.GetSnippet());
         }
 
-        public CheckoutResponse Confirm(Uri location)
+        public ConfirmResponse Confirm(Uri location)
         {
             var order = FetchOrder(location);
             var snippet = order.GetSnippet();
+            var billingAddress = order.GetBillingAddress();
+            var shippingAddress = order.GetShippingAddress();
             MarkOrderCreatedOnComplete(order);
 
-            return new CheckoutResponse(location, snippet);
+            return new ConfirmResponse(location, snippet, billingAddress, shippingAddress);
         }
 
         public void Acknowledge(Uri location)

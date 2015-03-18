@@ -47,11 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Address.cs" />
     <Compile Include="Cart.cs" />
     <Compile Include="CartItem.cs" />
     <Compile Include="CheckoutClient.cs" />
     <Compile Include="CheckoutResponse.cs" />
     <Compile Include="CheckoutUris.cs" />
+    <Compile Include="ConfirmResponse.cs" />
     <Compile Include="Extensions\CartExtensions.cs" />
     <Compile Include="Extensions\CartItemExtensions.cs" />
     <Compile Include="Extensions\MerchantExtensions.cs" />
