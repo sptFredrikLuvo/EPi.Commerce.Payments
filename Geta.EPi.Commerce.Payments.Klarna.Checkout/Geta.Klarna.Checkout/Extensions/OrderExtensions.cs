@@ -43,17 +43,19 @@ namespace Geta.Klarna.Checkout.Extensions
 
         private static void PopulateAddress(JObject addressJObject, Address address)
         {
-            address.GivenName = addressJObject["given_name"].ToString();
-            address.FamilyName = addressJObject["family_name"].ToString();
-            address.StreetAddress = addressJObject["street_address"].ToString();
-            address.StreetName = addressJObject["street_name"].ToString();
-            address.StreetNumber = addressJObject["street_number"].ToString();
-            address.PostalCode = addressJObject["postal_code"].ToString();
-            address.City = addressJObject["city"].ToString();
-            address.Country = addressJObject["country"].ToString();
-            address.EmailAddress = addressJObject["email"].ToString();
-            address.PhoneNumber = addressJObject["phone"].ToString();
-            address.Title = addressJObject["title"].ToString();
+            dynamic addr = addressJObject;
+
+            address.GivenName = addr.given_name;
+            address.FamilyName = addr.family_name;
+            address.StreetAddress = addr.street_address;
+            address.StreetName = addr.street_name;
+            address.StreetNumber = addr.street_number;
+            address.PostalCode = addr.postal_code;
+            address.City = addr.city;
+            address.Country = addr.country;
+            address.EmailAddress = addr.email;
+            address.PhoneNumber = addr.phone;
+            address.Title = addr.title;
         }
     }
 }
