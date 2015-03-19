@@ -44,7 +44,8 @@ namespace Geta.Klarna.Checkout
                 checkoutUris.Push, 
                 checkoutUris.Terms);
             var cart = new Cart(cartItems);
-            var data = new OrderData(merchant, cart, locale);
+            var options = new Options(AllowSeparateShippingAddress);
+            var data = new OrderData(merchant, cart, locale, options);
             var order = new Order(connector)
             {
                 BaseUri = OrderBaseUri,
