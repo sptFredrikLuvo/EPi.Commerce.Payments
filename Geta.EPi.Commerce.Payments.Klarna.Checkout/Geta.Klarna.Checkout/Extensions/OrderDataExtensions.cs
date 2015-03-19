@@ -12,7 +12,8 @@ namespace Geta.Klarna.Checkout.Extensions
                         { "purchase_currency", orderData.Locale.PurchaseCurrency },
                         { "locale", orderData.Locale.LocaleCode },
                         { "merchant", orderData.Merchant.ToDictionary() },
-                        { "cart", orderData.Cart.ToDictionary() }
+                        { "cart", orderData.Cart.ToDictionary() },
+                        { "options", orderData.Options.ToDictionary() }
                     };
         }
     }
