@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Klarna.Checkout;
 using Newtonsoft.Json.Linq;
 
@@ -39,6 +40,23 @@ namespace Geta.Klarna.Checkout.Extensions
             var address = new ShippingAddress();
             PopulateAddress(addressJObject, address);
             return address;
+        }
+
+        internal static void Confirm(this Order order, MerchantReference merchantReference)
+        {
+            if ((string)order.GetValue("status") != "checkout_complete") return;
+
+            var data = new Dictionary<string, object>
+            {
+                {"status", "created"}
+            };
+
+            if (!merchantReference.IsEmpty)
+            {
+                data.Add("merchant_reference", merchantReference.ToDictionary());
+            }
+
+            order.Update(data);
         }
 
         private static void PopulateAddress(JObject addressJObject, Address address)

@@ -9,7 +9,9 @@ namespace Geta.Klarna.Checkout
     {
         CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris);
         ConfirmResponse Confirm(Uri location);
+        ConfirmResponse Confirm(Uri location, MerchantReference merchantReference);
         void Acknowledge(Uri location);
+        void Acknowledge(Uri location, MerchantReference merchantReference);
     }
 
     public class CheckoutClient : ICheckoutClient
@@ -34,6 +36,10 @@ namespace Geta.Klarna.Checkout
 
         public CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris)
         {
+            if (cartItems == null) throw new ArgumentNullException("cartItems");
+            if (locale == null) throw new ArgumentNullException("locale");
+            if (checkoutUris == null) throw new ArgumentNullException("checkoutUris");
+
             var connector = Connector.Create(SharedSecret);
 
             var merchant = new Merchant(
@@ -59,19 +65,35 @@ namespace Geta.Klarna.Checkout
 
         public ConfirmResponse Confirm(Uri location)
         {
+            return Confirm(location, MerchantReference.Empty);
+        }
+
+        public ConfirmResponse Confirm(Uri location, MerchantReference merchantReference)
+        {
+            if (location == null) throw new ArgumentNullException("location");
+            if (merchantReference == null) throw new ArgumentNullException("merchantReference");
+
             var order = FetchOrder(location);
             var snippet = order.GetSnippet();
             var billingAddress = order.GetBillingAddress();
             var shippingAddress = order.GetShippingAddress();
-            MarkOrderCreatedOnComplete(order);
+            order.Confirm(merchantReference);
 
             return new ConfirmResponse(location, snippet, billingAddress, shippingAddress);
         }
 
         public void Acknowledge(Uri location)
         {
+            Acknowledge(location, MerchantReference.Empty);
+        }
+
+        public void Acknowledge(Uri location, MerchantReference merchantReference)
+        {
+            if (location == null) throw new ArgumentNullException("location");
+            if (merchantReference == null) throw new ArgumentNullException("merchantReference");
+
             var order = FetchOrder(location);
-            MarkOrderCreatedOnComplete(order);
+            order.Confirm(merchantReference);
         }
 
         private Order FetchOrder(Uri location)
@@ -84,18 +106,6 @@ namespace Geta.Klarna.Checkout
 
             order.Fetch();
             return order;
-        }
-
-        private static void MarkOrderCreatedOnComplete(Order order)
-        {
-            if ((string) order.GetValue("status") != "checkout_complete") return;
-
-            var data = new Dictionary<string, object>
-            {
-                {"status", "created"}
-            };
-
-            order.Update(data);
         }
     }
 }
