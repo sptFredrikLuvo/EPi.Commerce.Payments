@@ -27,7 +27,6 @@ namespace Tests.Integration
             var response = sut.Checkout(items, Locale.Norway, checkoutUris);
             response.Snippet.Should().NotBeNullOrWhiteSpace();
             response.Location.AbsoluteUri.Should().StartWith(TestConfig.OrderBaseUri.ToString());
-
         }
     }
 }
