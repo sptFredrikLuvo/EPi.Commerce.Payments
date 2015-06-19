@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
 using Geta.Klarna.Checkout;
-using Ploeh.AutoFixture.Xunit;
-using Xunit.Extensions;
+using Ploeh.AutoFixture.Xunit2;
+using Xunit;
 
 namespace Tests.Integration
 {
@@ -25,9 +25,9 @@ namespace Tests.Integration
             items.Add(shippingItem);
 
             var response = sut.Checkout(items, Locale.Norway, checkoutUris);
-
             response.Snippet.Should().NotBeNullOrWhiteSpace();
             response.Location.AbsoluteUri.Should().StartWith(TestConfig.OrderBaseUri.ToString());
+
         }
     }
 }
