@@ -133,7 +133,7 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 - **IsActive** - **Yes**
 - select shipping methods available for this payment
 
-![Payment method settings](screenshots/klarnaSettings.png?raw=true "Payment method settings")
+![Payment method settings](../screenshots/klarnaSettings.png?raw=true "Payment method settings")
 
 In **Markets** tab select market for which this payment will be available.
 
