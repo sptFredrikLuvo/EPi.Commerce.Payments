@@ -28,10 +28,10 @@ namespace Geta.Klarna.Checkout.Extensions
         {
             //NOTE: NOT using AddParameter method below because of issues with encodig of klarnaOrder parameter value contaning '{}' characters
             var currentUrlString = uri.AbsoluteUri;
-            var queryParamAndValue = "klarnaOrder={checkout.order.id}";
+            const string queryParamAndValue = "klarnaOrder={checkout.order.id}";
             if (currentUrlString.Contains("?"))
-                return $"{currentUrlString}&{queryParamAndValue}";
-            return $"{currentUrlString}?{queryParamAndValue}";
+                return string.Join("&", currentUrlString, queryParamAndValue);
+            return string.Join("?", currentUrlString, queryParamAndValue);
         }
 
         /// <summary>
