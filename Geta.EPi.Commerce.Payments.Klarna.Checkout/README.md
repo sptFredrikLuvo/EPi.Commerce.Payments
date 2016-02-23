@@ -36,16 +36,25 @@ public ActionResult KlarnaCheckout()
 
     cartItems.Add(shipment.ToCartItem());
 
+    
+	var baseUri = GetBaseUri();
+    var currentCheckoutPageUrl = string.Format("{0}{1}", baseUri, currentPage.PublicUrl());
+
     var checkoutUris = new CheckoutUris(
-        GetActionFullUri("KlarnaCheckout"),
-        GetActionFullUri("KlarnaConfirm"),
-        GetActionFullUri("KlarnaPush"),
-        GetActionFullUri("KlarnaTerms"));
-    var response = _checkoutClient.Checkout(cartItems, Locale.Norway, checkoutUris);
+                new Uri(currentCheckoutPageUrl),
+                new Uri(currentCheckoutPageUrl + "KlarnaConfirm"),
+                new Uri(currentCheckoutPageUrl + "KlarnaPush"),
+                new Uri(currentCheckoutPageUrl + "KlarnaTerms"));
+
+	var providerSettings = PaymentHelper.GetProviderSettings(_currentMarket, ShoppingContext.CurrentLanguageBranch);
+	var checkoutClient = new CheckoutClient(providerSettings.OrderBaseUri, providerSettings.MerchantId, providerSettings.Secret);
+	
+	var response = checkoutClient.Checkout(cartItems, PaymentSettings.CurrentLocale, checkoutUris, MapToKlarnaAddress(model.BillingAddress));
 
     var model = new KlarnaCheckoutView(CurrentPage)
     {
         Snippet = response.Snippet
+		KlarnaTransactionId = response.TransactionId;
     };
 
     if (ControllerContext.IsChildAction)
