@@ -1,23 +1,39 @@
 ﻿using System;
-using Geta.Klarna.Checkout;
+using Geta.Klarna.Checkout.Models;
 using Mediachase.Commerce.Orders;
 
 namespace Geta.EPi.Commerce.Payments.Klarna.Checkout.Extensions
 {
     public static class LineItemExtensions
     {
-        public static ICartItem ToCartItem(this LineItem lineItem, decimal taxRate = 0)
+        public static ICartItem ToCartItem(this LineItem lineItem, bool isOrderUpdate = false)
         {
-            var discountPerItem = lineItem.LineItemDiscountAmount/lineItem.Quantity;
-            var discountRate = discountPerItem*100/lineItem.PlacedPrice;
+            var discountPerItem = (lineItem.LineItemDiscountAmount + lineItem.OrderLevelDiscountAmount)/ lineItem.Quantity;
+            var discountRate = discountPerItem * 100 / lineItem.ListPrice;
 
-            return new CartItem(
-                lineItem.CatalogEntryId,
+            var vatPercent = lineItem.GetDecimalValue(MetadataConstants.VatPercent, 0);
+
+            // Klarna uses different price and vat formats for checkout and order update
+
+            if (isOrderUpdate)
+            {
+                return new CartItem(
+                lineItem.Code,
                 lineItem.DisplayName,
                 Convert.ToInt32(lineItem.Quantity),
-                Convert.ToInt32(lineItem.PlacedPrice * 100),
+                Convert.ToInt32(lineItem.ListPrice),
+                Convert.ToInt32(discountRate),
+                Convert.ToInt32(vatPercent));
+            }
+
+            return new CartItem(
+                lineItem.Code,
+                lineItem.DisplayName,
+                Convert.ToInt32(lineItem.Quantity),
+                Convert.ToInt32(lineItem.ListPrice * 100),
                 Convert.ToInt32(discountRate * 100),
-                Convert.ToInt32(taxRate * 100));
+                Convert.ToInt32(vatPercent * 100));
         }
+
     }
 }

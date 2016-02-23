@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\Web\projectz\web\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,12 +30,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Klarna.Checkout">
-      <HintPath>..\packages\Klarna.Checkout.1.0.3.0\lib\net30\Klarna.Checkout.dll</HintPath>
+    <Reference Include="CookComputing.XmlRpcV2">
+      <HintPath>..\packages\xmlrpcnet.3.0.0.266\lib\net20\CookComputing.XmlRpcV2.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\Newtonsoft.Json.4.5.10\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Klarna.Checkout, Version=3.0.0.0, Culture=neutral, PublicKeyToken=2042c67c8f8466a5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Klarna.Checkout.3.0.0.0\lib\net35\Klarna.Checkout.dll</HintPath>
+    </Reference>
+    <Reference Include="Klarna.Net.Api">
+      <HintPath>..\packages\Klarna.Net.Api.4.1.0.0\lib\net35\Klarna.Net.Api.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,13 +54,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Address.cs" />
-    <Compile Include="Cart.cs" />
-    <Compile Include="CartItem.cs" />
+    <Compile Include="ApiExtensions.cs" />
+    <Compile Include="Models\ActivateResponse.cs" />
+    <Compile Include="Models\Address.cs" />
+    <Compile Include="Models\Cart.cs" />
+    <Compile Include="Models\CartItem.cs" />
     <Compile Include="CheckoutClient.cs" />
-    <Compile Include="CheckoutResponse.cs" />
-    <Compile Include="CheckoutUris.cs" />
-    <Compile Include="ConfirmResponse.cs" />
+    <Compile Include="Models\CheckoutResponse.cs" />
+    <Compile Include="Models\CheckoutUris.cs" />
+    <Compile Include="Models\ConfirmResponse.cs" />
+    <Compile Include="Extensions\AddressExtensions.cs" />
     <Compile Include="Extensions\CartExtensions.cs" />
     <Compile Include="Extensions\CartItemExtensions.cs" />
     <Compile Include="Extensions\MerchantExtensions.cs" />
@@ -61,19 +71,31 @@
     <Compile Include="Extensions\OptionsExtensions.cs" />
     <Compile Include="Extensions\OrderDataExtensions.cs" />
     <Compile Include="Extensions\OrderExtensions.cs" />
-    <Compile Include="ICartItem.cs" />
-    <Compile Include="Locale.cs" />
-    <Compile Include="Merchant.cs" />
-    <Compile Include="MerchantReference.cs" />
-    <Compile Include="Options.cs" />
-    <Compile Include="OrderData.cs" />
+    <Compile Include="Models\ICartItem.cs" />
+    <Compile Include="Models\CaptureHandler.cs" />
+    <Compile Include="Models\IResult.cs" />
+    <Compile Include="Models\Locale.cs" />
+    <Compile Include="Models\Merchant.cs" />
+    <Compile Include="Models\MerchantReference.cs" />
+    <Compile Include="Models\Options.cs" />
+    <Compile Include="Models\OrderData.cs" />
+    <Compile Include="Models\OrderStatus.cs" />
+    <Compile Include="Models\RefundResponse.cs" />
+    <Compile Include="OrderApiClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShippingItem.cs" />
+    <Compile Include="Models\ShippingItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

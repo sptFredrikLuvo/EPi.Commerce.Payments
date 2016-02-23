@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Geta.Klarna.Checkout.Models;
 
 namespace Geta.Klarna.Checkout.Extensions
 {
