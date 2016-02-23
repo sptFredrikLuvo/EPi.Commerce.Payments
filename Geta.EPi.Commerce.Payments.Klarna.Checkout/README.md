@@ -12,6 +12,10 @@ Start by installing NuGet package (use [NuGet](http://nuget.episerver.com/)):
 
     Install-Package Geta.EPi.Commerce.Payments.Klarna.Checkout
 
+For the Commerce Manager site run the following package:
+
+    Install-Package Geta.EPi.Commerce.Payments.Klarna.Checkout.Manager
+
 ## Setup
 
 ### Endpoints
@@ -132,8 +136,14 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 - **Payment Class** - choose **Mediachase.Commerce.Orders.OtherPayment**
 - **IsActive** - **Yes**
 - select shipping methods available for this payment
+- navigate to parameters tab and fill inn settings (see screenshot below)
+
 
 ![Payment method settings](/Geta.EPi.Commerce.Payments.Klarna.Checkout/screenshots/klarnaSettings.png?raw=true "Payment method settings")
+
+![Payment method settings](/Geta.EPi.Commerce.Payments.Klarna.Checkout/screenshots/klarnaParameters.png?raw=true "Payment method parameters")
+
+**Note: If the parameters tab is empty (or gateway class is missing), make sure you have installed the commerce manager nuget (see above)**
 
 In **Markets** tab select market for which this payment will be available.
 
