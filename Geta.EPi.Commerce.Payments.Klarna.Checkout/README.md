@@ -46,10 +46,12 @@ public ActionResult KlarnaCheckout()
                 new Uri(currentCheckoutPageUrl + "KlarnaPush"),
                 new Uri(currentCheckoutPageUrl + "KlarnaTerms"));
 
-	var providerSettings = PaymentHelper.GetProviderSettings(_currentMarket, ShoppingContext.CurrentLanguageBranch);
-	var checkoutClient = new CheckoutClient(providerSettings.OrderBaseUri, providerSettings.MerchantId, providerSettings.Secret);
+	var providerSettings = PaymentHelper.GetProviderSettings(currentMarket, currentLanguageBranch);
+	var checkoutClient = new CheckoutClient(providerSettings.OrderBaseUri, 
+					providerSettings.MerchantId, 
+					providerSettings.Secret);
 	
-	var response = checkoutClient.Checkout(cartItems, PaymentSettings.CurrentLocale, checkoutUris, MapToKlarnaAddress(model.BillingAddress));
+	var response = checkoutClient.Checkout(cartItems, PaymentSettings.CurrentLocale, checkoutUris);
 
     var model = new KlarnaCheckoutView(CurrentPage)
     {
