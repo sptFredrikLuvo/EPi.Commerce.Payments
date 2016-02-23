@@ -46,12 +46,14 @@ public ActionResult KlarnaCheckout()
                 new Uri(currentCheckoutPageUrl + "KlarnaPush"),
                 new Uri(currentCheckoutPageUrl + "KlarnaTerms"));
 
-	var providerSettings = PaymentHelper.GetProviderSettings(currentMarket, currentLanguageBranch);
-	var checkoutClient = new CheckoutClient(providerSettings.OrderBaseUri, 
-					providerSettings.MerchantId, 
-					providerSettings.Secret);
+	//Note: _checkoutClient variable should be created as private variable or property using Provider settings
 	
-	var response = checkoutClient.Checkout(cartItems, PaymentSettings.CurrentLocale, checkoutUris);
+	//var providerSettings = PaymentHelper.GetProviderSettings(currentMarket, currentLanguageBranch);
+	//var _checkoutClient = new CheckoutClient(providerSettings.OrderBaseUri, 
+					//providerSettings.MerchantId, 
+					//providerSettings.Secret);
+	
+	var response = _checkoutClient.Checkout(cartItems, PaymentSettings.CurrentLocale, checkoutUris);
 
     var model = new KlarnaCheckoutView(CurrentPage)
     {
@@ -67,36 +69,47 @@ public ActionResult KlarnaCheckout()
 }
 ```
 
-- Confirm which is called after user confirmed the payment in first step. In this step you have to create order in your system and call Klarna Confirm. In response you will receive another HTML snippet to render on the page. This snippet contains information about payment confirmation. Example:
+- Confirm which is called after user confirmed the payment in first step. In this step you call Klarna Confirm, in response you will receive another HTML snippet to render on the page. This snippet contains information about payment confirmation. Example:
 
 ```
 public ActionResult KlarnaConfirm(string klarnaOrder)
 {
-    var location = new Uri(klarnaOrder);
+    var model = new KlarnaCheckoutViewModel(currentPage);
+    model.KlarnaTransactionId = klarnaOrder;
 
-    ConfirmCart();
+	if (string.IsNullOrEmpty(klarnaOrder))
+		return RedirectToAction("Index");
 
-    var response = _checkoutClient.Confirm(location);
+	try
+	{
+		// here you should rename cart (use transaction id) and remove anonymous cookie
+		model.KlarnaHtmlSnippet = _checkoutClient.GetConfirm(klarnaOrder);
 
-    var model = new KlarnaCheckoutView(CurrentPage)
-    {
-        Snippet = response.Snippet
-    };
-    if (ControllerContext.IsChildAction)
-    {
-        return PartialView(model);
-    }
-    return View(model);
+		return View(model);
+	}
+	catch (Exception ex)
+	{
+		_log.ErrorFormat("Klarna confirm failed. ", ex);
+
+	}
+	return View(model);
 }
 ```
 
-- Push is called from Klarna when order is confirmed, but status not updated to created. Klarna client's Confirm already sets status to created, but this is still required for Klarna Checkout. Here is an example:
+- Push is called from Klarna when order is confirmed, but status not updated to created. Klarna client's Confirm already sets status to created, but this is still required for Klarna Checkout. 
+In this step you should create the order in your system. Here is an example:
 
 ```
 public ActionResult KlarnaPush(string klarnaOrder)
 {
-    var location = new Uri(klarnaOrder);
-    _checkoutClient.Acknowledge(location);
+    var response = CheckoutClient.Confirm(klarnaOrder);
+
+	// Order updated from status complete to created
+	if (response.Status == Geta.Klarna.Checkout.Models.OrderStatus.Created)
+	{
+		// Create order in your system. Response object contains billing address and more
+		CreateOrder(response);
+	}
 
     return new HttpStatusCodeResult(HttpStatusCode.OK);
 }
@@ -108,27 +121,6 @@ public ActionResult KlarnaPush(string klarnaOrder)
 
 Snippet is just string which contains HTML. To render it just call *@Html.Raw(Model.Snippet)*
 
-### Configuration
-
-Klarna Checkout client requires three parametrs to be configured. The easiest way to do it is to add them into _appSettings_ section of _Web.config_:
-
-```
-<add key="KlarnaCheckout:MerchantId" value="1234" />
-<add key="KlarnaCheckout:SharedSecret" value="mySharedSecret" />
-<add key="KlarnaCheckout:OrderBaseUrl" value="https://checkout.testdrive.klarna.com/checkout/orders" />
-```
-
-First parameter is your Merchant Id and second is your shared secret which you get when registering in Klarna. Last one is order base URL - it s different for test and production environments. So be sure to change it appropriately for both environments.
-
-Next step is configuring Klarna Checkout klient for use with EPiServer dependency injection:
-
-```
-For<ICheckoutClient>().Use<CheckoutClient>()
-    .Ctor<Uri>("orderBaseUri").Is(new Uri(ConfigurationManager.AppSettings["KlarnaCheckout:OrderBaseUrl"]))
-    .Ctor<string>("merchantId").EqualToAppSetting("KlarnaCheckout:MerchantId")
-    .Ctor<string>("sharedSecret").EqualToAppSetting("KlarnaCheckout:SharedSecret");
-```
-
 ### Configure Commerce Manager
 
 Login into Commerce Manager and open **Administration -> Order System -> Payments**. Then click **New** and in **Overview** tab fill:
@@ -136,7 +128,7 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 - **Name**
 - **System Keyword** - use some Keyword which you can use later to find this payment method in your code
 - **Language**
-- **Class Name** - choose **Mediachase.Commerce.Plugins.Payment.GenericPaymentGateway**
+- **Class Name** - choose **Geta.EPi.Commerce.Payments.Klarna.Checkout.KlarnaCheckoutPaymentGateway**
 - **Payment Class** - choose **Mediachase.Commerce.Orders.OtherPayment**
 - **IsActive** - **Yes**
 - select shipping methods available for this payment
