@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.EPi.Commerce.Payments.Klarna.Checkout", "Geta.EPi.Commerce.Payments.Klarna.Checkout\Geta.EPi.Commerce.Payments.Klarna.Checkout.csproj", "{7D787247-BD74-465F-B4B9-7846608D5A40}"
 EndProject
