@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Geta.EPi.Commerce.Payments.Klarna.Checkout")]
 [assembly: AssemblyDescription("Library for Klarna Checkout integration with EPiServer Commerce.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Geta AS")]
+[assembly: AssemblyCompany("Geta")]
 [assembly: AssemblyProduct("Geta.EPi.Commerce.Payments.Klarna.Checkout")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCopyright("Copyright © Geta 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
