@@ -114,10 +114,6 @@
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Ionic.Zip">
-      <HintPath>..\packages\DotNetZip.1.9.1.8\lib\net20\Ionic.Zip.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Lucene.Net, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
       <HintPath>..\packages\Lucene.Net.3.0.3\lib\NET40\Lucene.Net.dll</HintPath>
       <Private>True</Private>
@@ -245,17 +241,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Apps\Order\Payments\Plugins\KlarnaCheckout\ConfigurePayment.ascx.cs">
+      <DependentUpon>ConfigurePayment.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Apps\Order\Payments\Plugins\KlarnaCheckout\ConfigurePayment.ascx.designer.cs">
+      <DependentUpon>ConfigurePayment.ascx.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions\LineItemExtensions.cs" />
     <Compile Include="Extensions\MetaStorageExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
     <Compile Include="Extensions\ShippmentExtensions.cs" />
-    <Compile Include="Framework\Apps\Order\Payments\Plugins\KlarnaCheckout\ConfigurePayment.ascx.cs">
-      <DependentUpon>ConfigurePayment.ascx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Framework\Apps\Order\Payments\Plugins\KlarnaCheckout\ConfigurePayment.ascx.designer.cs">
-      <DependentUpon>ConfigurePayment.ascx.cs</DependentUpon>
-    </Compile>
     <Compile Include="IPostProcessPayment.cs" />
     <Compile Include="KlarnaCheckoutPaymentGateway.cs" />
     <Compile Include="KlarnaConstants.cs" />
@@ -275,8 +271,9 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Content Include="Framework\Apps\Order\Payments\Plugins\KlarnaCheckout\ConfigurePayment.ascx" />
+    <Content Include="Apps\Order\Payments\Plugins\KlarnaCheckout\ConfigurePayment.ascx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

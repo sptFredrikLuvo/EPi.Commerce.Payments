@@ -7,7 +7,7 @@ using Mediachase.Commerce.Orders.Dto;
 using Mediachase.Web.Console.Common;
 using Mediachase.Web.Console.Interfaces;
 
-namespace Geta.EPi.Commerce.Payments.Klarna.Checkout.Framework.Apps.Order.Payments.Plugins.KlarnaCheckout
+namespace Geta.EPi.Commerce.Payments.Klarna.Checkout.Apps.Order.Payments.Plugins.KlarnaCheckout
 {
     public partial class ConfigurePayment : System.Web.UI.UserControl, IGatewayControl
     {

@@ -5,6 +5,8 @@ if not "%1"=="" (
   set outputDir=%1
 )
 
-nuget pack -IncludeReferencedProjects -OutputDirectory %outputDir%
+
+nuget pack Geta.EPi.Commerce.Payments.Klarna.Checkout.Manager.nuspec -IncludeReferencedProjects
+nuget pack Geta.EPi.Commerce.Payments.Klarna.Checkout.csproj -IncludeReferencedProjects
 
 @echo on
