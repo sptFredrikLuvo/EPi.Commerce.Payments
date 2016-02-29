@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/Geta/EPi.Commerce.Payments/tree/master/Geta.EPi.Commerce.Payments.Klarna.Checkout</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <copyright>Copyright © 2014 Geta AS</copyright>
+    <copyright>Copyright © 2016 Geta</copyright>
     <tags>EPiServer Commerce 9</tags>
   </metadata>
 </package>
