@@ -86,7 +86,7 @@ namespace Geta.Klarna.Checkout
             var shippingAddress = order.GetShippingAddress();
             order.Confirm(merchantReference);
 
-            return new ConfirmResponse(orderId, snippet, billingAddress, shippingAddress, order.GetStringField("status"), order.GetStringField("reservation"));
+            return new ConfirmResponse(orderId, snippet, billingAddress, shippingAddress, order.GetStringField("status"), order.GetStringField("reservation"), order.GetTotalCost());
         }
 
         public OrderResponse GetOrder(string orderId)
