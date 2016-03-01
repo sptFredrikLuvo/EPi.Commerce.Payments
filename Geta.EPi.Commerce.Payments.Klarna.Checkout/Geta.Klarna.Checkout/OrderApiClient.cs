@@ -34,7 +34,8 @@ namespace Geta.Klarna.Checkout
         /// <returns></returns>
         public ActivateResponse Activate(string reservationNumber, string transactionId, string orderId, List<ICartItem> cartItems)
         {
-            string errorMessage = string.Empty;
+            var result = new ActivateResponse(string.Empty, RiskStatus.Undefined, transactionId);
+            
             try
             {
                 var api = new Api(CurrentConfiguration);
@@ -51,14 +52,10 @@ namespace Geta.Klarna.Checkout
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                SetError(result, ex);
             }
 
-            return new ActivateResponse(string.Empty, RiskStatus.Undefined, transactionId)
-            {
-                IsSuccess = false,
-                ErrorMessage = errorMessage
-            };
+            return result;
         }
 
         public bool CancelReservation(string reservationNumber)
@@ -85,8 +82,7 @@ namespace Geta.Klarna.Checkout
             }
             catch (Exception ex)
             {
-                result.IsSuccess = false;
-                result.ErrorMessage = ex.Message;
+                SetError(result, ex);
             }
             return result;
         }
@@ -104,10 +100,16 @@ namespace Geta.Klarna.Checkout
             }
             catch (Exception ex)
             {
-                result.IsSuccess = false;
-                result.ErrorMessage = ex.Message;
+                SetError(result, ex);
             }
             return result;
+        }
+
+        private void SetError(IResult result, Exception ex)
+        {
+            result.IsSuccess = false;
+            result.ErrorMessage = ex.Message;
+            result.ErrorCode = ex.HResult;
         }
 
 

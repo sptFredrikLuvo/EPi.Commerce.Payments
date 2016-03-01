@@ -20,5 +20,6 @@ namespace Geta.Klarna.Checkout.Models
         public string Status { get; set; }
         public bool IsSuccess { get; set; }
         public string ErrorMessage { get; set; }
+        public int ErrorCode { get; set; }
     }
 }

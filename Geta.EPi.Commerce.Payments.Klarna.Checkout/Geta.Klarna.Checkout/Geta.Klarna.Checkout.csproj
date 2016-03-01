@@ -79,6 +79,7 @@
     <Compile Include="Models\MerchantReference.cs" />
     <Compile Include="Models\Options.cs" />
     <Compile Include="Models\OrderData.cs" />
+    <Compile Include="Models\OrderResponse.cs" />
     <Compile Include="Models\OrderStatus.cs" />
     <Compile Include="Models\RefundResponse.cs" />
     <Compile Include="OrderApiClient.cs" />

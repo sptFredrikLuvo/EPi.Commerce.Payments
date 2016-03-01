@@ -11,7 +11,7 @@ namespace Geta.Klarna.Checkout
         CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris, ShippingAddress address = null);
         ConfirmResponse Confirm(string orderId);
         ConfirmResponse Confirm(string orderId, MerchantReference merchantReference);
-        string GetConfirm(string orderId);
+        OrderResponse GetOrder(string orderId);
         bool UpdateOrderId(string orderId, string commerceOrderId);
         void Acknowledge(string orderId);
         void Acknowledge(string orderId, MerchantReference merchantReference);
@@ -89,11 +89,11 @@ namespace Geta.Klarna.Checkout
             return new ConfirmResponse(orderId, snippet, billingAddress, shippingAddress, order.GetStringField("status"), order.GetStringField("reservation"));
         }
 
-        public string GetConfirm(string orderId)
+        public OrderResponse GetOrder(string orderId)
         {
             if (orderId == null) throw new ArgumentNullException("orderId");
             var order = FetchOrder(orderId);
-            return order.GetSnippet();
+            return new OrderResponse(order.GetSnippet(), order.GetTotalCost());
         }
 
         public bool UpdateOrderId(string orderId, string commerceOrderId)

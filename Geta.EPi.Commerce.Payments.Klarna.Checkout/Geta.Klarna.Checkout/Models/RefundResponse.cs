@@ -11,5 +11,6 @@ namespace Geta.Klarna.Checkout.Models
         public string InvoiceNumber { get; set; }
         public bool IsSuccess { get; set; }
         public string ErrorMessage { get; set; }
+        public int ErrorCode { get; set; }
     }
 }

@@ -19,7 +19,18 @@ namespace Geta.Klarna.Checkout.Extensions
             return snippet.ToString();
         }
 
-       internal static string GetStringField(this Order order, string fieldName)
+        internal static int GetTotalCost(this Order order)
+        {
+            var cart = order.GetValue("cart") as JObject;
+            if (cart == null)
+            {
+                throw new Exception("Klarna cart can't be retrieved");
+            }
+            var paymentAmount = cart["total_price_including_tax"].ToString();
+            return Int32.Parse(paymentAmount);
+        }
+
+        internal static string GetStringField(this Order order, string fieldName)
         {
             var status = order.GetValue(fieldName);
             if (status == null)

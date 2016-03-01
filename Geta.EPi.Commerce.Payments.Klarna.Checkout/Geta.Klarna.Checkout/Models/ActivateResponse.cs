@@ -22,7 +22,7 @@ namespace Geta.Klarna.Checkout.Models
 
         public bool IsSuccess { get; set; }
         public string ErrorMessage { get; set; }
-        
+        public int ErrorCode { get; set; }
     }
 
    

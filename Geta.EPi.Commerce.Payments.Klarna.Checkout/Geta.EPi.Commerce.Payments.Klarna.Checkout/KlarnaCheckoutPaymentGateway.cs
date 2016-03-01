@@ -95,7 +95,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                     trackingNr, reservation, response.ErrorMessage));
                             }
 
-                            PostProcessPayment.PostCapture(response);
+                            PostProcessPayment.PostCapture(response, payment);
 
                             return response.IsSuccess;
                         }
@@ -126,7 +126,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                     payment.Status = PaymentStatus.Failed.ToString();
                                 }
                                 orderGroup.AcceptChanges();
-                                PostProcessPayment.PostAnnul(result, payment.TransactionID, reservation);
+                                PostProcessPayment.PostAnnul(result, payment);
                                 return result;
                             }
                             catch (Exception ex)
@@ -158,7 +158,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                 if (returnFormToProcess == null)
                                 {
                                     payment.Status = PaymentStatus.Failed.ToString();
-                                    PostProcessPayment.PostCredit(false, payment.TransactionID, invoiceNumber);
+                                    PostProcessPayment.PostCredit(new RefundResponse() {IsSuccess = false, ErrorMessage = "No return forms to process."}, payment);
                                     return false;
                                 }
 
@@ -187,7 +187,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
 
                                 payment.Status = result.IsSuccess ? PaymentStatus.Processed.ToString() : PaymentStatus.Failed.ToString();
                                 orderGroup.AcceptChanges();
-                                PostProcessPayment.PostCredit(result.IsSuccess, payment.TransactionID, invoiceNumber);
+                                PostProcessPayment.PostCredit(result, payment);
                                 return result.IsSuccess;
                             }
                             return false;
