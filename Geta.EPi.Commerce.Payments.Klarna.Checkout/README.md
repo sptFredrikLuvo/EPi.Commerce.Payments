@@ -7,7 +7,7 @@ Geta.EPi.Commerce.Payments.Klarna.Checkout is library which helps to integrate K
 This library consists of two assemblies - Geta.EPi.Commerce.Payments.Klarna.Checkout and Geta.Klarna.Checkout. Geta.Klarna.Checkout is wrapper for Klarna Checkout API and simplifies API usage. Geta.EPi.Commerce.Payments.Klarna.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration.
 
 ##Please note
-We are in the process of releasing a new version of the module - documentation and new nuget packages will be made available week 10.
+*We are in the process of releasing a new version of the module - updated documentation and new nuget packages will be made available week 10. *
 
 
 ## How to get started?
@@ -77,30 +77,12 @@ public ActionResult KlarnaCheckout()
 }
 ```
 
-- Confirm which is called after user confirmed the payment in first step. In this step you call Klarna Confirm, in response you will receive another HTML snippet to render on the page. This snippet contains information about payment confirmation. Example:
+- Confirm which is called after user confirmed the payment in first step. In this step you retrieve the Klarna order, verify total against cart total and render the HTML snippet on the page. This snippet contains information about payment confirmation. Example:
 
 ```
 public ActionResult KlarnaConfirm(string klarnaOrder)
 {
-    var model = new KlarnaCheckoutViewModel(currentPage);
-    model.KlarnaTransactionId = klarnaOrder;
-
-	if (string.IsNullOrEmpty(klarnaOrder))
-		return RedirectToAction("Index");
-
-	try
-	{
-		// here you should rename cart (use transaction id) and remove anonymous cookie
-		model.KlarnaHtmlSnippet = _checkoutClient.GetConfirm(klarnaOrder);
-
-		return View(model);
-	}
-	catch (Exception ex)
-	{
-		_log.ErrorFormat("Klarna confirm failed. ", ex);
-
-	}
-	return View(model);
+    //TODO
 }
 ```
 
@@ -110,16 +92,7 @@ In this step you should create the order in your system. Here is an example:
 ```
 public ActionResult KlarnaPush(string klarnaOrder)
 {
-    var response = CheckoutClient.Confirm(klarnaOrder);
-
-	// Order updated from status complete to created
-	if (response.Status == Geta.Klarna.Checkout.Models.OrderStatus.Created)
-	{
-		// Create order in your system. Response object contains billing address and more
-		CreateOrder(response);
-	}
-
-    return new HttpStatusCodeResult(HttpStatusCode.OK);
+    //TODO
 }
 ```
 
