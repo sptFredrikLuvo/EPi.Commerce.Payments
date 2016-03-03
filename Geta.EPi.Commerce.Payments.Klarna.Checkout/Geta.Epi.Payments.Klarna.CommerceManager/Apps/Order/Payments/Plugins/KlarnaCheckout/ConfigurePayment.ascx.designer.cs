@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Geta.EPi.Commerce.Payments.Klarna.Checkout.Apps.Order.Payments.Plugins.KlarnaCheckout {
+namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.KlarnaCheckout {
     
     
     public partial class ConfigurePayment {
