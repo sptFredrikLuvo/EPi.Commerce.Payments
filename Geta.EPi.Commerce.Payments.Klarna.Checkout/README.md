@@ -172,6 +172,10 @@ Project contains _pack.bat_ file for easier packaging. It calls _nuget.exe_ (ass
 
 ## More info
 
+### Related blog posts
+
+http://geta.no/blogg/a-major-facelift-for-the-geta-klarna-checkout-module/
+
 ### Klarna Checkout API reference
 
 https://developers.klarna.com/en/api-references-v1/klarna-checkout
