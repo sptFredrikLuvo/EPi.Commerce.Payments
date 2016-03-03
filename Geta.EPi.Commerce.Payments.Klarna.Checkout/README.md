@@ -79,9 +79,9 @@ public ActionResult KlarnaCheckout()
 - Confirm which is called after user confirmed the payment in first step. In this step you should retrieve the Klarna order, verify total against cart total and render the HTML snippet on the page. This snippet contains information about payment confirmation. Example:
 
 ```
-public ActionResult KlarnaConfirm(KlarnaCheckoutPage currentPage, string klarnaOrder)
+public ActionResult KlarnaConfirm(string klarnaOrder)
 {
-   var model = new KlarnaCheckoutViewModel(currentPage);
+   var model = new KlarnaCheckoutViewModel();
    model.KlarnaTransactionId = klarnaOrder;
    if (string.IsNullOrEmpty(klarnaOrder))
        return RedirectToAction("Index");
