@@ -4,7 +4,10 @@ Library for Klarna Checkout integration with EPiServer Commerce
 ## What is Geta.EPi.Commerce.Payments.Klarna.Checkout?
 
 Geta.EPi.Commerce.Payments.Klarna.Checkout is library which helps to integrate Klarna Checkout as one of the payment options in your EPiServer Commerce sites.
-This library consists of two assemblies - Geta.EPi.Commerce.Payments.Klarna.Checkout and Geta.Klarna.Checkout. Geta.Klarna.Checkout is wrapper for Klarna Checkout API and simplifies API usage. Geta.EPi.Commerce.Payments.Klarna.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration.
+This library consists of three assemblies: 
+* Geta.Klarna.Checkout is wrapper for Klarna Checkout API and simplifies API usage 
+* Geta.EPi.Commerce.Payments.Klarna.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration 
+* Geta.EPi.Payments.Klarna.CommerceManager contains .ascx for payment method settings for Commerce Manager
 
 ##Please note
 *We are in the process of releasing a new version of the module - updated documentation and new nuget packages will be made available week 10.*
@@ -77,7 +80,7 @@ public ActionResult KlarnaCheckout()
 }
 ```
 
-- Confirm which is called after user confirmed the payment in first step. In this step you retrieve the Klarna order, verify total against cart total and render the HTML snippet on the page. This snippet contains information about payment confirmation. Example:
+- Confirm which is called after user confirmed the payment in first step. In this step you should retrieve the Klarna order, verify total against cart total and render the HTML snippet on the page. This snippet contains information about payment confirmation. Example:
 
 ```
 public ActionResult KlarnaConfirm(KlarnaCheckoutPage currentPage, string klarnaOrder)
