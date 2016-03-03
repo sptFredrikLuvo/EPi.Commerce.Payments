@@ -18,7 +18,7 @@ Start by installing NuGet package (use [NuGet](http://nuget.episerver.com/)):
 
 For the Commerce Manager site run the following package:
 
-    Install-Package Geta.EPi.Commerce.Payments.Klarna.Checkout.Manager
+    Install-Package Geta.EPi.Payments.Klarna.CommerceManager
 
 ## Setup
 
