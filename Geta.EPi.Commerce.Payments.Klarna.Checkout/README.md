@@ -9,10 +9,6 @@ This library consists of three assemblies:
 * Geta.EPi.Commerce.Payments.Klarna.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration 
 * Geta.EPi.Payments.Klarna.CommerceManager contains .ascx for payment method settings for Commerce Manager
 
-##Please note
-*We are in the process of releasing a new version of the module - updated documentation and new nuget packages will be made available week 10.*
-
-
 ## How to get started?
 
 Start by installing NuGet packages (use [NuGet](http://nuget.episerver.com/)):
@@ -42,7 +38,7 @@ public ActionResult KlarnaCheckout()
     var shipment = cart.OrderForms[0].Shipments.FirstOrDefault();
     if (shipment == null)
     {
-        throw new Exception("Shipment not selected. Shippment should be persisted into the cart before checkout.");
+        throw new Exception("Shipment not selected. Shipment should be persisted into the cart before checkout.");
     }
 
     cartItems.Add(shipment.ToCartItem());
@@ -85,30 +81,33 @@ public ActionResult KlarnaCheckout()
 ```
 public ActionResult KlarnaConfirm(KlarnaCheckoutPage currentPage, string klarnaOrder)
 {
- var model = new KlarnaCheckoutViewModel(currentPage);
- model.KlarnaTransactionId = klarnaOrder;
- if (string.IsNullOrEmpty(klarnaOrder))
-     return RedirectToAction("Index");
-//Before proceeding, make sure cart has not been manipulated
+   var model = new KlarnaCheckoutViewModel(currentPage);
+   model.KlarnaTransactionId = klarnaOrder;
+   if (string.IsNullOrEmpty(klarnaOrder))
+       return RedirectToAction("Index");
+  
+  //Before proceeding, make sure cart has not been manipulated
   var klarnaOrderObject = CheckoutClient.GetOrder(klarnaOrder); 
-var cart = GetCart();
+  var cart = GetCart();
   if (!IsPaymentValidForCart(klarnaOrderObject.TotalCost, cart))
   {
        Logger.WarnFormat("Cart has changed, cart total is {0}, Klarna total is {1}." +
   "Redirecting back to checkout page.", cart.Total, ((decimal)klarnaOrderObject.TotalCost) / 100);
        return RedirectToAction("Index");
   }
+  
   model.OrderNumber = OrderNumberGenerator.GetOrderNumber(cart);
- //rename cart and remove anonymous cookie
+  //rename cart and remove anonymous cookie
   RenameCartAndSaveChanges(myCartHelper, model.KlarnaTransactionId, 
   ControllerContext.HttpContext.User.Identity, Response);
 
   model.KlarnaHtmlSnippet = klarnaOrderObject.Snippet;
   return View(model);
+}
 ```
 ```
-  private bool IsPaymentValidForCart(int klarnaTotal, Cart cart)
- {
+private bool IsPaymentValidForCart(int klarnaTotal, Cart cart)
+{
    decimal klarnaOrderCost = ((decimal)klarnaTotal) / 100;
    return klarnaOrderCost == cart.Total;
 }
