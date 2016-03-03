@@ -14,5 +14,6 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
         public const string OtherPaymentClass = "OtherPayment";
         public const string PurchaseOrderClass = "PurchaseOrder";
         public const string VatPercent = "VatPercent";
+        public const string LineItemExClass = "LineItemEx";
     }
 }

@@ -12,7 +12,7 @@ This library consists of two assemblies - Geta.EPi.Commerce.Payments.Klarna.Chec
 
 ## How to get started?
 
-Start by installing NuGet package (use [NuGet](http://nuget.episerver.com/)):
+Start by installing NuGet packages (use [NuGet](http://nuget.episerver.com/)):
 
     Install-Package Geta.EPi.Commerce.Payments.Klarna.Checkout
 
@@ -80,20 +80,60 @@ public ActionResult KlarnaCheckout()
 - Confirm which is called after user confirmed the payment in first step. In this step you retrieve the Klarna order, verify total against cart total and render the HTML snippet on the page. This snippet contains information about payment confirmation. Example:
 
 ```
-public ActionResult KlarnaConfirm(string klarnaOrder)
+public ActionResult KlarnaConfirm(KlarnaCheckoutPage currentPage, string klarnaOrder)
 {
-    //TODO
+ var model = new KlarnaCheckoutViewModel(currentPage);
+ model.KlarnaTransactionId = klarnaOrder;
+ if (string.IsNullOrEmpty(klarnaOrder))
+     return RedirectToAction("Index");
+//Before proceeding, make sure cart has not been manipulated
+  var klarnaOrderObject = CheckoutClient.GetOrder(klarnaOrder); 
+var cart = GetCart();
+  if (!IsPaymentValidForCart(klarnaOrderObject.TotalCost, cart))
+  {
+       Logger.WarnFormat("Cart has changed, cart total is {0}, Klarna total is {1}." +
+  "Redirecting back to checkout page.", cart.Total, ((decimal)klarnaOrderObject.TotalCost) / 100);
+       return RedirectToAction("Index");
+  }
+  model.OrderNumber = OrderNumberGenerator.GetOrderNumber(cart);
+ //rename cart and remove anonymous cookie
+  RenameCartAndSaveChanges(myCartHelper, model.KlarnaTransactionId, 
+  ControllerContext.HttpContext.User.Identity, Response);
+
+  model.KlarnaHtmlSnippet = klarnaOrderObject.Snippet;
+  return View(model);
+```
+```
+  private bool IsPaymentValidForCart(int klarnaTotal, Cart cart)
+ {
+   decimal klarnaOrderCost = ((decimal)klarnaTotal) / 100;
+   return klarnaOrderCost == cart.Total;
 }
 ```
 
 - Push is called from Klarna when order is confirmed, but status not updated to created. Klarna client's Confirm already sets status to created, but this is still required for Klarna Checkout. 
-In this step you should create the order in your system. Here is an example:
+In this step you should create the order in your system. 
+The ConfirmResponse object will contain all the data you need, data such as billing address and more. Here is an example:
 
 ```
-public ActionResult KlarnaPush(string klarnaOrder)
-{
-    //TODO
-}
+ public ActionResult KlarnaPush(string klarnaOrder)
+ {
+   var response = CheckoutClient.Confirm(klarnaOrder);
+   // Order updated from status complete to created
+   if (response.Status == Geta.Klarna.Checkout.Models.OrderStatus.Created)
+   {
+     PrepareOrder(response);
+   }
+   else
+   {
+     var msg =
+        string.Format(
+           "KLARNA PUSH FAILED: Status is is {0} for transaction {1}.", 
+     response.Status, klarnaOrder);
+     Logger.ErrorFormat(msg);
+   }
+   return new HttpStatusCodeResult(HttpStatusCode.OK);
+ }
 ```
 
 - Terms is needed to display terms of your site in Klarna Checkout. It can be some MVC view or even static HTML file.

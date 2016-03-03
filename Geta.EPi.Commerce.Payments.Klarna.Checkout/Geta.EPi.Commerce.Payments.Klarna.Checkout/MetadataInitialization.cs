@@ -21,6 +21,21 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
 
             var invoiceNumber = GetOrCreateInvoiceField(mdContext);
             JoinField(mdContext, invoiceNumber, MetadataConstants.PurchaseOrderClass);
+
+            var vatPercentField = GetOrCreateVatPercentField(mdContext);
+            JoinField(mdContext, vatPercentField, MetadataConstants.LineItemExClass);
+        }
+
+        private MetaField GetOrCreateVatPercentField(MetaDataContext mdContext)
+        {
+            var f = MetaField.Load(mdContext, MetadataConstants.VatPercent);
+            if (f == null)
+            {
+                Logger.Debug(string.Format("Adding meta field '{0}' for Klarna integration.", MetadataConstants.VatPercent));
+                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, MetadataConstants.VatPercent, MetadataConstants.VatPercent, string.Empty,
+                    MetaDataType.Decimal, 0, true, false, false, false);
+            }
+            return f;
         }
 
         private MetaField GetOrCreateReservationField(MetaDataContext mdContext)
