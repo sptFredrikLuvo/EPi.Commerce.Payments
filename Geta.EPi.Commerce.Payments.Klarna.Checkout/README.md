@@ -115,7 +115,7 @@ private bool IsPaymentValidForCart(int klarnaTotal, Cart cart)
 
 - Push is called from Klarna when order is confirmed, but status not updated to created. Klarna client's Confirm already sets status to created, but this is still required for Klarna Checkout. 
 In this step you should create the order in your system. 
-The ConfirmResponse object will contain all the data you need, data such as billing address and more. Here is an example:
+The ConfirmResponse object will contain all the data you need, data such as billing address and more. *It's important that the payment object contains meta data for klarna order id and reservation number* (see code below). The reservation number will be used for capturing payment when the order is shipped. Here is an example:
 
 ```
  public ActionResult KlarnaPush(string klarnaOrder)
@@ -124,6 +124,9 @@ The ConfirmResponse object will contain all the data you need, data such as bill
    // Order updated from status complete to created
    if (response.Status == Geta.Klarna.Checkout.Models.OrderStatus.Created)
    {
+     // NOTE: When creating the Payment object, make sure to save klarna order id and reservation number
+     // paymentObject.TransactionID = klarnaOrder;
+     // paymentObject[MetadataConstants.ReservationField] = response.ReservationNumber;
      PrepareOrder(response);
    }
    else
