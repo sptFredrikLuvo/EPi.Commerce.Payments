@@ -173,6 +173,11 @@ In **Markets** tab select market for which this payment will be available.
 
 Project contains _pack.bat_ file for easier packaging. It calls _nuget.exe_ (assuming it's in your environment PATH) with _-IncludeReferencedProjects_ to include referenced Geta.Klarna.Checkout assembly. You also can provide output directory as a parameter for _pack.bat_.
 
+### Troubleshooting tips
+
+##Not receiving Push from Klarna
+If you are not receiving push notifications from Klarna make sure the urls you send (when creating the checkout client) needs to be a public dns.
+
 ## More info
 
 ### Related blog posts
