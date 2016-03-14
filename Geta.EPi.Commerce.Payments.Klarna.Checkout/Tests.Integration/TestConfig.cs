@@ -6,8 +6,8 @@ namespace Tests.Integration
     public static class TestConfig
     {
         public static readonly Uri OrderBaseUri = new Uri("https://checkout.testdrive.klarna.com/checkout/orders");
-        public const string MerchantId = "5982";
-        public const string SharedSecret = "ueyxX5mwqSngE8e";
+        public const string MerchantId = "";
+        public const string SharedSecret = "";
         public static Locale Locale = Locale.Norway;
     }
 }

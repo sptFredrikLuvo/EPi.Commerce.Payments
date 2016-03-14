@@ -7,7 +7,7 @@ using Mediachase.Commerce.Orders;
 
 namespace Geta.EPi.Commerce.Payments.Klarna.Checkout.Extensions
 {
-    public static class ShippmentExtensions
+    public static class ShipmentExtensions
     {
         public static ICartItem ToCartItem(this Shipment shipment, bool isOrderUpdate = false)
         {

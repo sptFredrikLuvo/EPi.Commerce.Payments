@@ -10,11 +10,13 @@ namespace Geta.Klarna.Checkout.Models
     {
         public string Snippet { get; set; }
         public int TotalCost { get; set; }
-
-        public OrderResponse(string snippet, int totalCost)
+        public string CustomerName { get; set; }
+        
+        public OrderResponse(string snippet, int totalCost, string customerName)
         {
             Snippet = snippet;
             TotalCost = totalCost;
+            CustomerName = customerName;
         }
     }
 }

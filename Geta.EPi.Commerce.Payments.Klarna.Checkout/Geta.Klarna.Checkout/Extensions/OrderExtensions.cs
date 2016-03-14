@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Geta.Klarna.Checkout.Models;
 using Klarna.Checkout;
 using Newtonsoft.Json.Linq;
@@ -17,6 +18,19 @@ namespace Geta.Klarna.Checkout.Extensions
             }
             var snippet = gui["snippet"];
             return snippet.ToString();
+        }
+
+        internal static string GetCustomerName(this Order order)
+        {
+            var address = order.GetValue("billing_address") as JObject;
+            if (address == null)
+            {
+                throw new Exception("Klarna address can't be retrieved");
+            }
+            var givenName = address["given_name"].ToString();
+            var lastName = address["family_name"].ToString();
+
+            return string.Format(CultureInfo.CurrentCulture, "{0} {1}", givenName,lastName);
         }
 
         internal static int GetTotalCost(this Order order)

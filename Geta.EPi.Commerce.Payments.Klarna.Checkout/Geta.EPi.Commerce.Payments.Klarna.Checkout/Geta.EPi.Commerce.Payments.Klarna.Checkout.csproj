@@ -244,7 +244,7 @@
     <Compile Include="Extensions\LineItemExtensions.cs" />
     <Compile Include="Extensions\MetaStorageExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
-    <Compile Include="Extensions\ShippmentExtensions.cs" />
+    <Compile Include="Extensions\ShipmentExtensions.cs" />
     <Compile Include="IPostProcessPayment.cs" />
     <Compile Include="KlarnaCheckoutPaymentGateway.cs" />
     <Compile Include="KlarnaConstants.cs" />

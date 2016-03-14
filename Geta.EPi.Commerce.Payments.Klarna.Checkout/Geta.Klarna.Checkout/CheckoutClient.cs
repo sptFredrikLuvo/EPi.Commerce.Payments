@@ -8,7 +8,7 @@ namespace Geta.Klarna.Checkout
 {
     public interface ICheckoutClient
     {
-        CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris, ShippingAddress address = null);
+        CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris, string orderId = null, ShippingAddress address = null);
         ConfirmResponse Confirm(string orderId);
         ConfirmResponse Confirm(string orderId, MerchantReference merchantReference);
         OrderResponse GetOrder(string orderId);
@@ -39,33 +39,73 @@ namespace Geta.Klarna.Checkout
             CustomColor = customColorCode;
         }
 
-        public CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris, ShippingAddress address = null)
+        public CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris, string orderId = null, ShippingAddress address = null)
         {
             if (cartItems == null) throw new ArgumentNullException("cartItems");
             if (locale == null) throw new ArgumentNullException("locale");
             if (checkoutUris == null) throw new ArgumentNullException("checkoutUris");
 
             var connector = Connector.Create(SharedSecret, OrderBaseUri);
+            Order order = null;
 
-            var merchant = new Merchant(
-                MerchantId, 
-                SharedSecret, 
-                checkoutUris.Checkout, 
-                checkoutUris.Confirmation, 
-                checkoutUris.Push, 
-                checkoutUris.Terms,
-                checkoutUris.Validation);
-            var cart = new Cart(cartItems);
-            var options = new Options(AllowSeparateShippingAddress);
-            if (!string.IsNullOrEmpty(CustomColor))
-                options.ButtonColorCode = CustomColor;
-            var data = new OrderData(merchant, cart, locale, options, address);
-            var order = new Order(connector)
+            bool orderExists = string.IsNullOrEmpty(orderId) == false;
+
+            if (orderExists)
             {
-                ContentType = ContentType
-            };
-            order.Create(data.ToDictionary());
-            order.Fetch();
+                try
+                {
+                    // try to get existing order
+                    order = new Order(connector, orderId)
+                    {
+                        ContentType = ContentType
+                    };
+
+                    order.Fetch();
+                }
+                catch
+                {
+                    //throws exception if cannot find order - we'll create a new one
+                    orderExists = false;
+                }
+            }
+
+            if (orderExists == false)
+            {
+                var merchant = new Merchant(
+                    MerchantId,
+                    SharedSecret,
+                    checkoutUris.Checkout,
+                    checkoutUris.Confirmation,
+                    checkoutUris.Push,
+                    checkoutUris.Terms,
+                    checkoutUris.Validation);
+                var cart = new Cart(cartItems);
+                var options = new Options(AllowSeparateShippingAddress);
+                if (!string.IsNullOrEmpty(CustomColor))
+                    options.ButtonColorCode = CustomColor;
+                var data = new OrderData(merchant, cart, locale, options, address);
+
+
+                order = new Order(connector)
+                {
+                    ContentType = ContentType
+                };
+                order.Create(data.ToDictionary());
+                order.Fetch();
+            }
+            else
+            {
+                // updating cart will only work for order with status "checkout_incomplete"
+                var updatedCart = new Dictionary<string, object> { { "items", cartItems } };
+                var updateData = new Dictionary<string, object> { { "cart", updatedCart } };
+
+                var status = order.GetStringField("status");
+
+                if (!status.Equals(OrderStatus.InComplete, StringComparison.InvariantCultureIgnoreCase))
+                    throw new Exception("Cannot change order that has status " + status);
+
+                order.Update(updateData);
+            }
 
             return new CheckoutResponse(order.GetStringField("id"), order.Location, order.GetSnippet(), order.GetStringField("status"));
         }
@@ -93,7 +133,7 @@ namespace Geta.Klarna.Checkout
         {
             if (orderId == null) throw new ArgumentNullException("orderId");
             var order = FetchOrder(orderId);
-            return new OrderResponse(order.GetSnippet(), order.GetTotalCost());
+            return new OrderResponse(order.GetSnippet(), order.GetTotalCost(), order.GetCustomerName());
         }
 
         public bool UpdateOrderId(string orderId, string commerceOrderId)
