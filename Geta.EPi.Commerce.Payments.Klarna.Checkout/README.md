@@ -23,7 +23,7 @@ For the Commerce Manager site run the following package:
 
 ### Endpoints
 
-Klarna Checkout requires four endpoints for checkout:
+Klarna Checkout requires four endpoints for checkout (Validate is optional):
 - Checkout where you have to call Klarna Checkout and provide all Klarna's cart items including shipping information, locale of Klarna Checkout, URL's of all endponts mentioned here. Klarna API will return HTML snippet which you have to render on your page where user will fill all required details for Klarna. Here is an example:
 
 ```
@@ -44,14 +44,15 @@ public ActionResult KlarnaCheckout()
     cartItems.Add(shipment.ToCartItem());
 
     
-	var baseUri = GetBaseUri();
+    var baseUri = GetBaseUri();
     var currentCheckoutPageUrl = string.Format("{0}{1}", baseUri, currentPage.PublicUrl());
 
     var checkoutUris = new CheckoutUris(
                 new Uri(currentCheckoutPageUrl),
                 new Uri(currentCheckoutPageUrl + "KlarnaConfirm"),
                 new Uri(currentCheckoutPageUrl + "KlarnaPush"),
-                new Uri(currentCheckoutPageUrl + "KlarnaTerms"));
+                new Uri(currentCheckoutPageUrl + "KlarnaTerms"),
+                new Uri(currentCheckoutPageUrlAsHttps + "KlarnaValidate"); // validate url has to be https
 
 	//Note: _checkoutClient variable should be created as private variable or property using Provider settings
 	
@@ -59,8 +60,10 @@ public ActionResult KlarnaCheckout()
 	//var _checkoutClient = new CheckoutClient(providerSettings.OrderBaseUri, 
 					//providerSettings.MerchantId, 
 					//providerSettings.Secret);
+					
+    var existingKlarnaOrderId = TempData["klarnaOrder"];
 	
-	var response = _checkoutClient.Checkout(cartItems, PaymentSettings.CurrentLocale, checkoutUris);
+    var response = _checkoutClient.Checkout(cartItems, PaymentSettings.CurrentLocale, checkoutUris, existingKlarnaOrderId);
 
     var model = new KlarnaCheckoutView(CurrentPage)
     {
@@ -76,7 +79,39 @@ public ActionResult KlarnaCheckout()
 }
 ```
 
-- Confirm which is called after user confirmed the payment in first step. In this step you should retrieve the Klarna order, verify total against cart total and render the HTML snippet on the page. This snippet contains information about payment confirmation. Example:
+- Validate is called when the user completes the payment, but before the order is created in Klarnas system. Here you should validate that the cart has not been changed and that items in cart are in stock. If everyting is ok, simply return HttpStatusCode.Ok. If not, specify a url that Klarna should send the user back to:
+
+```
+[System.Web.Mvc.HttpPost]
+ public ActionResult Validate()
+ {
+   var orderJson = new System.IO.StreamReader(Request.InputStream).ReadToEnd();
+   var order = JsonConvert.DeserializeObject<KlarnaOrderJson>(orderJson);
+
+   var id = order.Id;
+   var cart = GetCart();
+ 
+   int cartTotal = order.Cart.TotalPriceIncTax;
+   // do the validation here - return 200 if all is good
+   if(cartTotal == cart.Total && InStock(cart))
+     return new HttpStatusCodeResult(HttpStatusCode.OK);
+
+   var url = GetCartNotValidUrl(id);
+   // specifying which url Klarna should redirect to - I'm using the CartNotValid action
+   return Redirect(url);
+ }
+ 
+ public ActionResult CartNotValid(string klarnaOrder)
+ {
+   // user will be redirected here if validate is not OK
+   TempData["klarnaOrder"] = klarnaOrder;
+   TempData["cartNotValid"] = GetCartNotValidMessage();
+   return RedirectToAction("KlarnaCheckout");
+ }
+ 
+```
+
+- If Validate is ok, Confirm is the next step. In this step you should retrieve the Klarna order and render the HTML snippet on the page. This snippet contains information about payment confirmation. Example:
 
 ```
 public ActionResult KlarnaConfirm(string klarnaOrder)
@@ -183,6 +218,7 @@ If you are not receiving push notifications from Klarna make sure the urls you s
 ### Related blog posts
 
 http://geta.no/blogg/a-major-facelift-for-the-geta-klarna-checkout-module/
+http://geta.no/blogg/validating-a-checkout-order/
 
 ### Klarna Checkout API reference
 
