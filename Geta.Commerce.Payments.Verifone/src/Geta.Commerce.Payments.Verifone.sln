@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Commerce.Payments.Verifone.HostedPages", "Geta.Verifone.HostedPages\Geta.Commerce.Payments.Verifone.HostedPages.csproj", "{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Verifone", "Geta.Verifone\Geta.Verifone.csproj", "{267119B6-0277-4965-A4E6-90754C63DDB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Commerce.Payments.Verifone.HostedPages", "Geta.Commerce.Payments.Verifone.HostedPages\Geta.Commerce.Payments.Verifone.HostedPages.csproj", "{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{267119B6-0277-4965-A4E6-90754C63DDB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{267119B6-0277-4965-A4E6-90754C63DDB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{267119B6-0277-4965-A4E6-90754C63DDB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{267119B6-0277-4965-A4E6-90754C63DDB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DEBF81D-BE75-4E03-BA94-A549D2EE866E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
