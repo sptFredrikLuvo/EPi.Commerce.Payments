@@ -1,0 +1,10 @@
+﻿@model Geta.Commerce.Payments.Verifone.HostedPages.Models.PaymentInitializationRequest
+
+<form method="post" action="">
+    @foreach (var key in Model.Parameters.Keys)
+    {
+        <input type="hidden" id="@key" name="@key" value="@Model.Parameters[key]"/>
+    }
+
+    <input type="submit" value="Gå til betaling"/>
+</form>

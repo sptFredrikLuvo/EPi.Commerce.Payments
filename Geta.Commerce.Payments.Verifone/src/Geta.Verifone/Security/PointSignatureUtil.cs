@@ -15,7 +15,6 @@ namespace Geta.Verifone.Security
     /// </summary>
     public class PointSignatureUtil
     {
-
         /// <summary>
         /// Formats payment parameters single content string for signature generation.
         /// </summary>
@@ -49,9 +48,9 @@ namespace Geta.Verifone.Security
         public static string CreatePaymentToken(IDictionary<string, string> parameters)
         {
             string tokenContent =
-                parameters["s-f-1-36_merchant-agreement-code"] + ";"
-                + parameters["s-f-1-36_order-number"] + ";"
-                + parameters["t-f-14-19_payment-timestamp"];
+                parameters[VerifoneConstants.ParameterName.MerchantAgreementCode] + ";"
+                + parameters[VerifoneConstants.ParameterName.OrderNumber] + ";"
+                + parameters[VerifoneConstants.ParameterName.PaymentTimestamp];
             byte[] tokenBytes = Encoding.UTF8.GetBytes(tokenContent);
             using (SHA256 sha256Hash = SHA256.Create())
             {

@@ -50,6 +50,7 @@
     <Compile Include="Security\PointCertificateUtil.cs" />
     <Compile Include="Security\PointSignatureUtil.cs" />
     <Compile Include="Security\StringComparer.cs" />
+    <Compile Include="VerifoneConstants.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
