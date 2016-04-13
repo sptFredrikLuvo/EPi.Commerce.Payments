@@ -332,6 +332,14 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
 
         public readonly IList<BasketItem> BasketItems;
 
+        public SortedDictionary<string, string> Parameters
+        {
+            get
+            {
+                return _parameters;
+            }
+        }
+
         public PaymentInitializationRequest()
         {
             _parameters = new SortedDictionary<string, string>();
@@ -347,19 +355,16 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
             OrderTimestamp = utcNow;
         }
 
-        public SortedDictionary<string, string> Parameters
+        public virtual SortedDictionary<string, string> GetParameters()
         {
-            get
-            {
-                EnsureParameters();
-                return _parameters;
-            }
-        }
+            EnsureParameters();
+            return _parameters;
+        } 
 
         protected virtual void EnsureParameters()
         {
             _parameters[VerifoneConstants.ParameterName.PaymentToken] = CreatePaymentToken();
-            _parameters[VerifoneConstants.ParameterName.SignatureOne] = CreateSignatureOne();
+            //_parameters[VerifoneConstants.ParameterName.SignatureOne] = CreateSignatureOne();
         }
 
         protected virtual string CreatePaymentToken()

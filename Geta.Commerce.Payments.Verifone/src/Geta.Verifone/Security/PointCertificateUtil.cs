@@ -15,7 +15,7 @@ namespace Geta.Verifone.Security
 
         public static X509Certificate2 GetPointCertificate()
         {
-            return GetCertificate(StoreName.My, StoreLocation.CurrentUser, "CN=epayment.point.fi");
+            return GetCertificate(StoreName.TrustedPublisher, StoreLocation.LocalMachine, "CN=epayment.point.fi");
         }
 
         private static X509Certificate2 GetCertificate(StoreName storeName, StoreLocation storeLocation, string subject)

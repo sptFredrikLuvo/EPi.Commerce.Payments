@@ -54,6 +54,8 @@
             public const string PaymentToken = "s-f-32-32_payment-token";
             public const string SignatureOne = "s-t-256-256_signature-one";
             public const string SignatureTwo = "s-t-256-256_signature-two";
+            public const string TransactionNumber = "l-f-1-20_transaction-number";
+            public const string PaymentMethodCodeResponse = "s-f-1-30_payment-method-code";
         }
     }
 }
