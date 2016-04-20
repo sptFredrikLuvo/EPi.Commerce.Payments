@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Web.Mvc;
 using Geta.Commerce.Payments.Verifone.HostedPages.Mvc;
 using Geta.Verifone;
 using Geta.Verifone.Security;
+using Mediachase.Commerce.Orders;
+using Mediachase.Commerce.Website;
 
 namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
 {
     [ModelBinder(typeof(VerifoneModelBinder))]
-    public class PaymentInitializationRequest
+    public class VerifoneCreditCardPayment : IPaymentOption
     {
         private readonly SortedDictionary<string, string> _parameters;
+
+        public Guid PaymentMethodId { get; set; }
 
         [BindAlias(VerifoneConstants.ParameterName.PaymentLocale)]
         public string PaymentLocale
@@ -20,22 +25,19 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
         }
 
         [BindAlias(VerifoneConstants.ParameterName.PaymentTimestamp)]
-        public DateTime PaymentTimestamp
+        public string PaymentTimestamp
         {
             get
             {
                 string value = _parameters[VerifoneConstants.ParameterName.PaymentTimestamp];
 
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return DateTime.UtcNow;
-                }
-
-                return DateTime.Parse(value);
+                return string.IsNullOrWhiteSpace(value) == false
+                    ? value
+                    : DateTime.Now.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             }
             set
             {
-                _parameters[VerifoneConstants.ParameterName.PaymentTimestamp] = value.ToString("yyyy-MM-dd HH:mm:ss");
+                _parameters[VerifoneConstants.ParameterName.PaymentTimestamp] = value;
             }
         }
 
@@ -54,22 +56,19 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
         }
 
         [BindAlias(VerifoneConstants.ParameterName.OrderTimestamp)]
-        public DateTime OrderTimestamp
+        public string OrderTimestamp
         {
             get
             {
                 string value = _parameters[VerifoneConstants.ParameterName.OrderTimestamp];
 
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return DateTime.UtcNow;
-                }
-
-                return DateTime.Parse(value);
+                return string.IsNullOrWhiteSpace(value) == false 
+                    ? value
+                    : DateTime.Now.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             }
             set
             {
-                _parameters[VerifoneConstants.ParameterName.OrderTimestamp] = value.ToString("yyyy-MM-dd HH:mm:ss");
+                _parameters[VerifoneConstants.ParameterName.OrderTimestamp] = value;
             }
         }
 
@@ -169,6 +168,13 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
         {
             get { return _parameters[VerifoneConstants.ParameterName.DeliveryAddressPostalCode]; }
             set { _parameters[VerifoneConstants.ParameterName.DeliveryAddressPostalCode] = value; }
+        }
+
+        [BindAlias(VerifoneConstants.ParameterName.DeliveryAddressCountryCode)]
+        public string DeliveryAddressCountryCode
+        {
+            get { return _parameters[VerifoneConstants.ParameterName.DeliveryAddressCountryCode]; }
+            set { _parameters[VerifoneConstants.ParameterName.DeliveryAddressCountryCode] = value; }
         }
 
         [BindAlias(VerifoneConstants.ParameterName.PaymentMethodCode)]
@@ -330,6 +336,12 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
             set { _parameters[VerifoneConstants.ParameterName.SignatureTwo] = value; }
         }
 
+        public string Submit
+        {
+            get { return _parameters[VerifoneConstants.ParameterName.Submit]; }
+            set { _parameters[VerifoneConstants.ParameterName.Submit] = value; }
+        }
+
         public readonly IList<BasketItem> BasketItems;
 
         public SortedDictionary<string, string> Parameters
@@ -340,7 +352,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
             }
         }
 
-        public PaymentInitializationRequest()
+        public VerifoneCreditCardPayment()
         {
             _parameters = new SortedDictionary<string, string>();
             InitializeParameters();
@@ -349,22 +361,23 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
 
         private void InitializeParameters()
         {
-            var utcNow = DateTime.UtcNow;
+            var utcNow = DateTime.Now.ToUniversalTime();
             PaymentLocale = "no_NO";
-            PaymentTimestamp = utcNow;
-            OrderTimestamp = utcNow;
+            PaymentTimestamp = utcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            OrderTimestamp = utcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
         }
 
         public virtual SortedDictionary<string, string> GetParameters()
         {
             EnsureParameters();
             return _parameters;
-        } 
+        }
 
         protected virtual void EnsureParameters()
         {
             _parameters[VerifoneConstants.ParameterName.PaymentToken] = CreatePaymentToken();
             _parameters[VerifoneConstants.ParameterName.SignatureOne] = CreateSignatureOne();
+            //_parameters[VerifoneConstants.ParameterName.SignatureTwo] = CreateSignatureTwo();
         }
 
         protected virtual string CreatePaymentToken()
@@ -376,6 +389,36 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
         {
             string content = PointSignatureUtil.FormatParameters(_parameters);
             return PointSignatureUtil.CreateSignature(PointCertificateUtil.GetMerchantCertificate(), content, HashAlgorithm.SHA1);
+        }
+        public bool ValidateData()
+        {
+            return true;
+        }
+
+        public Payment PreProcess(OrderForm orderForm)
+        {
+            if (orderForm == null) throw new ArgumentNullException("orderForm");
+
+            if (!ValidateData())
+                return null;
+
+            var payment = new OtherPayment
+            {
+                PaymentMethodId = PaymentMethodId,
+                PaymentMethodName = "VerifoneHostedPages",
+                OrderFormId = orderForm.OrderFormId,
+                OrderGroupId = orderForm.OrderGroupId,
+                Amount = orderForm.Total,
+                Status = PaymentStatus.Pending.ToString(),
+                PaymentType = PaymentType.Other
+            };
+
+            return payment;
+        }
+
+        public bool PostProcess(OrderForm orderForm)
+        {
+            return true;
         }
     }
 }

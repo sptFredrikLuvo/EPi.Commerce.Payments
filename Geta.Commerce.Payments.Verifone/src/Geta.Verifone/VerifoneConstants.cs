@@ -2,6 +2,27 @@
 {
     public class VerifoneConstants
     {
+        public static class Configuration
+        {
+            public const string IsProduction = "IsProduction";
+            public const string MerchantAgreementCode = "MerchantAgreementCode";
+            public const string ProductionUrl = "ProductionUrl";
+            public const string CancelUrl = "CancelUrl";
+            public const string ErrorUrl = "ErrorUrl";
+            public const string ExpiredUrl = "ExpiredUrl";
+            public const string RejectedUrl = "RejectedUrl";
+            public const string SuccessUrl = "SuccessUrl";
+            public const string WebShopName = "WebShopName";
+            public const string PaymentProductionNode1Url = "https://epayment1.point.fi/pw/payment";
+            public const string PaymentProductionNode2Url = "https://epayment2.point.fi/pw/payment";
+            public const string PaymentTestUrl = "https://epayment.test.point.fi/pw/payment";
+        }
+
+        public static class MetaClass
+        {
+            public const string VerifoneCreditCardPayment = "VerifoneCreditCardPayment";
+        }
+
         public static class ParameterName
         {
             public const string PaymentLocale = "locale-f-2-5_payment-locale";
@@ -11,6 +32,7 @@
             public const string OrderTimestamp = "t-f-14-19_order-timestamp";
             public const string OrderCurrencyCode = "i-f-1-3_order-currency-code";
             public const string OrderNetAmount = "l-f-1-20_order-net-amount";
+            public const string OrderNote = "s-t-1-36_order-note";
             public const string OrderGrossAmount = "l-f-1-20_order-gross-amount";
             public const string OrderVatAmount = "l-f-1-20_order-vat-amount";
             public const string OrderVatPercentage = "i-t-1-4_order-vat-percentage";
@@ -56,6 +78,13 @@
             public const string SignatureTwo = "s-t-256-256_signature-two";
             public const string TransactionNumber = "l-f-1-20_transaction-number";
             public const string PaymentMethodCodeResponse = "s-f-1-30_payment-method-code";
+            public const string ReferenceNumber = "s-f-1-20_reference-number";
+            public const string Token = "s-t-1-256_token";
+            public const string FilingCode = "s-t-1-26_filing-code";
+            public const string SocialSecurityNumber = "s-t-0-11_social-security-number";
+            public const string CardExpectedValidity = "s-t-1-6_card-expected-validity";
+            public const string CancelReason = "s-t-1-30_cancel-reason";
+            public const string Submit = "s-t-1-40-submit";
         }
     }
 }

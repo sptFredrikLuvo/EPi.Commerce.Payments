@@ -1,7 +1,10 @@
-﻿using EPiServer.Framework;
+﻿using System.Security.Cryptography;
+using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Logging;
+using Geta.Verifone;
 using Mediachase.Commerce.Catalog;
+using Mediachase.Commerce.Orders;
 using Mediachase.MetaDataPlus;
 using Mediachase.MetaDataPlus.Configurator;
 
@@ -16,23 +19,36 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
         public void Initialize(InitializationEngine context)
         {
             MetaDataContext mdContext = CatalogContext.MetaDataContext;
-            var filingCode = GetOrCreateMetaField(mdContext, MetadataConstants.FilingCode, MetaDataType.BigInt);
-            JoinField(mdContext, filingCode, MetadataConstants.PurchaseOrderClass);
 
-            var referenceNumber = GetOrCreateMetaField(mdContext, MetadataConstants.ReferenceNumber, MetaDataType.BigInt);
-            JoinField(mdContext, referenceNumber, MetadataConstants.PurchaseOrderClass);
+            var orderTimestamp = GetOrCreateMetaField(mdContext, MetadataConstants.OrderTimestamp, "Order timestamp", MetaDataType.ShortString);
+            JoinField(mdContext, orderTimestamp, MetadataConstants.PurchaseOrderClass);
 
-            var transactionNumber = GetOrCreateMetaField(mdContext, MetadataConstants.TransactionNumber, MetaDataType.BigInt);
-            JoinField(mdContext, transactionNumber, MetadataConstants.PurchaseOrderClass);
+            var orderCurrencyCode = GetOrCreateMetaField(mdContext, MetadataConstants.OrderCurrencyCode, "Order currency code", MetaDataType.ShortString);
+            JoinField(mdContext, orderCurrencyCode, MetadataConstants.PurchaseOrderClass);
+
+            var filingCode = GetOrCreateMetaField(mdContext, MetadataConstants.FilingCode, "Filing code", MetaDataType.BigInt);
+            JoinField(mdContext, filingCode, MetadataConstants.OtherPaymentClass);
+
+            var referenceNumber = GetOrCreateMetaField(mdContext, MetadataConstants.ReferenceNumber, "Reference number", MetaDataType.BigInt);
+            JoinField(mdContext, referenceNumber, MetadataConstants.OtherPaymentClass);
+
+            var transactionNumber = GetOrCreateMetaField(mdContext, MetadataConstants.TransactionNumber, "Transaction number", MetaDataType.BigInt);
+            JoinField(mdContext, transactionNumber, MetadataConstants.OtherPaymentClass);
+
+            var signatureOne = GetOrCreateMetaField(mdContext, MetadataConstants.SignatureOne, "Signature one", MetaDataType.LongString);
+            JoinField(mdContext, signatureOne, MetadataConstants.PurchaseOrderClass);
+
+            var signatureTwo = GetOrCreateMetaField(mdContext, MetadataConstants.SignatureTwo, "Signature two", MetaDataType.LongString);
+            JoinField(mdContext, signatureTwo, MetadataConstants.PurchaseOrderClass);
         }
 
-        private MetaField GetOrCreateMetaField(MetaDataContext mdContext, string fieldName, MetaDataType metadataType)
+        private MetaField GetOrCreateMetaField(MetaDataContext mdContext, string fieldName, string friendlyName, MetaDataType metadataType)
         {
             var f = MetaField.Load(mdContext, fieldName);
             if (f == null)
             {
                 Logger.Debug(string.Format("Adding meta field '{0}' for Verifone payment integration.", fieldName));
-                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, fieldName, fieldName, string.Empty, metadataType, 0, true, false, false, false);
+                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, fieldName, friendlyName, string.Empty, metadataType, 0, true, false, false, false);
             }
 
             return f;
