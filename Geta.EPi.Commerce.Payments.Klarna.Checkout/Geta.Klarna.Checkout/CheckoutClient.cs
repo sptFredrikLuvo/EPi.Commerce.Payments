@@ -23,11 +23,11 @@ namespace Geta.Klarna.Checkout
         public string MerchantId { get; private set; }
         public string SharedSecret { get; private set; }
         public bool AllowSeparateShippingAddress { get; private set; }
-        public string CustomColor { get; set; }
+        public ColorOptions ColorOptions { get; set; }
 
         const string ContentType = "application/vnd.klarna.checkout.aggregated-order-v2+json";
 
-        public CheckoutClient(Uri orderBaseUri, string merchantId, string sharedSecret, bool allowSeparateShippingAddress = false, string customColorCode = null)
+        public CheckoutClient(Uri orderBaseUri, string merchantId, string sharedSecret, bool allowSeparateShippingAddress = false, ColorOptions colorOptions = null)
         {
             if (orderBaseUri == null) throw new ArgumentNullException("orderBaseUri");
             if (merchantId == null) throw new ArgumentNullException("merchantId");
@@ -36,7 +36,7 @@ namespace Geta.Klarna.Checkout
             MerchantId = merchantId;
             SharedSecret = sharedSecret;
             AllowSeparateShippingAddress = allowSeparateShippingAddress;
-            CustomColor = customColorCode;
+            ColorOptions = colorOptions;
         }
 
         public CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris, string orderId = null, ShippingAddress address = null)
@@ -81,8 +81,8 @@ namespace Geta.Klarna.Checkout
                     checkoutUris.Validation);
                 var cart = new Cart(cartItems);
                 var options = new Options(AllowSeparateShippingAddress);
-                if (!string.IsNullOrEmpty(CustomColor))
-                    options.ButtonColorCode = CustomColor;
+                if (ColorOptions != null)
+                    options.ColorOptions = ColorOptions;
                 var data = new OrderData(merchant, cart, locale, options, address);
 
 
