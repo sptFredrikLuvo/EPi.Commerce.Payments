@@ -8,7 +8,6 @@
         }
 
         public bool AllowSeparateShippingAddress { get; private set; }
-
-        public string ButtonColorCode { get; set; }
+        public ColorOptions ColorOptions { get; set; }
     }
 }
