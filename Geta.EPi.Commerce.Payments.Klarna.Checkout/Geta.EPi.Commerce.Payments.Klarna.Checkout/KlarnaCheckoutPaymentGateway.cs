@@ -41,7 +41,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                 {
                     case "CAPTURE":
                         {
-                            var reservation = payment.GetStringValue(MetadataConstants.ReservationField, string.Empty);
+                            var reservation = GetReservation(payment);
 
                             if (string.IsNullOrEmpty(reservation))
                             {
@@ -86,7 +86,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                 });
 
                                 // we need to save invoice number incase of refunds later
-                                purchaseOrder[MetadataConstants.InvoiceNumber] = response.InvoiceNumber;
+                                purchaseOrder[MetadataConstants.InvoiceId] = response.InvoiceNumber;
                                 orderGroup.AcceptChanges();
                             }
                             else
@@ -101,7 +101,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                         }
                     case "VOID":
                         {
-                            var reservation = payment.GetStringValue(MetadataConstants.ReservationField, string.Empty);
+                            var reservation = GetReservation(payment);
 
                             if (string.IsNullOrEmpty(reservation))
                             {
@@ -141,7 +141,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                             var purchaseOrder = orderGroup as PurchaseOrder;
                             if (purchaseOrder != null)
                             {
-                                var invoiceNumber = purchaseOrder.GetStringValue(MetadataConstants.InvoiceNumber, string.Empty);
+                                var invoiceNumber = GetInvoiceId(purchaseOrder);
 
                                 if (string.IsNullOrEmpty(invoiceNumber))
                                 {
@@ -204,6 +204,27 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
 
             return true;
         }
+
+        private string GetInvoiceId(PurchaseOrder purchaseOrder)
+        {
+            string invoiceId = purchaseOrder.GetStringValue(MetadataConstants.InvoiceId, string.Empty);
+            if (string.IsNullOrEmpty(invoiceId))
+            {
+                return purchaseOrder.GetStringValue(MetadataConstants.InvoiceNumber, string.Empty);
+            }
+            return invoiceId;
+        }
+
+        private string GetReservation(Payment payment)
+        {
+            string reservationId = payment.GetStringValue(MetadataConstants.ReservationId, string.Empty);
+            if (string.IsNullOrEmpty(reservationId))
+            {
+                return payment.GetStringValue(MetadataConstants.ReservationField, string.Empty);
+            }
+            return reservationId;
+        }
+
 
 
         private ProviderSettings _klarnaSettings;

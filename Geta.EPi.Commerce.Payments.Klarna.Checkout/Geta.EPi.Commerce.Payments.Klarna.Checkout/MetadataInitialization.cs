@@ -21,31 +21,16 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
 
             var invoiceNumber = GetOrCreateInvoiceField(mdContext);
             JoinField(mdContext, invoiceNumber, MetadataConstants.PurchaseOrderClass);
-
-            var vatPercentField = GetOrCreateVatPercentField(mdContext);
-            JoinField(mdContext, vatPercentField, MetadataConstants.LineItemExClass);
-        }
-
-        private MetaField GetOrCreateVatPercentField(MetaDataContext mdContext)
-        {
-            var f = MetaField.Load(mdContext, MetadataConstants.VatPercent);
-            if (f == null)
-            {
-                Logger.Debug(string.Format("Adding meta field '{0}' for Klarna integration.", MetadataConstants.VatPercent));
-                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, MetadataConstants.VatPercent, MetadataConstants.VatPercent, string.Empty,
-                    MetaDataType.Decimal, 0, true, false, false, false);
-            }
-            return f;
         }
 
         private MetaField GetOrCreateReservationField(MetaDataContext mdContext)
         {
             
-            var f = MetaField.Load(mdContext, MetadataConstants.ReservationField);
+            var f = MetaField.Load(mdContext, MetadataConstants.ReservationId);
             if (f == null)
             {
-                Logger.Debug(string.Format("Adding meta field '{0}' for Klarna integration.", MetadataConstants.ReservationField));
-                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, MetadataConstants.ReservationField, MetadataConstants.ReservationField, string.Empty, MetaDataType.Int, 0, true, false, false, false);
+                Logger.Debug(string.Format("Adding meta field '{0}' for Klarna integration.", MetadataConstants.ReservationId));
+                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, MetadataConstants.ReservationId, MetadataConstants.ReservationId, string.Empty, MetaDataType.ShortString, 100, true, false, false, false);
             }
 
             return f;
@@ -54,11 +39,11 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
         private MetaField GetOrCreateInvoiceField(MetaDataContext mdContext)
         {
 
-            var f = MetaField.Load(mdContext, MetadataConstants.InvoiceNumber);
+            var f = MetaField.Load(mdContext, MetadataConstants.InvoiceId);
             if (f == null)
             {
-                Logger.Debug(string.Format("Adding meta field '{0}' for Klarna integration.", MetadataConstants.InvoiceNumber));
-                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, MetadataConstants.InvoiceNumber, MetadataConstants.InvoiceNumber, string.Empty, MetaDataType.Int, 0, true, false, false, false);
+                Logger.Debug(string.Format("Adding meta field '{0}' for Klarna integration.", MetadataConstants.InvoiceId));
+                f = MetaField.Create(mdContext, MetadataConstants.OrderNamespace, MetadataConstants.InvoiceId, MetadataConstants.InvoiceId, string.Empty, MetaDataType.ShortString, 100, true, false, false, false);
             }
 
             return f;
