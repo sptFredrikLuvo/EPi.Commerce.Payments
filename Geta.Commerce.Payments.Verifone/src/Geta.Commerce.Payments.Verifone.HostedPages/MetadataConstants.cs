@@ -12,5 +12,6 @@
         public const string OrderNamespace = "Mediachase.Commerce.Orders";
         public const string OtherPaymentClass = "OtherPayment";
         public const string PurchaseOrderClass = "PurchaseOrder";
+        public const string PaymentMethodCode = "PaymentMethodCode";
     }
 }

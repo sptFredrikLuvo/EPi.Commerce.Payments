@@ -19,8 +19,8 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Extensions
             request.PaymentLocale = paymentService.GetPaymentLocale(ContentLanguage.PreferredCulture);
             request.OrderNumber = purchaseOrder.Id.ToString(CultureInfo.InvariantCulture.NumberFormat);
             request.OrderCurrencyCode = currentMarket.GetCurrentMarket().DefaultCurrency.CurrencyCode;
-            request.OrderGrossAmount = purchaseOrder.Total.ToAmountString();
-            request.OrderNetAmount = purchaseOrder.SubTotal.ToAmountString();
+            request.OrderGrossAmount = purchaseOrder.Total.ToVerifoneAmountString();
+            request.OrderNetAmount = purchaseOrder.SubTotal.ToVerifoneAmountString();
             //request.OrderVatAmount = purchaseOrder.TaxTotal.ToAmountString();
             request.BuyerFirstName = orderAddress.FirstName;
             request.BuyerLastName = orderAddress.LastName;

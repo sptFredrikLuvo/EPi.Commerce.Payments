@@ -12,6 +12,12 @@
         OrderTimestampMissing,
         OrderTimestampMismatch,
         OrderGrossAmountMismatch,
-        OrderCurrencyCodeMismatch
+        OrderCurrencyCodeMismatch,
+        SignatureInvalid
+    }
+
+    public enum CancelReason
+    {
+        CancelPaymentRejected
     }
 }

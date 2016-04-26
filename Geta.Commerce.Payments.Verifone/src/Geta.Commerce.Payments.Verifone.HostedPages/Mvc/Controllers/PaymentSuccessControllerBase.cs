@@ -13,7 +13,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Mvc.Controllers
     public abstract class PaymentSuccessControllerBase<T> : ContentController<T> where T: IContent, IRoutable
     {
         [HttpPost]
-        public virtual ActionResult Index(VerifoneCreditCardPayment response)
+        public virtual ActionResult Index(VerifonePaymentRequest response)
         {
             return View();
         }
@@ -72,7 +72,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Mvc.Controllers
                 return StatusCode.OrderTimestampMismatch;
             }
 
-            if (response.OrderGrossAmount.Equals(purchaseOrder.Total.ToAmountString()) == false)
+            if (response.OrderGrossAmount.Equals(purchaseOrder.Total.ToVerifoneAmountString()) == false)
             {
                 return StatusCode.OrderGrossAmountMismatch;
             }
