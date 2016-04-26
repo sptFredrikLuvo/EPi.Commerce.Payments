@@ -62,6 +62,7 @@
     <Compile Include="CheckoutClient.cs" />
     <Compile Include="Models\CheckoutResponse.cs" />
     <Compile Include="Models\CheckoutUris.cs" />
+    <Compile Include="Models\ColorOptions.cs" />
     <Compile Include="Models\ConfirmResponse.cs" />
     <Compile Include="Extensions\AddressExtensions.cs" />
     <Compile Include="Extensions\CartExtensions.cs" />
