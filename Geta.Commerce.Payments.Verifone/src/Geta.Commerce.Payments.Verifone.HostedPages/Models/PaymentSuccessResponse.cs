@@ -188,6 +188,8 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
             if (!ValidateData())
                 return null;
 
+            var orderAddress = form.Parent.OrderAddresses.FirstOrDefault();
+
             var payment = new OtherPayment
             {
                 PaymentMethodId = PaymentMethodId,
@@ -198,7 +200,9 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
                 Status = PaymentStatus.Pending.ToString(),
                 PaymentType = PaymentType.Other,
                 BillingAddressId = form.BillingAddressId,
-                CustomerName = form.Name
+                CustomerName = orderAddress != null
+                    ? string.Format("{0} {1}", orderAddress.FirstName, orderAddress.LastName)
+                    : form.Parent.CustomerName
             };
 
             return payment;
@@ -214,7 +218,6 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
             }
 
             payment.TransactionID = this.TransactionNumber;
-            payment.TransactionType = this.PaymentMethodCode;
             payment.SetMetaField(MetadataConstants.FilingCode, this.FilingCode);
             payment.SetMetaField(MetadataConstants.ReferenceNumber, this.ReferenceNumber ?? string.Empty);
             payment.SetMetaField(MetadataConstants.PaymentMethodCode, this.PaymentMethodCode);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Web;
@@ -13,17 +14,23 @@ namespace Geta.Verifone.Security
     {
         public static X509Certificate2 GetMerchantCertificate()
         {
-            //return GetCertificate("C:\\Projects\\EPi.Commerce.Payments\\Geta.Commerce.Payments.Verifone\\docs\\Keys\\demo-merchant-no.p12", "password");
-            return GetCertificate("C:\\Projects\\EPi.Commerce.Payments\\Geta.Commerce.Payments.Verifone\\docs\\Keys\\demo-merchant-agreement.p12", "password");
+            return GetCertificate("Verifone:MerchantCertificatePath", "password");
         }
 
         public static X509Certificate2 GetPointCertificate()
         {
-            return GetCertificate("C:\\Projects\\EPi.Commerce.Payments\\Geta.Commerce.Payments.Verifone\\docs\\Keys\\point-e-commerce-test-public-key.crt", "password");
+            return GetCertificate("Verifone:PointCertificatePath", "password");
         }
 
-        private static X509Certificate2 GetCertificate(string certFilePath, string password)
+        private static X509Certificate2 GetCertificate(string certName, string password)
         {
+            string certFilePath = ConfigurationManager.AppSettings[certName];
+
+            if (string.IsNullOrWhiteSpace(certFilePath))
+            {
+                throw new ConfigurationErrorsException(string.Format("{0} is missing.", certName));
+            }
+
             return new X509Certificate2(certFilePath, password, X509KeyStorageFlags.Exportable);
         }
     }
