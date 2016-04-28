@@ -96,8 +96,8 @@ namespace Geta.Klarna.Checkout
             else
             {
                 // updating cart will only work for order with status "checkout_incomplete"
-                var updatedCart = new Dictionary<string, object> { { "items", cartItems } };
-                var updateData = new Dictionary<string, object> { { "cart", updatedCart } };
+                var cart = new Cart(cartItems);
+                var updateData = new Dictionary<string, object> { { "cart", cart.ToDictionary() } };
 
                 var status = order.GetStringField("status");
 
