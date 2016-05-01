@@ -1,6 +1,8 @@
 Library for Klarna Checkout integration with EPiServer Commerce
 =============
 
+![](http://tc.geta.no/app/rest/builds/buildType:(id:TeamFrederik_EPiCommercePaymentsKlarnaCheckout_Debug)/statusIcon)
+
 ## What is Geta.EPi.Commerce.Payments.Klarna.Checkout?
 
 Geta.EPi.Commerce.Payments.Klarna.Checkout is library which helps to integrate Klarna Checkout as one of the payment options in your EPiServer Commerce sites.
