@@ -133,7 +133,7 @@ namespace Geta.Klarna.Checkout
         {
             if (orderId == null) throw new ArgumentNullException("orderId");
             var order = FetchOrder(orderId);
-            return new OrderResponse(order.GetSnippet(), order.GetTotalCost(), order.GetCustomerName());
+            return new OrderResponse(order.GetSnippet(), order.GetTotalCost(), order.GetCustomerName(), order.GetShippingAddress(), order.GetBillingAddress());
         }
 
         public bool UpdateOrderId(string orderId, string commerceOrderId)
