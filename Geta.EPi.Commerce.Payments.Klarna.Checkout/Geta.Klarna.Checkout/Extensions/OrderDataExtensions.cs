@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data.Odbc;
 using Geta.Klarna.Checkout.Models;
 
 namespace Geta.Klarna.Checkout.Extensions
@@ -15,10 +14,11 @@ namespace Geta.Klarna.Checkout.Extensions
                         { "locale", orderData.Locale.LocaleCode },
                         { "merchant", orderData.Merchant.ToDictionary() },
                         { "cart", orderData.Cart.ToDictionary() },
-                        { "options", orderData.Options.ToDictionary() }
+                        { "options", orderData.Options.ToDictionary() },
+                        { "gui", orderData.Gui.ToDictionary() }
                     };
 
-            if(orderData.ShippingAddress != null)
+            if (orderData.ShippingAddress != null)
                 jsonOrderData.Add("shipping_address", orderData.ShippingAddress.ToDictionary());
 
             return jsonOrderData;

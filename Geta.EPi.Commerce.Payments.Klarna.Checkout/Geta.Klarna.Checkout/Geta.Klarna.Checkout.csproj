@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiExtensions.cs" />
+    <Compile Include="Extensions\GuiExtensions.cs" />
     <Compile Include="Models\ActivateResponse.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Cart.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Extensions\OptionsExtensions.cs" />
     <Compile Include="Extensions\OrderDataExtensions.cs" />
     <Compile Include="Extensions\OrderExtensions.cs" />
+    <Compile Include="Models\Gui.cs" />
     <Compile Include="Models\ICartItem.cs" />
     <Compile Include="Models\CaptureHandler.cs" />
     <Compile Include="Models\IResult.cs" />
