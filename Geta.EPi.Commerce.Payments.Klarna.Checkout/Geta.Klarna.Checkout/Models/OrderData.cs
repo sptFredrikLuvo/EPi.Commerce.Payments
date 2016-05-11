@@ -9,8 +9,9 @@ namespace Geta.Klarna.Checkout.Models
         public Locale Locale { get; private set; }
         public Options Options { get; private set; }
         public ShippingAddress ShippingAddress { get; private set; }
+        public Gui Gui { get; private set; }
 
-        public OrderData(Merchant merchant, Cart cart, Locale locale, Options options, ShippingAddress shippingAddress = null)
+        public OrderData(Merchant merchant, Cart cart, Locale locale, Options options, Gui gui, ShippingAddress shippingAddress = null)
         {
             if (merchant == null) throw new ArgumentNullException("merchant");
             if (cart == null) throw new ArgumentNullException("cart");
@@ -21,7 +22,7 @@ namespace Geta.Klarna.Checkout.Models
             Locale = locale;
             Options = options;
             ShippingAddress = shippingAddress;
-
+            Gui = gui;
         }
     }
 }
