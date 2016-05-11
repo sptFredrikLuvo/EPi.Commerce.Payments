@@ -74,7 +74,8 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
         /// <param name="orderGroup"><see cref="OrderGroup"/></param>
         public virtual void InitializePaymentRequest(VerifonePaymentRequest payment, OrderGroup orderGroup)
         {
-            OrderAddress orderAddress = orderGroup.OrderAddresses.First();
+            OrderAddress billingAddress = FindBillingAddress(payment, orderGroup);
+            OrderAddress shipmentAddress = FindShippingAddress(payment, orderGroup);
 
             payment.OrderTimestamp = orderGroup.Created.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             payment.MerchantAgreementCode = this.GetMerchantAgreementCode(payment);
@@ -88,8 +89,15 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
             payment.OrderGrossAmount = orderGroup.Total.ToVerifoneAmountString();
             payment.OrderNetAmount = (orderGroup.Total - orderGroup.TaxTotal).ToVerifoneAmountString();
             payment.OrderVatAmount = orderGroup.TaxTotal.ToVerifoneAmountString();
-            payment.BuyerFirstName = orderAddress.FirstName;
-            payment.BuyerLastName = orderAddress.LastName;
+
+            payment.BuyerFirstName = billingAddress != null
+                ? billingAddress.FirstName
+                : null;
+
+            payment.BuyerLastName = billingAddress != null
+                ? billingAddress.LastName
+                : null;
+
             payment.OrderVatPercentage = "0";
             payment.PaymentMethodCode = "";
             payment.SavedPaymentMethodId = "";
@@ -99,22 +107,110 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
             payment.SavePaymentMethod = "0";
             payment.SkipConfirmationPage = "0";
 
-            string phoneNumber = orderAddress.DaytimePhoneNumber ?? orderAddress.EveningPhoneNumber;
+            string phoneNumber = billingAddress != null
+                ? billingAddress.DaytimePhoneNumber ?? billingAddress.EveningPhoneNumber
+                : null;
 
             if (string.IsNullOrWhiteSpace(phoneNumber) == false)
                 payment.BuyerPhoneNumber = phoneNumber;
 
-            payment.BuyerEmailAddress = orderAddress.Email;
-            payment.DeliveryAddressLineOne = orderAddress.Line1;
+            payment.BuyerEmailAddress = billingAddress != null
+                ? billingAddress.Email ?? orderGroup.CustomerName
+                : string.Empty;
 
-            if (string.IsNullOrWhiteSpace(orderAddress.Line2) == false)
-                payment.DeliveryAddressLineTwo = orderAddress.Line2;
+            if (payment.BuyerEmailAddress.IndexOf('@') < 0)
+            {
+                payment.BuyerEmailAddress = null;
+            }
 
-            payment.DeliveryAddressPostalCode = orderAddress.PostalCode;
-            payment.DeliveryAddressCity = orderAddress.City;
+            payment.DeliveryAddressLineOne = shipmentAddress != null
+                ? shipmentAddress.Line1
+                : null;
+
+            if (shipmentAddress != null && string.IsNullOrWhiteSpace(shipmentAddress.Line2) == false)
+                payment.DeliveryAddressLineTwo = shipmentAddress.Line2;
+
+            payment.DeliveryAddressPostalCode = shipmentAddress != null
+                ? shipmentAddress.PostalCode
+                : null;
+
+            payment.DeliveryAddressCity = shipmentAddress != null
+                ? shipmentAddress.City
+                : null;
+
             payment.DeliveryAddressCountryCode = "246";
 
             ApplyPaymentMethodConfiguration(payment);
+        }
+
+        protected virtual OrderAddress FindShippingAddress(VerifonePaymentRequest payment, OrderGroup orderGroup)
+        {
+            OrderForm orderForm = FindCorrectOrderForm(payment.PaymentMethodId, orderGroup.OrderForms);
+            Shipment shipment = orderForm.Shipments.FirstOrDefault();
+
+            if (shipment != null)
+            {
+                OrderAddress shipmentAddress = orderGroup.OrderAddresses.FirstOrDefault(x => x.Name == shipment.ShippingAddressId);
+
+                if (shipmentAddress != null)
+                {
+                    return shipmentAddress;
+                }
+            }
+
+            return FindBillingAddress(payment, orderGroup);
+        }
+
+        //protected virtual string ExtractFirstName(string customerName)
+        //{
+        //    if (string.IsNullOrWhiteSpace(customerName))
+        //    {
+        //        return null;
+        //    }
+
+        //    var lastSpaceIndex = customerName.LastIndexOf(" ", StringComparison.InvariantCultureIgnoreCase);
+        //    var length = customerName.Length - lastSpaceIndex;
+        //    return customerName.Substring(0, length);
+        //}
+
+        //protected virtual string ExtractLastName(string customerName)
+        //{
+        //    if (string.IsNullOrWhiteSpace(customerName))
+        //    {
+        //        return null;
+        //    }
+
+        //    var lastSpaceIndex = customerName.LastIndexOf(" ", StringComparison.InvariantCultureIgnoreCase);
+        //    return customerName.Substring(lastSpaceIndex + 1);
+        //}
+
+        protected virtual OrderAddress FindBillingAddress(VerifonePaymentRequest payment, OrderGroup orderGroup)
+        {
+            OrderForm orderForm = FindCorrectOrderForm(payment.PaymentMethodId, orderGroup.OrderForms);
+
+            OrderAddress billingAddress = orderGroup.OrderAddresses.FirstOrDefault(x => x.Name == orderForm.BillingAddressId);
+
+            if (billingAddress == null)
+            {
+                billingAddress = orderGroup.OrderAddresses.FirstOrDefault();
+            }
+
+            return billingAddress;
+        }
+
+        protected virtual OrderForm FindCorrectOrderForm(Guid paymentMethodId, OrderFormCollection orderForms)
+        {
+            foreach (OrderForm orderForm in orderForms)
+            {
+                Payment payment = orderForm.Payments.FirstOrDefault(x => x.PaymentMethodId == paymentMethodId);
+
+                if (payment != null)
+                {
+                    return orderForm;
+                }
+            }
+
+            return orderForms.First();
         }
 
         /// <summary>
