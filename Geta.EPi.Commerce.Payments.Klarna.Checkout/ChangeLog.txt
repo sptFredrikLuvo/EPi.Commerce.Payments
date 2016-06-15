@@ -1,3 +1,7 @@
+6/15/2016 - Version 1.1.5.900
+Solving issues #11 and #12 
+
+
 5/3/2016 - Version 1.1.4.900
 Solving issues #7, #8 and #9
 

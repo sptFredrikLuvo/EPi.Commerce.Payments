@@ -35,7 +35,7 @@ namespace Geta.Klarna.Checkout
         public ActivateResponse Activate(string reservationNumber, string transactionId, string orderId, List<ICartItem> cartItems)
         {
             var result = new ActivateResponse(string.Empty, RiskStatus.Undefined, transactionId);
-            
+
             try
             {
                 var api = new Api(CurrentConfiguration);
@@ -58,10 +58,19 @@ namespace Geta.Klarna.Checkout
             return result;
         }
 
-        public bool CancelReservation(string reservationNumber)
+        public CancelResponse CancelReservation(string reservationNumber)
         {
-             var api = new Api(CurrentConfiguration);
-             return api.CancelReservation(reservationNumber);
+            var result = new CancelResponse();
+            try
+            {
+                var api = new Api(CurrentConfiguration);
+                result.IsSuccess = api.CancelReservation(reservationNumber);
+            }
+            catch (Exception ex)
+            {
+                SetError(result, ex);
+            }
+            return result;
         }
 
         public RefundResponse HandleRefund(string invoiceNumber, List<ICartItem> cartItems)
@@ -109,7 +118,6 @@ namespace Geta.Klarna.Checkout
         {
             result.IsSuccess = false;
             result.ErrorMessage = ex.Message;
-            result.ErrorCode = ex.HResult;
         }
 
 
@@ -158,7 +166,7 @@ namespace Geta.Klarna.Checkout
                 config = new Configuration(Country.Code.DK, Language.Code.DA, Currency.Code.DKK,
                     Encoding.Denmark);
             }
-            else { 
+            else {
                 // default to Sweden
                 config = new Configuration(Country.Code.SE, Language.Code.SV, Currency.Code.SEK,
                     Encoding.Sweden);
@@ -169,7 +177,7 @@ namespace Geta.Klarna.Checkout
 
             return config;
         }
-        
-        
+
+
     }
 }

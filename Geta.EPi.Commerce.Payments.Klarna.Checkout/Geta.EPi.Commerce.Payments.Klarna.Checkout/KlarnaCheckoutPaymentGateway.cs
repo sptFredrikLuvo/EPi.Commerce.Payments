@@ -56,7 +56,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                             // We will include cart items (in case of partial shipment)
                             var shipment = orderForm.Shipments[0];  // only 1 shipment is valid
                             var cartItems = orderForm.LineItems.Select(item => item.ToCartItem(true)).ToList();
-                            cartItems.Add(shipment.ToCartItem(true));
+                            cartItems.AddRange(shipment.ToCartItems(true));
 
                             var purchaseOrder = (orderGroup as PurchaseOrder);
 
@@ -88,14 +88,15 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                 // we need to save invoice number incase of refunds later
                                 purchaseOrder[MetadataConstants.InvoiceId] = response.InvoiceNumber;
                                 orderGroup.AcceptChanges();
+                                PostProcessPayment.PostCapture(response, payment);
                             }
                             else
                             {
-                                Logger.Warning(string.Format("Capture failed for order {0} with reservation {1}. Error message: {2}",
+                                PostProcessPayment.PostCapture(response, payment);
+                                Logger.Error(string.Format("Capture failed for order {0} with reservation {1}. Error message: {2}",
                                     trackingNr, reservation, response.ErrorMessage));
+                                throw new Exception(response.ErrorMessage);
                             }
-
-                            PostProcessPayment.PostCapture(response, payment);
 
                             return response.IsSuccess;
                         }
@@ -112,29 +113,30 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                             }
 
                             Logger.Debug(string.Format("Cancel reservation called with reservation {0}. Transaction id is {1}.", reservation, payment.TransactionID));
-                            // Annul payment - cancel reservation
-                            try
+
+                            var cancelResult = orderApiClient.CancelReservation(reservation);
+                            if (cancelResult.IsSuccess)
                             {
-                                var result = orderApiClient.CancelReservation(reservation);
-                                if (result)
-                                {
-                                    payment.Status = PaymentStatus.Processed.ToString();
-                                    orderGroup.Status = OrderStatus.Cancelled.ToString();
-                                }
-                                else
-                                {
-                                    payment.Status = PaymentStatus.Failed.ToString();
-                                }
-                                orderGroup.AcceptChanges();
-                                PostProcessPayment.PostAnnul(result, payment);
-                                return result;
+                                orderGroup.Status = OrderStatus.Cancelled.ToString();
+                                payment.Status = PaymentStatus.Processed.ToString();
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                var errorMessage = string.Format("VOID operation KlarnaCheckoutPaymentGateway failed. Error is {0}." , ex.Message);
+                                payment.Status = PaymentStatus.Failed.ToString();
+                            }
+
+                            orderGroup.AcceptChanges();
+                            PostProcessPayment.PostAnnul(cancelResult.IsSuccess, payment);
+
+                            if (cancelResult.IsSuccess == false)
+                            {
+                                var errorMessage = string.Format("VOID operation KlarnaCheckoutPaymentGateway failed. Error is {0}.", cancelResult.ErrorMessage);
                                 Logger.Error(errorMessage);
-                                throw new Exception(errorMessage);
+                                throw new Exception(cancelResult.ErrorMessage);
                             }
+
+                            return cancelResult.IsSuccess;
+
                         }
                     case "CREDIT":
                         {
@@ -158,7 +160,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                 if (returnFormToProcess == null)
                                 {
                                     payment.Status = PaymentStatus.Failed.ToString();
-                                    PostProcessPayment.PostCredit(new RefundResponse() {IsSuccess = false, ErrorMessage = "No return forms to process."}, payment);
+                                    PostProcessPayment.PostCredit(new RefundResponse() { IsSuccess = false, ErrorMessage = "No return forms to process." }, payment);
                                     return false;
                                 }
 
@@ -180,14 +182,23 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                     // if shipment is part of returnForm, then we will return shipping cost as well
                                     var shipment = returnFormToProcess.Shipments[0];
                                     if (shipment != null && shipment.ShippingTotal > 0)
-                                        returnItems.Add(shipment.ToCartItem());
+                                        returnItems.AddRange(shipment.ToCartItems());
 
                                     result = orderApiClient.HandleRefund(invoiceNumber, returnItems);
                                 }
 
                                 payment.Status = result.IsSuccess ? PaymentStatus.Processed.ToString() : PaymentStatus.Failed.ToString();
                                 orderGroup.AcceptChanges();
+
                                 PostProcessPayment.PostCredit(result, payment);
+
+                                if (result.IsSuccess == false)
+                                {
+                                    Logger.Error(result.ErrorMessage);
+                                    throw new Exception(result.ErrorMessage);
+                                }
+
+                                
                                 return result.IsSuccess;
                             }
                             return false;
@@ -266,7 +277,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                                            "Payment method configuration is not valid. Missing payment Locale.");
             }
 
-            Logger.Debug("Payment method configuuration verified.");
+            Logger.Debug("Payment method configuration verified.");
         }
     }
 }
