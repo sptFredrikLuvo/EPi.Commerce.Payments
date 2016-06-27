@@ -1,0 +1,45 @@
+﻿@using EPiServer.Reference.Commerce.Site.Features.Payment.Models
+@using Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
+@model EPiServer.Reference.Commerce.Site.Features.Checkout.Models.CheckoutViewModel
+@{
+    Layout = null;
+}
+<div class="row">
+    <div class="col-md-6 col-sm-12">
+        <div class="jsPaymentMethod">
+            @if (Model.Payment != null)
+            {
+                if (Model.Payment.SystemName == "ResursBankCheckout")
+                {
+                    var controller = string.Format("_{0}PaymentMethod", Model.Payment.SystemName);
+                    var resurCheckoutModel = Model.Payment as ResursBankCheckoutViewModel;
+                    if (resurCheckoutModel != null)
+                    {
+                        resurCheckoutModel.ResursBankPaymentMethods = (Model.Payment.PaymentMethod as ResursCheckoutPaymentGateway).GetResursPaymentMethods("sv", "NATURAL", 10000);
+                        Html.RenderPartial(controller, resurCheckoutModel);
+                    }
+
+                }
+                else
+                {
+                    var controller = string.Format("_{0}PaymentMethod", Model.Payment.SystemName);
+
+                    Html.RenderPartial(controller, Model.Payment);
+                }
+
+            }
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-12" style="display:none">
+        <h3>@Html.Translate("/Checkout/Payment/Labels/ChoosePayment")</h3>
+        @foreach (var method in Model.PaymentMethodViewModels)
+        {
+            <div class="radio">
+                <label>
+                    @{ string checkState = method.SystemName == Model.Payment.SystemName ? "checked" : string.Empty; }
+                    <input type="radio" class="jsChangePayment" name="SystemName" value="@method.SystemName" @checkState /> @method.FriendlyName
+                </label>
+            </div>
+        }
+    </div>
+</div>
