@@ -82,9 +82,6 @@ https://test.resurs.com/docs/display/ecom/Full+manual
 
 To setup your own demo environment (local or otherwise): [local demo setup](docs/local-demo-setup.md).
 
-### Quicksilver
-
-Here's a step by step guide on how to add it to a new Quicksilver site: [Integrate to Quicksilver](docs/Integrate-to-quicksilver.md)
 
 ## Release notes
 
