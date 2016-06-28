@@ -1,12 +1,12 @@
-Library for Resurs Checkout integration with EPiServer Commerce
-=============
+# Resurs Bank Checkout integration with EPiServer Commerce
 
 ## What is Geta.EPi.Commerce.Payments.Resurs.Checkout?
 
-Geta.EPi.Commerce.Resurs.Klarna.Checkout is library which helps to integrate Resurs Checkout as one of the payment options in your EPiServer Commerce sites.
-This library consists of three assemblies: 
+Geta.EPi.Commerce.Payments.Resurs.Checkout is library which helps to integrate Resurs Bank Checkout as one of the payment options in your EPiServer Commerce site.
+
+There are three NuGet packages: 
 * Geta.Resurs.Checkout is wrapper for Resurs Checkout API and simplifies API usage 
-* Geta.EPi.Commerce.Payments.Resurs.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration 
+* Geta.EPi.Commerce.Payments.Resurs.Checkout contains extensions and helpers for easier EPiServer Commerce and Resurs Bank Checkout integration 
 * Geta.EPi.Payments.Resurs.CommerceManager contains .ascx for payment method settings for Commerce Manager
 
 ## How to get started?
@@ -24,13 +24,13 @@ For the Commerce Manager site run the following package:
 
 #### Endpoints
 
-Resurs Checkout requires to add Resurs WCF service reference to your Website:
+Resurs Checkout requires to add Resurs Bank WCF service reference to your Website:
 - Get testing services from : https://test.resurs.com/docs/display/ecom/Test+URLs
 - Get go-live services from : https://test.resurs.com/docs/display/ecom/Live+URLs+and+go-live+checklist
 
 #### Web.config / app.config
 Resurs Checkout requires to 2 app-setting key for authenticate service:
-This credential was supplied from Resurs Bank. Please contact to them to get detail.
+Please contact Resurs Bank directly for user name and password.
 ```XML
   <appSettings>
     <add key="ResursBank:UserName" value="service_username"/>
@@ -40,7 +40,7 @@ This credential was supplied from Resurs Bank. Please contact to them to get det
 
 #### Configure Commerce Manager
 
-Login into Commerce Manager and open **Administration -> Order System -> Payments**. Then click **New** and in **Overview** tab fill:
+Login to Commerce Manager and open **Administration -> Order System -> Payments**. Then click **New** and in **Overview** tab fill:
 
 - **Name**
 - **System Keyword** - ResursBankCheckout
@@ -60,7 +60,7 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 
 In **Markets** tab select market for which this payment will be available.
 
-## Creating NuGet package
+## Creating NuGet packages
 
 Project contains _pack.bat_ file for easier packaging. It calls _nuget.exe_ (assuming it's in your environment PATH) with _-IncludeReferencedProjects_ to include referenced Geta.Klarna.Checkout assembly. You also can provide output directory as a parameter for _pack.bat_.
 
@@ -74,7 +74,7 @@ Project contains _pack.bat_ file for easier packaging. It calls _nuget.exe_ (ass
 
 https://test.resurs.com/docs/display/ecom/Step+By+Step%3A+Simplified+Basic+Shop+Flow
 
-### Resurs Checkout documentation
+### Resurs Bank Checkout documentation
 
 https://test.resurs.com/docs/display/ecom/Full+manual
 
@@ -88,4 +88,4 @@ Here's a step by step guide on how to add it to a new Quicksilver site: [Integra
 
 ## Release notes
 
-* [Changes in version 1.0.0.0](docs/release-notes-1.md)
+* [Changes in version 1.0.0.7](docs/release-notes-1.md)
