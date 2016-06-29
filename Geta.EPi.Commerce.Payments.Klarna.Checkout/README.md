@@ -220,6 +220,7 @@ If you are not receiving push notifications from Klarna make sure the urls you s
 ### Related blog posts
 
 http://geta.no/blogg/a-major-facelift-for-the-geta-klarna-checkout-module/
+
 http://geta.no/blogg/validating-a-checkout-order/
 
 ### Klarna Checkout API reference
