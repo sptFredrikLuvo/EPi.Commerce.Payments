@@ -264,10 +264,16 @@
       <Project>{ea714717-f640-4553-8c46-43ee40b4de6a}</Project>
       <Name>Geta.Epi.Commerce.Payments.Netaxept.Checkout</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Geta.Netaxept.Checkout\Geta.Netaxept.Checkout.csproj">
+      <Project>{2efe7e9d-8e37-4543-9037-dca53eaa0008}</Project>
+      <Name>Geta.Netaxept.Checkout</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /i /e /s "$(SolutionDir)\src\Geta.EPi.Payments.Netaxept.CommerceManager\Apps\Order\Payments\Plugins\NetaxeptCheckout\ConfigurePayment.ascx" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\Apps\Order\Payments\Plugins\NetaxeptCheckout\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y /i /e /s "$(SolutionDir)\src\Geta.EPi.Payments.Netaxept.CommerceManager\Apps\Order\Payments\Plugins\NetaxeptCheckout\ConfigurePayment.ascx" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\Apps\Order\Payments\Plugins\NetaxeptCheckout\"
+xcopy /Y "$(SolutionDir)\src\Geta.Epi.Payments.Netaxept.CommerceManager\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.CommerceManager.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"
+xcopy /Y "$(SolutionDir)\src\Geta.Epi.Payments.Netaxept.CommerceManager\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

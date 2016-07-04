@@ -13,39 +13,39 @@ namespace Geta.EPi.Payments.Netaxept.CommerceManager.Apps.Order.Payments.Plugins
     public partial class ConfigurePayment {
         
         /// <summary>
-        /// txtUserName control.
+        /// txtMerchantId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtUserName;
+        protected global::System.Web.UI.WebControls.TextBox txtMerchantId;
         
         /// <summary>
-        /// val1 control.
+        /// requiredMerchantId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator val1;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator requiredMerchantId;
         
         /// <summary>
-        /// txtPassword control.
+        /// txtToken control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPassword;
+        protected global::System.Web.UI.WebControls.TextBox txtToken;
         
         /// <summary>
-        /// val3 control.
+        /// requiredToken control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator val3;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator requiredToken;
     }
 }

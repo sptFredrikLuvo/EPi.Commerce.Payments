@@ -5,17 +5,17 @@
 <table class="DataForm">
     <tbody>
          <tr>
-            <td class="FormLabelCell">Username:</td>
+            <td class="FormLabelCell">Merchant id:</td>
             <td class="FormFieldCell">
-                <asp:TextBox runat="server" ID="txtUserName" />
-                <asp:RequiredFieldValidator ID="val1" runat="server" ControlToValidate="txtUserName" ErrorMessage="Username is required." />
+                <asp:TextBox runat="server" ID="txtMerchantId" />
+                <asp:RequiredFieldValidator ID="requiredMerchantId" runat="server" ControlToValidate="txtMerchantId" ErrorMessage="Merchant is required." />
             </td>
         </tr>
         <tr>
-            <td class="FormLabelCell">Password:</td>
+            <td class="FormLabelCell">Token:</td>
             <td class="FormFieldCell">
-                <asp:TextBox runat="server" ID="txtPassword"  />
-                <asp:RequiredFieldValidator ID="val3" runat="server" ControlToValidate="txtPassword" ErrorMessage="The shared secret is required." />
+                <asp:TextBox runat="server" ID="txtToken"  />
+                <asp:RequiredFieldValidator ID="requiredToken" runat="server" ControlToValidate="txtToken" ErrorMessage="The token is required." />
             </td>
         </tr>
        

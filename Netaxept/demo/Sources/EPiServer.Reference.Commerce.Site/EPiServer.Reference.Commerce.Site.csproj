@@ -486,6 +486,7 @@
     <Compile Include="Features\ErrorHandling\Controllers\ErrorHandlingController.cs" />
     <Compile Include="Features\ErrorHandling\Models\ErrorViewModel.cs" />
     <Compile Include="Features\ErrorHandling\Pages\ErrorPage.cs" />
+    <Compile Include="Features\Payment\Models\NetaxeptViewModel.cs" />
     <Compile Include="Features\Shared\Extensions\StringExtensions.cs" />
     <Compile Include="Features\Payment\Models\CashOnDeliveryViewModel.cs" />
     <Compile Include="Features\Payment\Models\PaymentMethodViewModelResolver.cs" />
@@ -840,6 +841,7 @@
     <Content Include="modules\_protected\EPiServer.Commerce.Shell\EPiServer.Commerce.Shell.zip" />
     <Content Include="modules\_protected\Commerce\Commerce.zip" />
     <Content Include="modules\_protected\EPiServer.Commerce.Shell.ManagerIntegration\EPiServer.Commerce.Shell.ManagerIntegration.zip" />
+    <Content Include="Views\Shared\_netaxeptcheckoutPaymentMethod.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

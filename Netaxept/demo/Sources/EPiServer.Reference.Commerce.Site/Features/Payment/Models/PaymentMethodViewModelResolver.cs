@@ -14,6 +14,9 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.Models
                     return new CashOnDeliveryViewModel() { PaymentMethod = new CashOnDeliveryPaymentMethod() };
 
                 case "GenericCreditCard":
+                    return new GenericCreditCardViewModel() {PaymentMethod = new GenericCreditCardPaymentMethod()};
+
+                case "netaxeptcheckout":
                     return new GenericCreditCardViewModel() { PaymentMethod = new GenericCreditCardPaymentMethod() };
             }
 
