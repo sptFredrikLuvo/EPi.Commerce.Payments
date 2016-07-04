@@ -3,7 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.EPi.Payments.Netaxept.CommerceManager", "src\Geta.EPi.Payments.Netaxept.CommerceManager\Geta.EPi.Payments.Netaxept.CommerceManager.csproj", "{D8BC451C-3D0F-4FFD-94D5-52B4E080377D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Epi.Commerce.Payments.Netaxept.Checkout", "src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\Geta.Epi.Commerce.Payments.Netaxept.Checkout.csproj", "{EA714717-F640-4553-8C46-43EE40B4DE6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Netaxept.Checkout", "src\Geta.Netaxept.Checkout\Geta.Netaxept.Checkout.csproj", "{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8BC451C-3D0F-4FFD-94D5-52B4E080377D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8BC451C-3D0F-4FFD-94D5-52B4E080377D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8BC451C-3D0F-4FFD-94D5-52B4E080377D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8BC451C-3D0F-4FFD-94D5-52B4E080377D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA714717-F640-4553-8C46-43EE40B4DE6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA714717-F640-4553-8C46-43EE40B4DE6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA714717-F640-4553-8C46-43EE40B4DE6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA714717-F640-4553-8C46-43EE40B4DE6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
