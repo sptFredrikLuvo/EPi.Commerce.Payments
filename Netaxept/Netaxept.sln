@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Epi.Commerce.Payments.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geta.Netaxept.Checkout", "src\Geta.Netaxept.Checkout\Geta.Netaxept.Checkout.csproj", "{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{25E724AB-97D3-4533-BC3B-032B46595C02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Integration", "Test\Test.Integration\Test.Integration.csproj", "{16F3BF1E-41D5-4F84-9DD9-8C1080DE11AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,8 +31,15 @@ Global
 		{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EFE7E9D-8E37-4543-9037-DCA53EAA0008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16F3BF1E-41D5-4F84-9DD9-8C1080DE11AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16F3BF1E-41D5-4F84-9DD9-8C1080DE11AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16F3BF1E-41D5-4F84-9DD9-8C1080DE11AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16F3BF1E-41D5-4F84-9DD9-8C1080DE11AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{16F3BF1E-41D5-4F84-9DD9-8C1080DE11AE} = {25E724AB-97D3-4533-BC3B-032B46595C02}
 	EndGlobalSection
 EndGlobal

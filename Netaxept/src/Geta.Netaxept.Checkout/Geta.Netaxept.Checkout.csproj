@@ -32,6 +32,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,7 +43,60 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NetaxeptConstants.cs" />
+    <Compile Include="NetaxeptServiceClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service References\NetaxeptWebServiceClient\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Service References\NetaxeptWebServiceClient\Geta.Netaxept.Checkout.NetaxeptWebServiceClient.ProcessResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\NetaxeptWebServiceClient\Geta.Netaxept.Checkout.NetaxeptWebServiceClient.QueryResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\NetaxeptWebServiceClient\Geta.Netaxept.Checkout.NetaxeptWebServiceClient.ReconResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\NetaxeptWebServiceClient\Geta.Netaxept.Checkout.NetaxeptWebServiceClient.RegisterResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\NetaxeptWebServiceClient\Netaxept.wsdl" />
+    <None Include="Service References\NetaxeptWebServiceClient\Netaxept.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\NetaxeptWebServiceClient\Netaxept1.wsdl" />
+    <None Include="Service References\NetaxeptWebServiceClient\Netaxept1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\NetaxeptWebServiceClient\Netaxept2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\NetaxeptWebServiceClient\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\NetaxeptWebServiceClient\Netaxept.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\NetaxeptWebServiceClient\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\NetaxeptWebServiceClient\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\NetaxeptWebServiceClient\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
