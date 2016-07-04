@@ -16,14 +16,14 @@ namespace Geta.Netaxept.Checkout
             _client = new NetaxeptClient();
         }
 
-        public void Register(string mercharntId, string token )
+        public string Register(string merchantId, string token)
         {
-            var response = _client.Register(mercharntId, token, new RegisterRequest
+            var response = _client.Register(merchantId, token, new RegisterRequest
             {
                 Terminal = new Terminal
                 {
                     OrderDescription = "Just a test transaction",
-                    RedirectUrl = "http://netaxept.localtest.me/"
+                    RedirectUrl = "http://netaxept.localtest.me/thanks"
                 },
                 Order = new Order
                 {
@@ -40,6 +40,7 @@ namespace Geta.Netaxept.Checkout
                     Type = "S"
                 }
             });
+            return response.TransactionId;
         }
     }
 }

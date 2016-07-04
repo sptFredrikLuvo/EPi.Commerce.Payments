@@ -8,5 +8,7 @@
 
         public const string MerchantId = "MerchantId";
         public const string Token = "Token";
+
+        public const string PaymentResultCookieName = "NetaxeptPaymentBookResult";
     }
 }

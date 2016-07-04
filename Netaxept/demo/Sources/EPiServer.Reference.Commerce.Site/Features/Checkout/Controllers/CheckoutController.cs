@@ -32,6 +32,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
@@ -148,7 +149,15 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             viewModel.Payment.Description = selectedPaymentMethod.Description;
             viewModel.Payment.SystemName = selectedPaymentMethod.SystemName;
-            ((PaymentMethodBase)viewModel.Payment.PaymentMethod).PaymentMethodId = selectedPaymentMethod.Id;
+            if (viewModel.Payment.PaymentMethod is NetaxeptCheckoutPaymentGateway)
+            {
+                ((NetaxeptCheckoutPaymentGateway)viewModel.Payment.PaymentMethod).PaymentMethodId = selectedPaymentMethod.Id;
+                //((NetaxeptCheckoutPaymentGateway)viewModel.Payment.PaymentMethod).CallBackUrlWhenFail = Url.Action("BookSignedpayment");
+
+            }
+            else
+                ((PaymentMethodBase)viewModel.Payment.PaymentMethod).PaymentMethodId = selectedPaymentMethod.Id;
+
 
             return viewModel;
         }
@@ -514,6 +523,28 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             try
             {
+                var netaxept = checkoutViewModel.Payment as NetaxeptViewModel;
+                if (netaxept != null)
+                {
+                    var netaxeptPaymentMethod =
+                        checkoutViewModel.Payment.PaymentMethod as NetaxeptCheckoutPaymentGateway;
+                    if (netaxeptPaymentMethod != null)
+                    {
+                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("BookSignedpayment");
+
+                        /*netaxeptPaymentMethod.CardNumber = resursBank.CardNumber;
+                        netaxeptPaymentMethod.ResursPaymentMethod = resursBank.ResursPaymentMethod;
+                        //resursBankPaymentMethod.CallBackUrlWhenFail = Url.Action("BookSignedpayment", "Checkout", null, this.Request.Url.Scheme);
+                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("BookSignedpayment");
+                        netaxeptPaymentMethod.CallBackUrlWhenFail = "http://" + this.Request.Url.DnsSafeHost + _contentRepository.GetFirstChild<OrderConfirmationPage>(currentPage.ContentLink).LinkURL;
+                        netaxeptPaymentMethod.GovernmentId = resursBank.GovernmentId;
+                        netaxeptPaymentMethod.AmountForNewCard = resursBank.AmountForNewCard;
+                        netaxeptPaymentMethod.MinLimit = resursBank.MinLimit;
+                        netaxeptPaymentMethod.MaxLimit = resursBank.MaxLimit;
+                        netaxeptPaymentMethod.InvoiceDeliveryType = resursBank.DeliveryType;*/
+                    }
+                }
+
                 _paymentService.ProcessPayment(checkoutViewModel.Payment.PaymentMethod);
             }
             catch (PreProcessException)
@@ -600,6 +631,26 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult BookSignedpayment()
+        {
+            //NetaxeptServiceClient service = new ResursBankServiceClient(null);
+            //bookPaymentResult result = service.BookSignedPayment(paymentId);
+            _cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
+            PurchaseOrder purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
+            _checkoutService.DeleteCart();
+
+            var startpage = _contentRepository.Get<StartPage>(ContentReference.StartPage);
+            var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(startpage.CheckoutPage);
+            var queryCollection = new NameValueCollection
+            {
+                {"contactId", _customerContext.CurrentContactId.ToString()},
+                {"orderNumber", purchaseOrder.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
+            };
+
+            return Redirect(new UrlBuilder(confirmationPage.LinkURL) { QueryCollection = queryCollection }.ToString());
+        }
+
         /// <summary>
         /// Finalizes a purchase orders and send an e-mail confirmation to the customer.
         /// </summary>
@@ -620,10 +671,10 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             OrderForm orderForm = _cartService.GetOrderForms().First();
             decimal totalProcessedAmount = orderForm.Payments.Where(x => x.Status.Equals(PaymentStatus.Processed.ToString())).Sum(x => x.Amount);
 
-            if (totalProcessedAmount != orderForm.Total)
-            {
-                throw new InvalidOperationException("Wrong amount");
-            }
+            //if (totalProcessedAmount != orderForm.Total)
+            //{
+            //   throw new InvalidOperationException("Wrong amount");
+            //}
 
             _cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
             purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();

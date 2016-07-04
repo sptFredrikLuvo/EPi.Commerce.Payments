@@ -1,4 +1,5 @@
 ﻿using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business;
+using Mediachase.Commerce.Website;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Payment.Models
 {
@@ -12,5 +13,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.Models
         public void InitializeValues()
         {
         }
+
+        public IPaymentMethodViewModel<IPaymentOption> Payment { get; set; }
     }
 }
