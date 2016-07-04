@@ -147,6 +147,9 @@
     <Reference Include="Geta.EPi.Payments.Netaxept.CommerceManager">
       <HintPath>..\..\..\src\Geta.EPi.Payments.Netaxept.CommerceManager\bin\Debug\Geta.EPi.Payments.Netaxept.CommerceManager.dll</HintPath>
     </Reference>
+    <Reference Include="Geta.Netaxept.Checkout">
+      <HintPath>..\..\..\src\Geta.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>

@@ -243,13 +243,24 @@
     <Compile Include="Business\NetaxeptCheckoutPaymentGateway.cs" />
     <Compile Include="Business\NetaxeptPayment.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
+    <Compile Include="MetadataInitialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Geta.Netaxept.Checkout\Geta.Netaxept.Checkout.csproj">
+      <Project>{2efe7e9d-8e37-4543-9037-dca53eaa0008}</Project>
+      <Name>Geta.Netaxept.Checkout</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Site\bin\"
+xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Site\bin\"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
