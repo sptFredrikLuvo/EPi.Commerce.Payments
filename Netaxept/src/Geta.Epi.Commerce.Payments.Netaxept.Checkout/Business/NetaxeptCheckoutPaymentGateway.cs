@@ -84,12 +84,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                     }
 
                     // Save the PanHash(if not empty) on the customer contact, so we can use EasyPayment for next payment
-                    if (!string.IsNullOrEmpty(paymentResult.PanHash) && orderForm.Parent.CustomerId != Guid.Empty)
+                    if (!string.IsNullOrEmpty(paymentResult.CardInformationPanHash) && orderForm.Parent.CustomerId != Guid.Empty)
                     {
                         var customerContact = CustomerContext.Current.GetContactById(orderForm.Parent.CustomerId);
                         if (customerContact != null)
                         {
-                            customerContact[NetaxeptConstants.CustomerPanHashFieldName] = paymentResult.PanHash;
+                            customerContact[NetaxeptConstants.CustomerPanHashFieldName] = paymentResult.CardInformationPanHash;
                             customerContact.SaveChanges();
                         }
                     }
@@ -216,6 +216,24 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
 
             request.SuccessUrl = payment.GetStringValue(NetaxeptConstants.SuccessfullUrl, string.Empty);
 
+            request.CustomerNumber = (orderForm.Parent.CustomerId != Guid.Empty ? orderForm.Parent.CustomerId.ToString() : string.Empty);
+            
+            var billingAddress = orderForm.Parent.OrderAddresses.FirstOrDefault(a => a.Name == orderForm.BillingAddressId);
+            if (billingAddress != null)
+            {
+                request.CustomerFirstname = billingAddress.FirstName;
+                request.CustomerLastname = billingAddress.LastName;
+                request.CustomerEmail = billingAddress.Email;
+                request.CustomerAddress1 = billingAddress.Line1;
+                request.CustomerAddress2 = !string.IsNullOrEmpty(billingAddress.Line2)? billingAddress.Line2: billingAddress.Line1;
+                request.CustomerPostcode = billingAddress.PostalCode;
+                request.CustomerTown = billingAddress.City;
+                if (billingAddress.CountryCode.Length == 2)
+                {
+                    request.CustomerCountry = billingAddress.CountryCode;
+                }
+                request.CustomerPhoneNumber = billingAddress.DaytimePhoneNumber ?? billingAddress.EveningPhoneNumber;
+            }
             return request;
         }
     }

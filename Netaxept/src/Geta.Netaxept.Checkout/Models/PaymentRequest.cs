@@ -23,5 +23,18 @@ namespace Geta.Netaxept.Checkout.Models
         /* PAYMENT OPTIONS */
         public bool EnableEasyPayments { get; set; }
         public string PanHash { get; set; }
+
+        /* Customer */
+        public string CustomerNumber { get; set; }
+        public string CustomerEmail { get; set; }
+        public string CustomerPhoneNumber { get; set; }
+        public string CustomerFirstname { get; set; }
+        public string CustomerLastname { get; set; }
+        public string CustomerAddress1 { get; set; }
+        public string CustomerAddress2 { get; set; }
+        public string CustomerPostcode { get; set; }
+        public string CustomerTown { get; set; }
+        public string CustomerCountry { get; set; }
+
     }
 }

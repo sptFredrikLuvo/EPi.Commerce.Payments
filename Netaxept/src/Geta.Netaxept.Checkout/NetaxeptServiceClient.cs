@@ -43,6 +43,19 @@ namespace Geta.Netaxept.Checkout
                 Environment = new Environment
                 {
                     WebServicePlatform = "WCF"
+                },
+                Customer = new Customer
+                {
+                    CustomerNumber = paymentRequest.CustomerNumber,
+                    FirstName = paymentRequest.CustomerFirstname,
+                    LastName = paymentRequest.CustomerLastname,
+                    Email = paymentRequest.CustomerEmail,
+                    Address1 = paymentRequest.CustomerAddress1,
+                    Address2 = paymentRequest.CustomerAddress2,
+                    Postcode = paymentRequest.CustomerPostcode,
+                    Town = paymentRequest.CustomerTown,
+                    Country = paymentRequest.CustomerCountry,
+                    PhoneNumber = paymentRequest.CustomerPhoneNumber
                 }
             };
 
@@ -76,7 +89,14 @@ namespace Geta.Netaxept.Checkout
         {
             return new PaymentResult
             {
-                PanHash = info.CardInformation.PanHash,
+                CardInformationPanHash = info.CardInformation.PanHash,
+                CardInformationMaskedPan = info.CardInformation.MaskedPAN,
+                CardInformationIssuer = info.CardInformation.Issuer,
+                CardInformationExpiryDate = info.CardInformation.ExpiryDate,
+                CardInformationIssuerCountry = info.CardInformation.IssuerCountry,
+                CardInformationIssuerId = info.CardInformation.IssuerId,
+                CardInformationPaymentMethod = info.CardInformation.PaymentMethod,
+
                 Cancelled = (info.Error != null ? info.Error.ResponseCode.Equals("17") : false),
                 ErrorOccurred = (info.Error != null),
                 ErrorMessage = (info.Error != null ? string.Format("{0}/{1}: {2}", info.Error.ResponseCode, info.Error.ResponseSource, info.Error.ResponseText) : string.Empty)

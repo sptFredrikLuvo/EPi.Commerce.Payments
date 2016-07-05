@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="ShipmentSummary.ascx.cs" Inherits="Mediachase.Commerce.Manager.Apps.Order.Modules.ShipmentSummary" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="ShipmentSummary.ascx.cs" Inherits="Mediachase.Commerce.Manager.Apps.Order.Modules.TestShipmentSummary" %>
 <%@ Register TagPrefix="mc2" Namespace="Mediachase.Commerce.Manager.Apps.Common.Design"
 	Assembly="Mediachase.ConsoleManager" %>
 <%@ Register src="~/Apps/Core/Controls/ButtonsHolder.ascx" tagname="ButtonsHolder" tagprefix="uc1" %>
