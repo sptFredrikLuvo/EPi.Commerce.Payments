@@ -243,6 +243,7 @@
   <ItemGroup>
     <Compile Include="Business\NetaxeptCheckoutPaymentGateway.cs" />
     <Compile Include="Business\NetaxeptPayment.cs" />
+    <Compile Include="Extensions\MetaStorargeExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
     <Compile Include="MetadataInitialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

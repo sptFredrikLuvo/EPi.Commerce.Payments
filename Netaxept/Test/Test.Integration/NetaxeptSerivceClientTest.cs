@@ -16,7 +16,7 @@ namespace Test.Integration
         {
             var appSettings = ConfigurationManager.AppSettings;
             var client = new NetaxeptServiceClient();
-            client.Register(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"]);
+            //client.Register(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"], "http://localhost/thanks");
         }
     }
 }

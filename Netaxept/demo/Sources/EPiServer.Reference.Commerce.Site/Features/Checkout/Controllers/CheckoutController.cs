@@ -530,8 +530,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                         checkoutViewModel.Payment.PaymentMethod as NetaxeptCheckoutPaymentGateway;
                     if (netaxeptPaymentMethod != null)
                     {
-                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("BookSignedpayment");
-
+                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("CompletePayment");
+                        
                         /*netaxeptPaymentMethod.CardNumber = resursBank.CardNumber;
                         netaxeptPaymentMethod.ResursPaymentMethod = resursBank.ResursPaymentMethod;
                         //resursBankPaymentMethod.CallBackUrlWhenFail = Url.Action("BookSignedpayment", "Checkout", null, this.Request.Url.Scheme);
@@ -632,7 +632,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         }
 
         [HttpGet]
-        public ActionResult BookSignedpayment()
+        public ActionResult CompletePayment()
         {
             //NetaxeptServiceClient service = new ResursBankServiceClient(null);
             //bookPaymentResult result = service.BookSignedPayment(paymentId);

@@ -18,6 +18,12 @@
                 <asp:RequiredFieldValidator ID="val3" runat="server" ControlToValidate="txtPassword" ErrorMessage="The shared secret is required." />
             </td>
         </tr>
-       
+        <tr>
+            <td class="FormLabelCell">Lanuage:</td>
+            <td class="FormFieldCell">
+                <asp:TextBox runat="server" ID="txtLanguage"  />
+                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtPassword" ErrorMessage="The shared secret is required." />
+            </td>
+        </tr>
     </tbody>
 </table>

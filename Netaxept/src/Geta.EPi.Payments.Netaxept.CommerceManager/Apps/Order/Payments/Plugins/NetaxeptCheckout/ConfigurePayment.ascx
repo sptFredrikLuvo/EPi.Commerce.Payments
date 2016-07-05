@@ -18,6 +18,32 @@
                 <asp:RequiredFieldValidator ID="requiredToken" runat="server" ControlToValidate="txtToken" ErrorMessage="The token is required." />
             </td>
         </tr>
-       
+        <tr>
+            <td class="FormLabelCell">Terminal Url:</td>
+            <td class="FormFieldCell">
+                <asp:TextBox runat="server" ID="txtTerminalUrl"  />
+                <asp:RequiredFieldValidator ID="requiredTerminalUrl" runat="server" ControlToValidate="txtTerminalUrl" ErrorMessage="The terminal url is required." />
+            </td>
+        </tr>
+         <tr>
+            <td class="FormLabelCell">Terminal language:</td>
+            <td class="FormFieldCell">
+                <asp:DropDownList ID="drdTerminalLanguage" runat="server">
+                    <Items>
+                       <asp:ListItem Text="Norwegian" Value="no_NO" />
+                       <asp:ListItem Text="Swedish" Value="sv_SE" />
+                       <asp:ListItem Text="Danish" Value="da_DK" />
+                       <asp:ListItem Text="German" Value="de_DE" />
+                       <asp:ListItem Text="Finnish" Value="fi_FI" />
+                       <asp:ListItem Text="Russian" Value="ru_RU" />
+                       <asp:ListItem Text="Polish" Value="pl_PL" />
+                       <asp:ListItem Text="Spanish" Value="es_ES" />
+                       <asp:ListItem Text="Italian" Value="it_IT" />
+                       <asp:ListItem Text="English" Value="en_GB" />
+                    </Items>
+                </asp:DropDownList>
+                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtTerminalUrl" ErrorMessage="The terminal url is required." />
+            </td>
+        </tr>
     </tbody>
 </table>

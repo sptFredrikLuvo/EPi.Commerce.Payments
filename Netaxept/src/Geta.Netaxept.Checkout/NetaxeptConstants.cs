@@ -3,12 +3,18 @@
     public static class NetaxeptConstants
     {
         public const string NetaxeptPaymentMethod = "NetaxeptPaymentMethod";
+        public const string SuccessfullUrl = "SuccessfullUrl";
         public const string OrderNamespace = "Mediachase.Commerce.Orders";
         public const string OtherPaymentClass = "OtherPayment";
 
-        public const string MerchantId = "MerchantId";
-        public const string Token = "Token";
+        /* Payment method fields*/
+        public const string MerchantIdField = "MerchantId";
+        public const string TokenField = "Token";
+        public const string TerminalUrlField = "TerminalUrl";
+        public const string TerminalLanguageField = "TerminalLanguage";
 
-        public const string PaymentResultCookieName = "NetaxeptPaymentBookResult";
+        public const string PaymentResultCookieName = "NetaxeptPaymentResult";
+
+        public const string CustomerPanHashFieldName = "PanHash";
     }
 }

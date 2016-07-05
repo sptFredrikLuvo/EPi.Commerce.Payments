@@ -17,8 +17,11 @@ namespace Geta.EPi.Payments.Netaxept.CommerceManager.Apps.Order.Payments.Plugins
             {
                 return;
             }
-            txtMerchantId.Text = paymentMethod.GetParameter(NetaxeptConstants.MerchantId, string.Empty);
-            txtToken.Text = paymentMethod.GetParameter(NetaxeptConstants.Token, string.Empty);
+            txtMerchantId.Text = paymentMethod.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
+            txtToken.Text = paymentMethod.GetParameter(NetaxeptConstants.TokenField, string.Empty);
+            txtTerminalUrl.Text = paymentMethod.GetParameter(NetaxeptConstants.TerminalUrlField, string.Empty);
+
+            drdTerminalLanguage.SelectedValue = paymentMethod.GetParameter(NetaxeptConstants.TerminalLanguageField, GetDefaultLanguage(paymentMethod));
         }
 
         public void SaveChanges(object dto)
@@ -33,8 +36,41 @@ namespace Geta.EPi.Payments.Netaxept.CommerceManager.Apps.Order.Payments.Plugins
             {
                 return;
             }
-            paymentMethod.SetParameter(NetaxeptConstants.MerchantId, txtMerchantId.Text);
-            paymentMethod.SetParameter(NetaxeptConstants.Token, txtToken.Text);
+            paymentMethod.SetParameter(NetaxeptConstants.MerchantIdField, txtMerchantId.Text);
+            paymentMethod.SetParameter(NetaxeptConstants.TokenField, txtToken.Text);
+            paymentMethod.SetParameter(NetaxeptConstants.TerminalUrlField, txtTerminalUrl.Text);
+            paymentMethod.SetParameter(NetaxeptConstants.TerminalLanguageField, drdTerminalLanguage.SelectedValue);
+        }
+
+        private string GetDefaultLanguage(PaymentMethodDto paymentMethod)
+        {
+            var currentPaymentLanguage = paymentMethod.PaymentMethodParameter[0].PaymentMethodRow.LanguageId;
+            var defaultValue = string.Format("{0}_{1}", currentPaymentLanguage.ToLower(), currentPaymentLanguage.ToUpper());
+            switch (currentPaymentLanguage)
+            {
+                case "no":
+                    return "no_NO";
+                case "sv":
+                    return "sv_SE";
+                case "da":
+                    return "da_DK";
+                case "de":
+                    return "de_DE ";
+                case "fi":
+                    return "fi_FI";
+                case "ru":
+                    return "ru_RU";
+                case "pl":
+                    return "pl_PL";
+                case "es":
+                    return "es_ES";
+                case "it":
+                    return "it_IT";
+                case "en":
+                    return "en_GB";
+                default:
+                    return "en_GB";
+            }
         }
     }
 }

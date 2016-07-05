@@ -16,16 +16,15 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions
                 throw new PaymentException(
                     PaymentException.ErrorType.ConfigurationError,
                     "NO_SETTING",
-                    "Resurs payment provider: Required setting '" + name + "' is not specified.");
+                    "Netaxept payment provider: Required setting '" + name + "' is not specified.");
             }
-
             return row.Value;
         }
 
         public static string GetParameter(this PaymentMethodDto paymentMethod, string name, string defaultValue = null)
         {
             var row = GetParameterRow(paymentMethod, name);
-
+         
             return row.GetParameter(name, defaultValue);
         }
 
