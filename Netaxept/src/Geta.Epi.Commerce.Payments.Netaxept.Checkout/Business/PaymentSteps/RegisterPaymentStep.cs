@@ -19,6 +19,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     /// </summary>
     public class RegisterPaymentStep : PaymentStep
     {
+        public RegisterPaymentStep(Payment payment) : base(payment)
+        { }
+
         /// <summary>
         /// Process register payment step
         /// </summary>
@@ -84,9 +87,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             request.CurrencyCode = orderForm.Parent.BillingCurrency;
             request.OrderDescription = "Netaxept order";
             request.OrderNumber = CartOrderNumberHelper.GenerateOrderNumber(orderForm.Parent); //orderForm.Parent.OrderGroupId.ToString(); Generate order number
-
-            request.MerchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField);
-            request.Token = paymentMethodDto.GetParameter(NetaxeptConstants.TokenField);
+            
             request.Language = paymentMethodDto.GetParameter(NetaxeptConstants.TerminalLanguageField);
 
             request.SuccessUrl = payment.GetStringValue(NetaxeptConstants.SuccessfullUrl, string.Empty);

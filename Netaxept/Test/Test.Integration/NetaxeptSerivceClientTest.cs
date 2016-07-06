@@ -17,7 +17,7 @@ namespace Test.Integration
         public void RegisterPayment()
         {
             var appSettings = ConfigurationManager.AppSettings;
-            var client = new NetaxeptServiceClient();
+            var client = new NetaxeptServiceClient(new ClientConnection("", ""));
 
             var paymentRequest = CreatePaymentRequest();
             var transactionId = client.Register(paymentRequest);
@@ -29,7 +29,7 @@ namespace Test.Integration
         public void RegisterPayment_Invalid_PhoneNumber()
         {
             var appSettings = ConfigurationManager.AppSettings;
-            var client = new NetaxeptServiceClient();
+            var client = new NetaxeptServiceClient(new ClientConnection("", ""));
 
             var paymentRequest = CreatePaymentRequest();
             paymentRequest.CustomerPhoneNumber = "1";
@@ -48,10 +48,7 @@ namespace Test.Integration
             request.CurrencyCode = "USD";
             request.OrderDescription = "Netaxept order";
             request.OrderNumber = "1234567890";
-
-            var appSettings = ConfigurationManager.AppSettings;
-            request.MerchantId = appSettings["Netaxept:MerchantId"];
-            request.Token = appSettings["Netaxept:Token"];
+            
             request.Language = "en_GB";
 
             request.SuccessUrl = "http://www.google.nl";

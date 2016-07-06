@@ -1,6 +1,9 @@
 ﻿using System;
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Netaxept.Checkout;
+using Geta.Netaxept.Checkout.Models;
 using Mediachase.Commerce.Orders;
+using Mediachase.Commerce.Orders.Managers;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 {
@@ -12,9 +15,14 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         protected NetaxeptServiceClient Client;
         protected PaymentStep Successor;
 
-        protected PaymentStep()
+        protected PaymentStep(Payment payment)
         {
-            Client = new NetaxeptServiceClient();
+            var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
+            var merchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
+            var token = paymentMethodDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
+
+            var connection = new ClientConnection(merchantId, token);
+            Client = new NetaxeptServiceClient(connection);
         }
 
         public void SetSuccessor(PaymentStep successor)

@@ -5,10 +5,6 @@ namespace Geta.Netaxept.Checkout.Models
 {
     public class PaymentRequest
     {
-        /* CONNECTION SETTINGS */
-        public string MerchantId { get; set; }
-        public string Token { get; set; }
-
         public string SuccessUrl { get; set; }
         public string OrderDescription { get; set; }
 

@@ -33,10 +33,10 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
             {
                 Logger.Debug("Netaxept checkout gateway. Processing Payment ....");
 
-                var registerPaymentStep = new RegisterPaymentStep();
-                var authenticatePaymentStep = new AuthenticatePaymentStep();
-                var capturePaymentStep = new CapturePaymentStep();
-                var creditPaymentStep = new CreditPaymentStep();
+                var registerPaymentStep = new RegisterPaymentStep(payment);
+                var authenticatePaymentStep = new AuthenticatePaymentStep(payment);
+                var capturePaymentStep = new CapturePaymentStep(payment);
+                var creditPaymentStep = new CreditPaymentStep(payment);
 
                 registerPaymentStep.SetSuccessor(authenticatePaymentStep);
                 capturePaymentStep.SetSuccessor(registerPaymentStep);

@@ -12,12 +12,14 @@ namespace Geta.Netaxept.Checkout
     public class NetaxeptServiceClient
     {
         private readonly NetaxeptClient _client;
+        private readonly ClientConnection _connection;
 
         /// <summary>
         /// Public constructor
         /// </summary>
-        public NetaxeptServiceClient()
+        public NetaxeptServiceClient(ClientConnection connection)
         {
+            _connection = connection;
             _client = new NetaxeptClient();
         }
 
@@ -77,7 +79,7 @@ namespace Geta.Netaxept.Checkout
                 };
             }
 
-            var response = _client.Register(paymentRequest.MerchantId, paymentRequest.Token, registerRequest);
+            var response = _client.Register(_connection.MerchantId, _connection.Token, registerRequest);
 
             return response.TransactionId;
         }
@@ -85,26 +87,16 @@ namespace Geta.Netaxept.Checkout
         /// <summary>
         /// Execute query method
         /// </summary>
-        /// <param name="merchantId"></param>
-        /// <param name="token"></param>
         /// <param name="transactionId"></param>
         /// <returns></returns>
-        public PaymentResult Query(string merchantId, string token, string transactionId)
+        public PaymentResult Query(string transactionId)
         {
-            if (string.IsNullOrEmpty(merchantId))
-            {
-                throw new ArgumentNullException(nameof(merchantId));
-            }
-            if (string.IsNullOrEmpty(token))
-            {
-                throw new ArgumentNullException(nameof(token));
-            }
             if (string.IsNullOrEmpty(transactionId))
             {
                 throw new ArgumentNullException(nameof(transactionId));
             }
 
-            var response = _client.Query(merchantId, token, new QueryRequest
+            var response = _client.Query(_connection.MerchantId, _connection.Token, new QueryRequest
             {
                 TransactionId = transactionId
             });
@@ -117,34 +109,29 @@ namespace Geta.Netaxept.Checkout
         /// <summary>
         /// Execute sale method
         /// </summary>
-        /// <param name="merchantId"></param>
-        /// <param name="token"></param>
         /// <param name="transactionId"></param>
-        public void Sale(string merchantId, string token, string transactionId)
+        public void Sale(string transactionId)
         {
-            if (string.IsNullOrEmpty(merchantId))
-            {
-                throw new ArgumentNullException(nameof(merchantId));
-            }
-            if (string.IsNullOrEmpty(token))
-            {
-                throw new ArgumentNullException(nameof(token));
-            }
             if (string.IsNullOrEmpty(transactionId))
             {
                 throw new ArgumentNullException(nameof(transactionId));
             }
 
-            var response = _client.Process(merchantId, token, new ProcessRequest
+            var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
             {
                 Operation = "SALE",
                 TransactionId = transactionId
             });
         }
 
-        public void Capture(string merchantId, string token, string transactionId, string amount)
+        /// <summary>
+        /// Execute capture method
+        /// </summary>
+        /// <param name="transactionId"></param>
+        /// <param name="amount"></param>
+        public void Capture(string transactionId, string amount)
         {
-            var response = _client.Process(merchantId, token, new ProcessRequest
+            var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
             {
                 Operation = "CAPTURE",
                 TransactionId = transactionId,
@@ -152,18 +139,27 @@ namespace Geta.Netaxept.Checkout
             });
         }
 
-        public void Authorize(string merchantId, string token, string transactionId)
+        /// <summary>
+        /// Execute authorize method
+        /// </summary>
+        /// <param name="transactionId"></param>
+        public void Authorize(string transactionId)
         {
-            var response = _client.Process(merchantId, token, new ProcessRequest
+            var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
             {
                 Operation = "AUTH",
                 TransactionId = transactionId,
             });
         }
 
-        public void Credit(string merchantId, string token, string transactionId, string amount)
+        /// <summary>
+        /// Execute credit method
+        /// </summary>
+        /// <param name="transactionId"></param>
+        /// <param name="amount"></param>
+        public void Credit(string transactionId, string amount)
         {
-            var response = _client.Process(merchantId, token, new ProcessRequest
+            var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
             {
                 Operation = "CREDIT",
                 TransactionId = transactionId,

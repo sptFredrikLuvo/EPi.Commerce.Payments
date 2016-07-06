@@ -12,6 +12,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     /// </summary>
     public class AuthenticatePaymentStep : PaymentStep
     {
+        public AuthenticatePaymentStep(Payment payment) : base(payment)
+        { }
+
         /// <summary>
         /// Process payment
         /// </summary>
@@ -25,11 +28,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             if (payment.TransactionType == "Authorization" && !string.IsNullOrEmpty(transactionIdResult))
             {
                 var orderForm = payment.Parent;
-                var paymentMethoDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
-                var merchantId = paymentMethoDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
-                var token = paymentMethoDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
 
-                var paymentResult = this.Client.Query(merchantId, token, transactionIdResult);
+                var paymentResult = this.Client.Query(transactionIdResult);
 
                 if (paymentResult.AmountCaptured > 0)
                 {
@@ -51,7 +51,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                 //netaxeptServiceClient.Sale(merchantId, token, transactionIdResult);
                 // Don't call sale but auth instead
-                this.Client.Authorize(merchantId, token, transactionIdResult);
+                this.Client.Authorize(transactionIdResult);
 
                 payment.ProviderTransactionID = transactionIdResult;
                 payment.SetMetaField(NetaxeptConstants.CardInformationPaymentMethodField, paymentResult.CardInformationPaymentMethod, false);

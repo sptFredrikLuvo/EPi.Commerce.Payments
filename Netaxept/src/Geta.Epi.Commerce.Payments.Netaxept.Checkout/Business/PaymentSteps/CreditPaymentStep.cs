@@ -10,6 +10,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     /// </summary>
     public class CreditPaymentStep : PaymentStep
     {
+        public CreditPaymentStep(Payment payment) : base(payment)
+        { }
+
         /// <summary>
         /// Process 
         /// </summary>
@@ -21,13 +24,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             if (payment.TransactionType == "Credit")
             {
                 var orderForm = payment.Parent;
-                var paymentMethoDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
-
-                var merchantId = paymentMethoDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
-                var token = paymentMethoDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
 
                 var amount = PaymentStepHelper.GetAmount(payment.Amount);
-                this.Client.Credit(merchantId, token, payment.ProviderTransactionID, amount);
+                this.Client.Credit(payment.ProviderTransactionID, amount);
 
                 AddNote(orderForm, "Payment - Credit", "Payment - Amount is Credited");
 

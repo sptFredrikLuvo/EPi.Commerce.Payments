@@ -10,6 +10,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     /// </summary>
     public class CapturePaymentStep : PaymentStep
     {
+        public CapturePaymentStep(Payment payment) : base(payment)
+        { }
+
         /// <summary>
         /// Process 
         /// </summary>
@@ -21,13 +24,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             if (payment.TransactionType == "Capture")
             {
                 var orderForm = payment.Parent;
-                var paymentMethoDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
-
-                var merchantId = paymentMethoDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
-                var token = paymentMethoDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
-
+                
                 var amount = PaymentStepHelper.GetAmount(orderForm.Total);
-                this.Client.Capture(merchantId, token, payment.ProviderTransactionID, amount);
+                this.Client.Capture(payment.ProviderTransactionID, amount);
 
                 AddNote(orderForm, "Payment - Captured", "Payment - Amount is captured");
 
