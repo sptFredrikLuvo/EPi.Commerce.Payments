@@ -241,6 +241,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Business\IPaymentStep.cs" />
     <Compile Include="Business\NetaxeptCheckoutPaymentGateway.cs" />
     <Compile Include="Business\NetaxeptPayment.cs" />
     <Compile Include="Extensions\MetaStorargeExtensions.cs" />

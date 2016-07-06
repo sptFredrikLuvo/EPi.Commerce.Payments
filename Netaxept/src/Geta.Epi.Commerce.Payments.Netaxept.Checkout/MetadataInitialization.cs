@@ -36,8 +36,10 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
 
             var successUrl = GetOrCreateSuccessUrlField(mdContext);
             JoinField(mdContext, successUrl, NetaxeptConstants.OtherPaymentClass);
-            
 
+            //var transactionId = GetOrCreateTransactionIdField(mdContext);
+            //JoinField(mdContext, transactionId, NetaxeptConstants.OtherPaymentClass);
+            
             // Create PanHash field on the customer contact. We need this for using EasyPayments
             var customContactMetaClass = DataContext.Current.MetaModel.MetaClasses["Contact"];
             if (customContactMetaClass.Fields[NetaxeptConstants.CustomerPanHashFieldName] == null)
@@ -78,12 +80,25 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
             var f = MetaField.Load(mdContext, NetaxeptConstants.SuccessfullUrl);
             if (f == null)
             {
-                Logger.Debug(string.Format("Adding meta field '{0}' for Resurs integration.", NetaxeptConstants.SuccessfullUrl));
+                Logger.Debug(string.Format("Adding meta field '{0}' for Netaxept integration.", NetaxeptConstants.SuccessfullUrl));
                 f = MetaField.Create(mdContext, NetaxeptConstants.OrderNamespace, NetaxeptConstants.SuccessfullUrl, NetaxeptConstants.SuccessfullUrl, string.Empty, MetaDataType.LongString, Int32.MaxValue, true, false, false, false);
             }
 
             return f;
         }
+
+        /*private MetaField GetOrCreateTransactionIdField(MetaDataContext mdContext)
+        {
+
+            var f = MetaField.Load(mdContext, NetaxeptConstants.TransactionId);
+            if (f == null)
+            {
+                Logger.Debug(string.Format("Adding meta field '{0}' for Netaxept integration.", NetaxeptConstants.TransactionId));
+                f = MetaField.Create(mdContext, NetaxeptConstants.OrderNamespace, NetaxeptConstants.TransactionId, NetaxeptConstants.TransactionId, string.Empty, MetaDataType.LongString, Int32.MaxValue, true, false, false, false);
+            }
+
+            return f;
+        }*/
 
         private void JoinField(MetaDataContext mdContext, MetaField field, string metaClassName)
         {

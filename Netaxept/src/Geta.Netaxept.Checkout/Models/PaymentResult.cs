@@ -20,5 +20,7 @@ namespace Geta.Netaxept.Checkout.Models
         public string CardInformationIssuerId { get; set; }
         public string CardInformationPaymentMethod { get; set; }
 
+        public int AmountCaptured { get; set; }
+
     }
 }

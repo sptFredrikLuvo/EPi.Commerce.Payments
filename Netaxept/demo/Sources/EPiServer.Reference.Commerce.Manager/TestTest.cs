@@ -176,13 +176,13 @@ namespace Mediachase.Commerce.Manager.Apps.Order.Modules
                 decimal num = ((IEnumerable<ILineItem>)dataItem.LineItems.ToArray<ILineItem>()).Sum<ILineItem>((ILineItem x) => x.TryGetDiscountValue((ILineItemDiscountAmount y) => y.OrderAmount));
                 Label str = this.lblItemsSubTotal;
                 Money money = new Money(dataItem.SubTotal + num, currency);
-                str.Text = money.ToString();
+                //str.Text = money.ToString();
                 Label label = this.lblOrderLevelDiscount;
                 money = new Money(num, currency);
-                label.Text = money.ToString();
+                //label.Text = money.ToString();
                 Label str1 = this.lblOrderSubTotal;
                 money = new Money(dataItem.SubTotal, currency);
-                str1.Text = money.ToString();
+                //str1.Text = money.ToString();
                 Label label1 = this.lblShippingCost;
                 money = new Money(dataItem.ShippingSubTotal, currency);
                 label1.Text = money.ToString();

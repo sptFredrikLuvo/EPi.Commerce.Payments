@@ -4,6 +4,8 @@
     {
         public const string NetaxeptPaymentMethod = "NetaxeptPaymentMethod";
         public const string SuccessfullUrl = "SuccessfullUrl";
+        //public const string TransactionId = "TransactionId";
+
         public const string OrderNamespace = "Mediachase.Commerce.Orders";
         public const string OtherPaymentClass = "OtherPayment";
 

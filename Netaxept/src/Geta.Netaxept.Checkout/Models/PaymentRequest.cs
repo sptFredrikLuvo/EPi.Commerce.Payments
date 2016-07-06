@@ -1,4 +1,6 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace Geta.Netaxept.Checkout.Models
 {
     public class PaymentRequest
@@ -27,6 +29,8 @@ namespace Geta.Netaxept.Checkout.Models
         /* Customer */
         public string CustomerNumber { get; set; }
         public string CustomerEmail { get; set; }
+
+        [RegularExpression(@"^(\+[\-\s]?)\d{10}$", ErrorMessage = "Invalid phonenumber, e.g. +4712345678, +469876543")]
         public string CustomerPhoneNumber { get; set; }
         public string CustomerFirstname { get; set; }
         public string CustomerLastname { get; set; }
@@ -34,6 +38,8 @@ namespace Geta.Netaxept.Checkout.Models
         public string CustomerAddress2 { get; set; }
         public string CustomerPostcode { get; set; }
         public string CustomerTown { get; set; }
+
+        [StringLength(2, ErrorMessage = "Customer country property should contain two characters", MinimumLength = 2)]
         public string CustomerCountry { get; set; }
 
     }
