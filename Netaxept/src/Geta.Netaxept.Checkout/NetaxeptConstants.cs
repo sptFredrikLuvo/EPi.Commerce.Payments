@@ -4,7 +4,12 @@
     {
         public const string NetaxeptPaymentMethod = "NetaxeptPaymentMethod";
         public const string SuccessfullUrl = "SuccessfullUrl";
-        //public const string TransactionId = "TransactionId";
+        public const string CardInformationMaskedPanField = "CardInformationMaskedPan";
+        public const string CardInformationIssuerField = "CardInformationIssuer";
+        public const string CardInformationExpiryDateField = "CardInformationExpiryDate";
+        public const string CardInformationIssuerCountryField = "CardInformationIssuerCountry";
+        public const string CardInformationIssuerIdField = "CardInformationIssuerId";
+        public const string CardInformationPaymentMethodField = "CardInformationPaymentMethod";
 
         public const string OrderNamespace = "Mediachase.Commerce.Orders";
         public const string OtherPaymentClass = "OtherPayment";

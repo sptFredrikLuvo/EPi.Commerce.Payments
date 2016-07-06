@@ -37,9 +37,24 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
             var successUrl = GetOrCreateSuccessUrlField(mdContext);
             JoinField(mdContext, successUrl, NetaxeptConstants.OtherPaymentClass);
 
-            //var transactionId = GetOrCreateTransactionIdField(mdContext);
-            //JoinField(mdContext, transactionId, NetaxeptConstants.OtherPaymentClass);
-            
+            var cardInformationIssuerCountryField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationIssuerCountryField);
+            JoinField(mdContext, cardInformationIssuerCountryField, NetaxeptConstants.OtherPaymentClass);
+
+            var cardInformationExpiryDateField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationExpiryDateField);
+            JoinField(mdContext, cardInformationExpiryDateField, NetaxeptConstants.OtherPaymentClass);
+
+            var cardInformationIssuerField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationIssuerField);
+            JoinField(mdContext, cardInformationIssuerField, NetaxeptConstants.OtherPaymentClass);
+
+            var cardInformationIssuerIdField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationIssuerIdField);
+            JoinField(mdContext, cardInformationIssuerIdField, NetaxeptConstants.OtherPaymentClass);
+
+            var cardInformationMaskedPanField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationMaskedPanField);
+            JoinField(mdContext, cardInformationMaskedPanField, NetaxeptConstants.OtherPaymentClass);
+
+            var cardInformationPaymentMethodField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationPaymentMethodField);
+            JoinField(mdContext, cardInformationPaymentMethodField, NetaxeptConstants.OtherPaymentClass);
+
             // Create PanHash field on the customer contact. We need this for using EasyPayments
             var customContactMetaClass = DataContext.Current.MetaModel.MetaClasses["Contact"];
             if (customContactMetaClass.Fields[NetaxeptConstants.CustomerPanHashFieldName] == null)
@@ -87,18 +102,17 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
             return f;
         }
 
-        /*private MetaField GetOrCreateTransactionIdField(MetaDataContext mdContext)
+        private MetaField GetOrCreateCardField(MetaDataContext mdContext, string fieldName)
         {
 
-            var f = MetaField.Load(mdContext, NetaxeptConstants.TransactionId);
+            var f = MetaField.Load(mdContext, fieldName);
             if (f == null)
             {
-                Logger.Debug(string.Format("Adding meta field '{0}' for Netaxept integration.", NetaxeptConstants.TransactionId));
-                f = MetaField.Create(mdContext, NetaxeptConstants.OrderNamespace, NetaxeptConstants.TransactionId, NetaxeptConstants.TransactionId, string.Empty, MetaDataType.LongString, Int32.MaxValue, true, false, false, false);
+                Logger.Debug(string.Format("Adding meta field '{0}' for Netaxept integration.", fieldName));
+                f = MetaField.Create(mdContext, NetaxeptConstants.OrderNamespace, fieldName, fieldName, string.Empty, MetaDataType.LongString, Int32.MaxValue, true, false, false, false);
             }
-
             return f;
-        }*/
+        }
 
         private void JoinField(MetaDataContext mdContext, MetaField field, string metaClassName)
         {

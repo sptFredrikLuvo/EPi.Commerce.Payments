@@ -1,4 +1,5 @@
-﻿using Geta.Netaxept.Checkout;
+﻿using System;
+using Geta.Netaxept.Checkout;
 using Mediachase.Commerce.Orders;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
@@ -28,5 +29,20 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <param name="message"></param>
         /// <returns></returns>
         public abstract bool Process(Payment payment, ref string message);
+
+        /// <summary>
+        /// Add note to order
+        /// </summary>
+        /// <param name="orderForm"></param>
+        /// <param name="title"></param>
+        /// <param name="detail"></param>
+        public void AddNote(OrderForm orderForm, string title, string detail)
+        {
+            OrderNote on = orderForm.Parent.OrderNotes.AddNew();
+            on.Detail = detail;
+            on.Title = title;
+            on.Type = "Payments";
+            on.Created = DateTime.Now;
+        }
     }
 }

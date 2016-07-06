@@ -3,7 +3,6 @@ using EPiServer.Logging;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps;
 using Geta.Netaxept.Checkout;
 using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Orders.Dto;
 using Mediachase.Commerce.Plugins.Payment;
 using Mediachase.Commerce.Website;
 
@@ -14,7 +13,6 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
     /// </summary>
     public class NetaxeptCheckoutPaymentGateway : AbstractPaymentGateway, IPaymentOption
     {
-        private PaymentMethodDto _payment;
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(NetaxeptCheckoutPaymentGateway));
 
         public Guid PaymentMethodId { get; set; }
@@ -22,8 +20,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
         public string CallBackUrlWhenFail { get; set; }
 
         /// <summary>
-        /// Process payment method. 
-        /// This method is called twice, the first time it will redirect the user to the terminal of Netaxept.
+        /// Process payment method
+        /// This method is called twice, the first time it will redirect the user to the terminal of Netaxept
         /// Second time we will complete the payment.
         /// </summary>
         /// <param name="payment"></param>
@@ -38,11 +36,13 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                 var registerPaymentStep = new RegisterPaymentStep();
                 var authenticatePaymentStep = new AuthenticatePaymentStep();
                 var capturePaymentStep = new CapturePaymentStep();
+                var creditPaymentStep = new CreditPaymentStep();
 
                 registerPaymentStep.SetSuccessor(authenticatePaymentStep);
                 capturePaymentStep.SetSuccessor(registerPaymentStep);
+                creditPaymentStep.SetSuccessor(capturePaymentStep);
 
-                return capturePaymentStep.Process(payment, ref message);
+                return creditPaymentStep.Process(payment, ref message);
             }
             catch (Exception exception)
             {

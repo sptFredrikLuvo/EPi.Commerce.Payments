@@ -161,6 +161,16 @@ namespace Geta.Netaxept.Checkout
             });
         }
 
+        public void Credit(string merchantId, string token, string transactionId, string amount)
+        {
+            var response = _client.Process(merchantId, token, new ProcessRequest
+            {
+                Operation = "CREDIT",
+                TransactionId = transactionId,
+                TransactionAmount = amount
+            });
+        }
+
         /// <summary>
         /// Create payment result object
         /// </summary>

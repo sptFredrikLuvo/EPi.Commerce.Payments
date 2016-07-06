@@ -6,9 +6,9 @@ using Mediachase.Commerce.Orders.Managers;
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 {
     /// <summary>
-    /// Capture payment step
+    /// Credit payment step
     /// </summary>
-    public class CapturePaymentStep : PaymentStep
+    public class CreditPaymentStep : PaymentStep
     {
         /// <summary>
         /// Process 
@@ -18,7 +18,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <returns></returns>
         public override bool Process(Payment payment, ref string message)
         {
-            if (payment.TransactionType == "Capture")
+            if (payment.TransactionType == "Credit")
             {
                 var orderForm = payment.Parent;
                 var paymentMethoDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
@@ -26,10 +26,10 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 var merchantId = paymentMethoDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
                 var token = paymentMethoDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
 
-                var amount = PaymentStepHelper.GetAmount(orderForm.Total);
-                this.Client.Capture(merchantId, token, payment.ProviderTransactionID, amount);
+                var amount = PaymentStepHelper.GetAmount(payment.Amount);
+                this.Client.Credit(merchantId, token, payment.ProviderTransactionID, amount);
 
-                AddNote(orderForm, "Payment - Captured", "Payment - Amount is captured");
+                AddNote(orderForm, "Payment - Credit", "Payment - Amount is Credited");
 
                 return true;
             }

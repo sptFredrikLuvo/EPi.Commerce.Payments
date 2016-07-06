@@ -22,7 +22,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         {
             var transactionIdResult = PaymentStepHelper.GetTransactionFromCookie<string>(NetaxeptConstants.PaymentResultCookieName);
 
-            if (!string.IsNullOrEmpty(transactionIdResult))
+            if (payment.TransactionType == "Authorization" && !string.IsNullOrEmpty(transactionIdResult))
             {
                 var orderForm = payment.Parent;
                 var paymentMethoDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
@@ -54,6 +54,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 this.Client.Authorize(merchantId, token, transactionIdResult);
 
                 payment.ProviderTransactionID = transactionIdResult;
+                payment.SetMetaField(NetaxeptConstants.CardInformationPaymentMethodField, paymentResult.CardInformationPaymentMethod, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationExpiryDateField, paymentResult.CardInformationExpiryDate, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerCountryField, paymentResult.CardInformationIssuerCountry, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerField, paymentResult.CardInformationIssuer, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerIdField, paymentResult.CardInformationIssuerId, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationMaskedPanField, paymentResult.CardInformationMaskedPan, false);
 
                 // Save the PanHash(if not empty) on the customer contact, so we can use EasyPayment for next payment
                 if (!string.IsNullOrEmpty(paymentResult.CardInformationPanHash) &&
@@ -68,6 +74,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     }
                 }
                 PaymentStepHelper.SaveTransactionToCookie(null, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
+
+                //AddNote(orderForm, "Payment - Authenticated", "Payment - Amount is authenticated");
 
                 return true;
             }

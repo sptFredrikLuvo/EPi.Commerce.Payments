@@ -12,6 +12,7 @@ namespace Geta.Netaxept.Checkout.Models
         public bool ErrorOccurred { get; set; }
         public string ErrorMessage { get; set; }
 
+        /* Card information*/
         public string CardInformationPanHash { get; set; }
         public string CardInformationMaskedPan { get; set; }
         public string CardInformationIssuer { get; set; }

@@ -241,9 +241,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Business\IPaymentStep.cs" />
+    <Compile Include="Business\CartOrderNumberHelper.cs" />
+    <Compile Include="Business\CartOrderNumber.cs" />
+    <Compile Include="Business\PaymentSteps\AuthenticatePaymentStep.cs" />
+    <Compile Include="Business\PaymentSteps\CreditPaymentStep.cs" />
+    <Compile Include="Business\PaymentSteps\CapturePaymentStep.cs" />
+    <Compile Include="Business\PaymentSteps\PaymentStep.cs" />
     <Compile Include="Business\NetaxeptCheckoutPaymentGateway.cs" />
     <Compile Include="Business\NetaxeptPayment.cs" />
+    <Compile Include="Business\PaymentSteps\PaymentStepHelper.cs" />
+    <Compile Include="Business\PaymentSteps\RegisterPaymentStep.cs" />
     <Compile Include="Extensions\MetaStorargeExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
     <Compile Include="MetadataInitialization.cs" />
@@ -262,7 +269,10 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Site\bin\"
-xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Site\bin\"</PostBuildEvent>
+xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Site\bin\"
+
+xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"
+xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

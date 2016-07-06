@@ -10,8 +10,10 @@ using Mediachase.MetaDataPlus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.Reference.Commerce.Site.Features.Market.Services;
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
 {
@@ -178,6 +180,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
 
         public PurchaseOrder SaveCartAsPurchaseOrder()
         {
+            CartHelper.Cart.OrderNumberMethod = CartOrderNumber.GenerateOrderNumber;
             return CartHelper.Cart.SaveAsPurchaseOrder();
         }
     }

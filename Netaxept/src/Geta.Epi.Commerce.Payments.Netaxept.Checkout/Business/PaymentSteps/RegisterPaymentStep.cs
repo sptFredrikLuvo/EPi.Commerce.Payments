@@ -30,10 +30,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
             var transactionIdResult = PaymentStepHelper.GetTransactionFromCookie<string>(NetaxeptConstants.PaymentResultCookieName);
 
-            if (string.IsNullOrEmpty(transactionIdResult))
+            if (payment.TransactionType == "Authorization" && string.IsNullOrEmpty(transactionIdResult))
             {
                 var orderForm = payment.Parent;
                 var transactionId = this.Client.Register(CreatePaymentRequest(paymentMethodDto, payment, orderForm));
+
+                //AddNote(orderForm, "Payment - Registered", "Payment - Amount is registered");
 
                 PaymentStepHelper.SaveTransactionToCookie(transactionId, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
 
@@ -77,11 +79,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     request.PanHash = customerContact[NetaxeptConstants.CustomerPanHashFieldName]?.ToString();
                 }
             }
-
+            
             request.Amount = PaymentStepHelper.GetAmount(orderForm.Total);
             request.CurrencyCode = orderForm.Parent.BillingCurrency;
             request.OrderDescription = "Netaxept order";
-            request.OrderNumber = orderForm.Parent.OrderGroupId.ToString();
+            request.OrderNumber = CartOrderNumberHelper.GenerateOrderNumber(orderForm.Parent); //orderForm.Parent.OrderGroupId.ToString(); Generate order number
 
             request.MerchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField);
             request.Token = paymentMethodDto.GetParameter(NetaxeptConstants.TokenField);
