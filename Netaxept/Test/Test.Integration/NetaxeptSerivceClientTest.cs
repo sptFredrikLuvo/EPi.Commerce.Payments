@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 using System.Linq;
 using System.ServiceModel;
@@ -17,7 +18,7 @@ namespace Test.Integration
         public void RegisterPayment()
         {
             var appSettings = ConfigurationManager.AppSettings;
-            var client = new NetaxeptServiceClient(new ClientConnection("", ""));
+            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"]));
 
             var paymentRequest = CreatePaymentRequest();
             var transactionId = client.Register(paymentRequest);
@@ -29,14 +30,14 @@ namespace Test.Integration
         public void RegisterPayment_Invalid_PhoneNumber()
         {
             var appSettings = ConfigurationManager.AppSettings;
-            var client = new NetaxeptServiceClient(new ClientConnection("", ""));
+            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"]));
 
             var paymentRequest = CreatePaymentRequest();
             paymentRequest.CustomerPhoneNumber = "1";
 
-            Exception ex = Assert.Throws<FaultException>(() => client.Register(paymentRequest));
+            Exception ex = Assert.Throws<ValidationException>(() => client.Register(paymentRequest));
 
-            Assert.Equal("Field not valid: 'Customer Phone Number'", ex.Message);
+            Assert.Equal("Invalid phonenumber, e.g. +4712345678, +469876543", ex.Message);
         }
 
         private PaymentRequest CreatePaymentRequest()

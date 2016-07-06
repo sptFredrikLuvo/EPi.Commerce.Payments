@@ -20,9 +20,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
         public string CallBackUrlWhenFail { get; set; }
 
         /// <summary>
-        /// Process payment method
-        /// This method is called twice, the first time it will redirect the user to the terminal of Netaxept
-        /// Second time we will complete the payment.
+        /// Process payment method 
         /// </summary>
         /// <param name="payment"></param>
         /// <param name="message"></param>

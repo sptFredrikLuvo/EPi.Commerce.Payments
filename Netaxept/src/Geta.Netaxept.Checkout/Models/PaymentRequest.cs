@@ -26,7 +26,7 @@ namespace Geta.Netaxept.Checkout.Models
         public string CustomerNumber { get; set; }
         public string CustomerEmail { get; set; }
 
-        [RegularExpression(@"^(\+[\-\s]?)\d{10}$", ErrorMessage = "Invalid phonenumber, e.g. +4712345678, +469876543")]
+        [RegularExpression(@"^\+[0-9]*$", ErrorMessage = "Invalid phonenumber, e.g. +4712345678, +469876543")]
         public string CustomerPhoneNumber { get; set; }
         public string CustomerFirstname { get; set; }
         public string CustomerLastname { get; set; }

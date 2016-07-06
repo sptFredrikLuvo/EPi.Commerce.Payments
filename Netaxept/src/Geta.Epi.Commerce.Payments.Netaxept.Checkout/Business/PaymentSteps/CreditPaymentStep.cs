@@ -1,7 +1,4 @@
-﻿using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
-using Geta.Netaxept.Checkout;
-using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Orders.Managers;
+﻿using Mediachase.Commerce.Orders;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 {

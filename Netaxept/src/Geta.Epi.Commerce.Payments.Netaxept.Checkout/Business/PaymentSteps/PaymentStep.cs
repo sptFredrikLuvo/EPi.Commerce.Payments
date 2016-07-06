@@ -1,9 +1,11 @@
 ﻿using System;
+using EPiServer.Security;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Netaxept.Checkout;
 using Geta.Netaxept.Checkout.Models;
 using Mediachase.Commerce.Orders;
 using Mediachase.Commerce.Orders.Managers;
+using Mediachase.Commerce.Security;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 {
@@ -49,8 +51,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             OrderNote on = orderForm.Parent.OrderNotes.AddNew();
             on.Detail = detail;
             on.Title = title;
-            on.Type = "Payments";
+            on.Type = OrderNoteTypes.Custom.ToString();
             on.Created = DateTime.Now;
+            on.CustomerId = PrincipalInfo.CurrentPrincipal.GetContactId();
         }
     }
 }

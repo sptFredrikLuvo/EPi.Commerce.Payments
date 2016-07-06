@@ -1,6 +1,4 @@
-﻿using System;
-using System.Web;
-using Mediachase.Commerce.Orders;
+﻿using Mediachase.Commerce.Orders;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
 {
@@ -8,7 +6,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
     {
         public static string GenerateOrderNumber(Cart cart)
         {
-            return CartOrderNumberHelper.GetOrderNumber();
+            return CartOrderNumberHelper.GetOrderNumber(cart);
         }
     }
 }

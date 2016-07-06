@@ -2,6 +2,7 @@
 {
     public static class NetaxeptConstants
     {
+        /* Payment fields */
         public const string NetaxeptPaymentMethod = "NetaxeptPaymentMethod";
         public const string SuccessfullUrl = "SuccessfullUrl";
         public const string CardInformationMaskedPanField = "CardInformationMaskedPan";
@@ -13,6 +14,10 @@
 
         public const string OrderNamespace = "Mediachase.Commerce.Orders";
         public const string OtherPaymentClass = "OtherPayment";
+        public const string CartClass = "ShoppingCart";
+
+        /* Cart fields */
+        public const string CartOrderNumberTempField = "CartOrderNumberTemp";
 
         /* Payment method fields*/
         public const string MerchantIdField = "MerchantId";

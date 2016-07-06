@@ -12,11 +12,11 @@ namespace Geta.Netaxept.Checkout.Models
 
         public ClientConnection(string merchantId, string token)
         {
-            if (!string.IsNullOrEmpty(merchantId))
+            if (string.IsNullOrEmpty(merchantId))
             {
                 throw new ArgumentNullException(nameof(merchantId));
             }
-            if (!string.IsNullOrEmpty(token))
+            if (string.IsNullOrEmpty(token))
             {
                 throw new ArgumentNullException(nameof(token));
             }

@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\PaymentRequestExtensions.cs" />
-    <Compile Include="Models\Connection.cs" />
+    <Compile Include="Models\ClientConnection.cs" />
     <Compile Include="Models\PaymentRequest.cs" />
     <Compile Include="Models\PaymentResult.cs" />
     <Compile Include="NetaxeptConstants.cs" />
