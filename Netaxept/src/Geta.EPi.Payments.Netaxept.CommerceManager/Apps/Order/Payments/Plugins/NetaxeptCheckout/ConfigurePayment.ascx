@@ -19,10 +19,9 @@
             </td>
         </tr>
         <tr>
-            <td class="FormLabelCell">Terminal Url:</td>
+            <td class="FormLabelCell">Is production:</td>
             <td class="FormFieldCell">
-                <asp:TextBox runat="server" ID="txtTerminalUrl"  />
-                <asp:RequiredFieldValidator ID="requiredTerminalUrl" runat="server" ControlToValidate="txtTerminalUrl" ErrorMessage="The terminal url is required." />
+                <asp:CheckBox runat="server" ID="IsProductionCheckBox" />
             </td>
         </tr>
          <tr>
@@ -42,7 +41,6 @@
                        <asp:ListItem Text="English" Value="en_GB" />
                     </Items>
                 </asp:DropDownList>
-                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtTerminalUrl" ErrorMessage="The terminal url is required." />
             </td>
         </tr>
     </tbody>

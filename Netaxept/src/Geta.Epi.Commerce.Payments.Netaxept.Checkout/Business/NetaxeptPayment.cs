@@ -7,6 +7,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
     [Serializable]
     public class NetaxeptPayment : OtherPayment
     {
+
         public NetaxeptPayment()
         {
             

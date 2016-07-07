@@ -1,14 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 {
+    /// <summary>
+    /// Payment step helper class
+    /// </summary>
     public static class PaymentStepHelper
     {
+        /// <summary>
+        /// Save transaction temporary to cookie
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="keyName"></param>
+        /// <param name="timeSpan"></param>
         public static void SaveTransactionToCookie(Object obj, string keyName, TimeSpan timeSpan)
         {
             string myObjectJson = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
@@ -42,6 +47,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             return default(T);
         }
 
+        /// <summary>
+        /// Get amount as string value (without decimals)
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <returns></returns>
         public static string GetAmount(decimal amount)
         {
             return Math.Round(amount * 100).ToString();

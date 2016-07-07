@@ -38,12 +38,14 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                 if (paymentResult.Cancelled)
                 {
+                    payment.Status = "Failed";
                     message = "The payment was cancelled by the user.";
                     PaymentStepHelper.SaveTransactionToCookie(null, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
                     return false;
                 }
                 if (paymentResult.ErrorOccurred)
                 {
+                    payment.Status = "Failed";
                     message = paymentResult.ErrorMessage;
                     PaymentStepHelper.SaveTransactionToCookie(null, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
                     return false;
@@ -60,7 +62,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 payment.SetMetaField(NetaxeptConstants.CardInformationIssuerField, paymentResult.CardInformationIssuer, false);
                 payment.SetMetaField(NetaxeptConstants.CardInformationIssuerIdField, paymentResult.CardInformationIssuerId, false);
                 payment.SetMetaField(NetaxeptConstants.CardInformationMaskedPanField, paymentResult.CardInformationMaskedPan, false);
-
+                
                 // Save the PanHash(if not empty) on the customer contact, so we can use EasyPayment for next payment
                 if (!string.IsNullOrEmpty(paymentResult.CardInformationPanHash) &&
                     orderForm.Parent.CustomerId != Guid.Empty)

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 using Geta.Netaxept.Checkout;
 using Geta.Netaxept.Checkout.Models;
 using Xunit;
@@ -24,6 +19,22 @@ namespace Test.Integration
             var transactionId = client.Register(paymentRequest);
 
             Assert.NotEmpty(transactionId);
+        }
+
+        [Fact]
+        public void QueryPayment()
+        {
+            var appSettings = ConfigurationManager.AppSettings;
+            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"]));
+
+            var paymentRequest = CreatePaymentRequest();
+            var transactionId = client.Register(paymentRequest);
+
+            Assert.NotEmpty(transactionId);
+
+            var result = client.Query(transactionId);
+
+            Assert.NotNull(result);
         }
 
         [Fact]

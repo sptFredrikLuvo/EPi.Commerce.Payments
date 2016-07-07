@@ -19,7 +19,9 @@ namespace Geta.EPi.Payments.Netaxept.CommerceManager.Apps.Order.Payments.Plugins
             }
             txtMerchantId.Text = paymentMethod.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
             txtToken.Text = paymentMethod.GetParameter(NetaxeptConstants.TokenField, string.Empty);
-            txtTerminalUrl.Text = paymentMethod.GetParameter(NetaxeptConstants.TerminalUrlField, string.Empty);
+
+            var isProduction = bool.Parse(paymentMethod.GetParameter(NetaxeptConstants.IsProductionField, "false"));
+            IsProductionCheckBox.Checked = isProduction;
 
             drdTerminalLanguage.SelectedValue = paymentMethod.GetParameter(NetaxeptConstants.TerminalLanguageField, GetDefaultLanguage(paymentMethod));
         }
@@ -38,7 +40,7 @@ namespace Geta.EPi.Payments.Netaxept.CommerceManager.Apps.Order.Payments.Plugins
             }
             paymentMethod.SetParameter(NetaxeptConstants.MerchantIdField, txtMerchantId.Text);
             paymentMethod.SetParameter(NetaxeptConstants.TokenField, txtToken.Text);
-            paymentMethod.SetParameter(NetaxeptConstants.TerminalUrlField, txtTerminalUrl.Text);
+            paymentMethod.SetParameter(NetaxeptConstants.IsProductionField, (IsProductionCheckBox.Checked ? "true" : "false"));
             paymentMethod.SetParameter(NetaxeptConstants.TerminalLanguageField, drdTerminalLanguage.SelectedValue);
         }
 

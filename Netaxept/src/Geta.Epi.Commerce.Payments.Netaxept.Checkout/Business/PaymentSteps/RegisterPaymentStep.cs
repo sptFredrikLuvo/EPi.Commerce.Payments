@@ -39,10 +39,10 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 var transactionId = this.Client.Register(CreatePaymentRequest(paymentMethodDto, payment, orderForm));
 
                 //AddNote(orderForm, "Payment - Registered", "Payment - Amount is registered");
-
+               
                 PaymentStepHelper.SaveTransactionToCookie(transactionId, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
 
-                var url = new UriBuilder(paymentMethodDto.GetParameter(NetaxeptConstants.TerminalUrlField));
+                var url = new UriBuilder(GetTerminalUrl(paymentMethodDto));
                 var nvc = new NameValueCollection
                     {
                         { "merchantId", paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField) },
@@ -60,6 +60,18 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 return Successor.Process(payment, ref message);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Get terminal url for test or production
+        /// </summary>
+        /// <param name="paymentMethodDto"></param>
+        /// <returns></returns>
+        private string GetTerminalUrl(PaymentMethodDto paymentMethodDto)
+        {
+            var isProduction = bool.Parse(paymentMethodDto.GetParameter(NetaxeptConstants.IsProductionField, "false"));
+
+            return (isProduction ? NetaxeptConstants.TerminalProductionUrl : NetaxeptConstants.TerminalTestUrl);
         }
 
         /// <summary>

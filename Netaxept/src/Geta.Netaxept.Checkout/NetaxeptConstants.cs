@@ -2,6 +2,8 @@
 {
     public static class NetaxeptConstants
     {
+        public const string PaymentResultCookieName = "NetaxeptPaymentResult";
+
         /* Payment fields */
         public const string NetaxeptPaymentMethod = "NetaxeptPaymentMethod";
         public const string SuccessfullUrl = "SuccessfullUrl";
@@ -12,6 +14,7 @@
         public const string CardInformationIssuerIdField = "CardInformationIssuerId";
         public const string CardInformationPaymentMethodField = "CardInformationPaymentMethod";
 
+        /* Commerce fields */
         public const string OrderNamespace = "Mediachase.Commerce.Orders";
         public const string OtherPaymentClass = "OtherPayment";
         public const string CartClass = "ShoppingCart";
@@ -22,11 +25,14 @@
         /* Payment method fields*/
         public const string MerchantIdField = "MerchantId";
         public const string TokenField = "Token";
-        public const string TerminalUrlField = "TerminalUrl";
+        public const string IsProductionField = "IsProduction";
         public const string TerminalLanguageField = "TerminalLanguage";
 
-        public const string PaymentResultCookieName = "NetaxeptPaymentResult";
+        /* Netaxept fields */
+        public const string TerminalTestUrl = "https://test.epayment.nets.eu/terminal/default.aspx";
+        public const string TerminalProductionUrl = "https://epayment.nets.eu/terminal/default.aspx";
 
+        /* Customer fields */
         public const string CustomerPanHashFieldName = "PanHash";
     }
 }

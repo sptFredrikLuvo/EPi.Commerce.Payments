@@ -32,7 +32,9 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
+using EPiServer.Security;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business;
+using Mediachase.Commerce.Security;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
@@ -530,7 +532,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                         checkoutViewModel.Payment.PaymentMethod as NetaxeptCheckoutPaymentGateway;
                     if (netaxeptPaymentMethod != null)
                     {
-                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("CompletePayment");
+                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("Index", "PaymentCallback");
                         
                         /*netaxeptPaymentMethod.CardNumber = resursBank.CardNumber;
                         netaxeptPaymentMethod.ResursPaymentMethod = resursBank.ResursPaymentMethod;
@@ -634,9 +636,21 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         [HttpGet]
         public ActionResult CompletePayment()
         {
-            //NetaxeptServiceClient service = new ResursBankServiceClient(null);
-            //bookPaymentResult result = service.BookSignedPayment(paymentId);
             _cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
+            /*try
+            {
+                //_cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
+
+                var cart = new CartHelper(Mediachase.Commerce.Orders.Cart.DefaultName, PrincipalInfo.CurrentPrincipal.GetContactId());
+                var results = OrderGroupWorkflowManager.RunWorkflow(cart.Cart, OrderGroupWorkflowManager.CartCheckOutWorkflowName);
+                var list = OrderGroupWorkflowManager.GetWarningsFromWorkflowResult(results);
+            }
+            catch (Exception ex)
+            {
+                var s = ex.Message;
+            }*/
+           
+
             PurchaseOrder purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
             _checkoutService.DeleteCart();
 

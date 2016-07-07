@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Web;
 using Geta.Netaxept.Checkout;
 using Mediachase.Commerce.Orders;
 
@@ -7,8 +6,6 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
 {
     public class CartOrderNumberHelper
     {
-        internal static string _orderNumberCookieKey = "OrderNumber_Temp";
-
         public static string GenerateOrderNumber(OrderGroup orderGroup)
         {
             int num = (new Random()).Next(100, 999);

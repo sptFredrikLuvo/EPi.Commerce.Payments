@@ -1,8 +1,12 @@
 ﻿using System;
 using EPiServer.Logging;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps;
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Netaxept.Checkout;
+using Geta.Netaxept.Checkout.Models;
+using Mediachase.Commerce.Customers;
 using Mediachase.Commerce.Orders;
+using Mediachase.Commerce.Orders.Managers;
 using Mediachase.Commerce.Plugins.Payment;
 using Mediachase.Commerce.Website;
 
@@ -88,6 +92,59 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
         public bool PostProcess(OrderForm orderForm)
         {
             return true;
+        }
+
+        public bool ProcessSuccessfulTransaction(Payment payment, string transactionId)
+        {
+            if (payment.TransactionType == "Authorization" && !string.IsNullOrEmpty(transactionId))
+            {
+                var orderForm = payment.Parent;
+
+                var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
+                var merchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
+                var token = paymentMethodDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
+
+                var connection = new ClientConnection(merchantId, token);
+                var client = new NetaxeptServiceClient(connection);
+
+                var paymentResult = client.Query(transactionId);
+
+                if (paymentResult.Cancelled)
+                {
+                    payment.Status = "Failed";
+                    return false;
+                }
+                if (paymentResult.ErrorOccurred)
+                {
+                    payment.Status = "Failed";
+                    return false;
+                }
+                
+                client.Authorize(transactionId);
+
+                payment.ProviderTransactionID = transactionId;
+                payment.SetMetaField(NetaxeptConstants.CardInformationPaymentMethodField, paymentResult.CardInformationPaymentMethod, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationExpiryDateField, paymentResult.CardInformationExpiryDate, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerCountryField, paymentResult.CardInformationIssuerCountry, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerField, paymentResult.CardInformationIssuer, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerIdField, paymentResult.CardInformationIssuerId, false);
+                payment.SetMetaField(NetaxeptConstants.CardInformationMaskedPanField, paymentResult.CardInformationMaskedPan, false);
+
+                // Save the PanHash(if not empty) on the customer contact, so we can use EasyPayment for next payment
+                if (!string.IsNullOrEmpty(paymentResult.CardInformationPanHash) &&
+                    orderForm.Parent.CustomerId != Guid.Empty)
+                {
+                    var customerContact = CustomerContext.Current.GetContactById(orderForm.Parent.CustomerId);
+                    if (customerContact != null)
+                    {
+                        customerContact[NetaxeptConstants.CustomerPanHashFieldName] =
+                            paymentResult.CardInformationPanHash;
+                        customerContact.SaveChanges();
+                    }
+                }
+                return true;
+            }
+            return false;
         }
     }
 }
