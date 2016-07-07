@@ -154,7 +154,6 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             if (viewModel.Payment.PaymentMethod is NetaxeptCheckoutPaymentGateway)
             {
                 ((NetaxeptCheckoutPaymentGateway)viewModel.Payment.PaymentMethod).PaymentMethodId = selectedPaymentMethod.Id;
-                //((NetaxeptCheckoutPaymentGateway)viewModel.Payment.PaymentMethod).CallBackUrlWhenFail = Url.Action("BookSignedpayment");
 
             }
             else
@@ -533,6 +532,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                     if (netaxeptPaymentMethod != null)
                     {
                         netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("Index", "PaymentCallback");
+                        //netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("CompletePayment");
                         
                         /*netaxeptPaymentMethod.CardNumber = resursBank.CardNumber;
                         netaxeptPaymentMethod.ResursPaymentMethod = resursBank.ResursPaymentMethod;
@@ -680,8 +680,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             var startpage = _contentRepository.Get<StartPage>(ContentReference.StartPage);
             var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(currentPage.ContentLink);
-            PurchaseOrder purchaseOrder = null;
-            string emailAddress = null;
+            //PurchaseOrder purchaseOrder = null;
+            //string emailAddress = null;
             OrderForm orderForm = _cartService.GetOrderForms().First();
             decimal totalProcessedAmount = orderForm.Payments.Where(x => x.Status.Equals(PaymentStatus.Processed.ToString())).Sum(x => x.Amount);
 
@@ -691,7 +691,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             //}
 
             _cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
-            purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
+            /*purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
 
             _checkoutService.DeleteCart();
 
@@ -719,7 +719,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             _cookieService.Remove(CouponKey);
 
-            return Redirect(new UrlBuilder(confirmationPage.LinkURL) { QueryCollection = queryCollection }.ToString());
+            return Redirect(new UrlBuilder(confirmationPage.LinkURL) { QueryCollection = queryCollection }.ToString());*/
+            return RedirectToAction("Index");
         }
 
         protected override void OnException(ExceptionContext filterContext)

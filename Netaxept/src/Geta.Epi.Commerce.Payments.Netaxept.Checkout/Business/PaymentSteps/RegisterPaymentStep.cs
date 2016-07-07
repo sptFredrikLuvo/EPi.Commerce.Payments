@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using EPiServer.Logging;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Netaxept.Checkout;
 using Geta.Netaxept.Checkout.Models;
@@ -19,6 +20,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     /// </summary>
     public class RegisterPaymentStep : PaymentStep
     {
+        private static readonly ILogger Logger = LogManager.GetLogger(typeof(RegisterPaymentStep));
+
         public RegisterPaymentStep(Payment payment) : base(payment)
         { }
 
@@ -31,16 +34,23 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         public override bool Process(Payment payment, ref string message)
         {
             var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
-            var transactionIdResult = PaymentStepHelper.GetTransactionFromCookie<string>(NetaxeptConstants.PaymentResultCookieName);
 
-            if (payment.TransactionType == "Authorization" && string.IsNullOrEmpty(transactionIdResult))
+            if (payment.TransactionType == "Authorization")
             {
                 var orderForm = payment.Parent;
-                var transactionId = this.Client.Register(CreatePaymentRequest(paymentMethodDto, payment, orderForm));
+                var transactionId = "";
+                try
+                {
+                    transactionId = this.Client.Register(CreatePaymentRequest(paymentMethodDto, payment, orderForm));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex.Message);
+                    message = ex.Message;
+                    return false;
+                }
 
                 //AddNote(orderForm, "Payment - Registered", "Payment - Amount is registered");
-               
-                PaymentStepHelper.SaveTransactionToCookie(transactionId, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
 
                 var url = new UriBuilder(GetTerminalUrl(paymentMethodDto));
                 var nvc = new NameValueCollection
@@ -53,13 +63,13 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                 HttpContext.Current.Response.Redirect(url.ToString());
 
-                return false;
+                return true;
             }
             else if (Successor != null)
             {
                 return Successor.Process(payment, ref message);
             }
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -96,6 +106,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             }
             
             request.Amount = PaymentStepHelper.GetAmount(orderForm.Total);
+            request.TaxTotal = PaymentStepHelper.GetAmount(orderForm.TaxTotal);
             request.CurrencyCode = orderForm.Parent.BillingCurrency;
             request.OrderDescription = "Netaxept order";
             request.OrderNumber = CartOrderNumberHelper.GenerateOrderNumber(orderForm.Parent); //orderForm.Parent.OrderGroupId.ToString(); Generate order number

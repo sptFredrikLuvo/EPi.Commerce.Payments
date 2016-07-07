@@ -3,16 +3,11 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
-using EPiServer.Core;
-using EPiServer.Reference.Commerce.Site.Features.Checkout.Pages;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Services;
-using EPiServer.Reference.Commerce.Site.Features.Market.Services;
-using EPiServer.Reference.Commerce.Site.Features.Shared.Extensions;
-using EPiServer.Reference.Commerce.Site.Features.Start.Pages;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.ServiceLocation;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business;
-
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Models;
 using Mediachase.Commerce.Orders;
 using Mediachase.Commerce.Orders.Managers;
 using Mediachase.Commerce.Website.Helpers;
@@ -24,7 +19,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         private ICheckoutService _checkoutService;
         private CustomerContextFacade _customerContext;
 
-        public RedirectResult Index(string orderNumber, string transactionId)
+        public RedirectResult Index(string transactionId, string responseCode)
         {
             _checkoutService = ServiceLocator.Current.GetInstance<ICheckoutService>();
             _customerContext = ServiceLocator.Current.GetInstance<CustomerContextFacade>();
@@ -36,8 +31,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             var netaxeptCheckoutPaymentGateway = new NetaxeptCheckoutPaymentGateway();
 
-            var result = netaxeptCheckoutPaymentGateway.ProcessSuccessfulTransaction(payment, transactionId);
-            if (result)
+            var result = netaxeptCheckoutPaymentGateway.ProcessAuthorization(payment, transactionId);
+            if (result.Result == PaymentResponseCode.Success)
             {
                 purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
                 _checkoutService.DeleteCart();
@@ -48,10 +43,9 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                     {"orderNumber", purchaseOrder.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
                 };
 
-                return new RedirectResult(new UrlBuilder("") { QueryCollection = queryCollection }.ToString());
+                return new RedirectResult(new UrlBuilder("/checkout/order-confirmation/") { QueryCollection = queryCollection }.ToString());
             }
-            //return new RedirectResult(new UrlBuilder(confirmationPage.LinkURL) { QueryCollection = queryCollection }.ToString()););
-            return null;
+            return new RedirectResult(new UrlBuilder("/error-pages/payment-failed/").ToString());
         }
 
         private Mediachase.Commerce.Orders.Payment GetPayment(Mediachase.Commerce.Orders.Cart cart)

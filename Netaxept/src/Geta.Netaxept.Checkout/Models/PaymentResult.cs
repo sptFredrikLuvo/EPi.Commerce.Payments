@@ -11,6 +11,8 @@ namespace Geta.Netaxept.Checkout.Models
         public bool Cancelled { get; set; }
         public bool ErrorOccurred { get; set; }
         public string ErrorMessage { get; set; }
+        public string ErrorCode { get; set; }
+        public string ErrorSource { get; set; }
 
         /* Card information*/
         public string CardInformationPanHash { get; set; }

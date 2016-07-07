@@ -243,7 +243,7 @@
   <ItemGroup>
     <Compile Include="Business\CartOrderNumberHelper.cs" />
     <Compile Include="Business\CartOrderNumber.cs" />
-    <Compile Include="Business\PaymentSteps\AuthenticatePaymentStep.cs" />
+    <Compile Include="Business\PaymentSteps\AuthorizationPaymentStep.cs" />
     <Compile Include="Business\PaymentSteps\CreditPaymentStep.cs" />
     <Compile Include="Business\PaymentSteps\CapturePaymentStep.cs" />
     <Compile Include="Business\PaymentSteps\PaymentStep.cs" />
@@ -254,6 +254,8 @@
     <Compile Include="Extensions\MetaStorargeExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
     <Compile Include="MetadataInitialization.cs" />
+    <Compile Include="Models\PaymentAuthorizationResult.cs" />
+    <Compile Include="Models\PaymentResponseCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

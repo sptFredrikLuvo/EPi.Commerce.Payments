@@ -43,7 +43,8 @@ namespace Geta.Netaxept.Checkout
                 {
                     OrderDescription = paymentRequest.OrderDescription,
                     RedirectUrl = paymentRequest.SuccessUrl,
-                    Language = paymentRequest.Language 
+                    Language = paymentRequest.Language,
+                    Vat = paymentRequest.TaxTotal
                 },
                 Order = new Order
                 {
@@ -110,7 +111,7 @@ namespace Geta.Netaxept.Checkout
         /// Execute sale method
         /// </summary>
         /// <param name="transactionId"></param>
-        public void Sale(string transactionId)
+        public ProcessResult Sale(string transactionId)
         {
             if (string.IsNullOrEmpty(transactionId))
             {
@@ -122,6 +123,7 @@ namespace Geta.Netaxept.Checkout
                 Operation = "SALE",
                 TransactionId = transactionId
             });
+            return Create(response);
         }
 
         /// <summary>
@@ -129,27 +131,41 @@ namespace Geta.Netaxept.Checkout
         /// </summary>
         /// <param name="transactionId"></param>
         /// <param name="amount"></param>
-        public void Capture(string transactionId, string amount)
+        public ProcessResult Capture(string transactionId, string amount)
         {
+            if (string.IsNullOrEmpty(transactionId))
+            {
+                throw new ArgumentNullException(nameof(transactionId));
+            }
+            if (string.IsNullOrEmpty(amount))
+            {
+                throw new ArgumentNullException(nameof(amount));
+            }
             var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
             {
                 Operation = "CAPTURE",
                 TransactionId = transactionId,
                 TransactionAmount = amount,
             });
+            return Create(response);
         }
 
         /// <summary>
         /// Execute authorize method
         /// </summary>
         /// <param name="transactionId"></param>
-        public void Authorize(string transactionId)
+        public ProcessResult Authorize(string transactionId)
         {
+            if (string.IsNullOrEmpty(transactionId))
+            {
+                throw new ArgumentNullException(nameof(transactionId));
+            }
             var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
             {
                 Operation = "AUTH",
                 TransactionId = transactionId,
             });
+            return Create(response);
         }
 
         /// <summary>
@@ -157,14 +173,23 @@ namespace Geta.Netaxept.Checkout
         /// </summary>
         /// <param name="transactionId"></param>
         /// <param name="amount"></param>
-        public void Credit(string transactionId, string amount)
+        public ProcessResult Credit(string transactionId, string amount)
         {
+            if (string.IsNullOrEmpty(transactionId))
+            {
+                throw new ArgumentNullException(nameof(transactionId));
+            }
+            if (string.IsNullOrEmpty(amount))
+            {
+                throw new ArgumentNullException(nameof(amount));
+            }
             var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
             {
                 Operation = "CREDIT",
                 TransactionId = transactionId,
                 TransactionAmount = amount
             });
+            return Create(response);
         }
 
         /// <summary>
@@ -188,7 +213,26 @@ namespace Geta.Netaxept.Checkout
 
                 Cancelled = (info.Error != null ? info.Error.ResponseCode.Equals("17") : false),
                 ErrorOccurred = (info.Error != null),
+                ErrorCode = (info.Error != null ? info.Error.ResponseCode : string.Empty),
+                ErrorSource = (info.Error != null ? info.Error.ResponseSource : string.Empty),
                 ErrorMessage = (info.Error != null ? string.Format("{0}/{1}: {2}", info.Error.ResponseCode, info.Error.ResponseSource, info.Error.ResponseText) : string.Empty)
+            };
+        }
+
+        /// <summary>
+        /// Create ProcessResult object from response
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
+        private ProcessResult Create(ProcessResponse response)
+        {
+            return new ProcessResult
+            {
+                ErrorOccurred = (response.ResponseCode != "OK"),
+                ErrorMessage = (response.ResponseCode != "OK" ? string.Format("{0}/{1}: {2}", response.ResponseCode, response.ResponseSource, response.ResponseText) : string.Empty),
+                ResponseCode = response.ResponseCode,
+                ResponseText = response.ResponseText,
+                ResponseSource = response.ResponseSource
             };
         }
     }

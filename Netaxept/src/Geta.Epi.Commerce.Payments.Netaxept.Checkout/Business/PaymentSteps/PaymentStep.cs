@@ -48,12 +48,29 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <param name="detail"></param>
         public void AddNote(OrderForm orderForm, string title, string detail)
         {
+            AddNote(orderForm, title, detail, false);
+        }
+
+        /// <summary>
+        /// Add note to order
+        /// </summary>
+        /// <param name="orderForm"></param>
+        /// <param name="title"></param>
+        /// <param name="detail"></param>
+        /// <param name="save"></param>
+        public void AddNote(OrderForm orderForm, string title, string detail, bool save)
+        {
             OrderNote on = orderForm.Parent.OrderNotes.AddNew();
             on.Detail = detail;
             on.Title = title;
-            on.Type = OrderNoteTypes.Custom.ToString();
+            on.Type = OrderNoteTypes.System.ToString();
             on.Created = DateTime.Now;
             on.CustomerId = PrincipalInfo.CurrentPrincipal.GetContactId();
+
+            if (save)
+            {
+                orderForm.Parent.AcceptChanges();
+            }
         }
     }
 }

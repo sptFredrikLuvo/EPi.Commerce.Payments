@@ -1,61 +1,93 @@
 ﻿using System;
-using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
+using EPiServer.Logging;
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Models;
 using Geta.Netaxept.Checkout;
+using Geta.Netaxept.Checkout.Models;
 using Mediachase.Commerce.Customers;
 using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Orders.Managers;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 {
     /// <summary>
     /// Payment should authenticated at Netaxept
     /// </summary>
-    public class AuthenticatePaymentStep : PaymentStep
+    public class AuthorizationPaymentStep : PaymentStep
     {
-        public AuthenticatePaymentStep(Payment payment) : base(payment)
+        private static readonly ILogger Logger = LogManager.GetLogger(typeof(AuthorizationPaymentStep));
+
+        public AuthorizationPaymentStep(Payment payment) : base(payment)
         { }
 
         /// <summary>
-        /// Process payment
+        /// This step is not used in the chain.
         /// </summary>
         /// <param name="payment"></param>
         /// <param name="message"></param>
         /// <returns></returns>
         public override bool Process(Payment payment, ref string message)
         {
-            var transactionIdResult = PaymentStepHelper.GetTransactionFromCookie<string>(NetaxeptConstants.PaymentResultCookieName);
+            throw new NotImplementedException();
+        }
 
-            if (payment.TransactionType == "Authorization" && !string.IsNullOrEmpty(transactionIdResult))
+        /// <summary>
+        /// Process payment
+        /// </summary>
+        /// <param name="payment"></param>
+        /// <param name="transactionId"></param>
+        /// <returns></returns>
+        public PaymentAuthorizationResult Process(Payment payment, string transactionId)
+        {
+            var result = new PaymentAuthorizationResult();
+            if (payment.TransactionType == "Authorization" && !string.IsNullOrEmpty(transactionId))
             {
                 var orderForm = payment.Parent;
 
-                var paymentResult = this.Client.Query(transactionIdResult);
-
-                if (paymentResult.AmountCaptured > 0)
+                PaymentResult paymentResult = null;
+                try
                 {
-                    return true;
+                    paymentResult = this.Client.Query(transactionId);
                 }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex.Message);
 
+                    AddNote(payment.Parent, "Payment Authorize - Failed", "Error: " + ex.Message);
+                    return result;
+                }
+                
                 if (paymentResult.Cancelled)
                 {
                     payment.Status = "Failed";
-                    message = "The payment was cancelled by the user.";
-                    PaymentStepHelper.SaveTransactionToCookie(null, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
-                    return false;
+                    result.Result = PaymentResponseCode.Cancelled;
+                    return result;
                 }
                 if (paymentResult.ErrorOccurred)
                 {
                     payment.Status = "Failed";
-                    message = paymentResult.ErrorMessage;
-                    PaymentStepHelper.SaveTransactionToCookie(null, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
-                    return false;
+                    result.Result = PaymentResponseCode.ErrorOccurred;
+                    result.ErrorMessage = paymentResult.ErrorMessage;
+
+                    AddNote(payment.Parent, "Payment - Failed", "Error: " + result.ErrorMessage);
+                    return result;
                 }
 
-                //netaxeptServiceClient.Sale(merchantId, token, transactionIdResult);
-                // Don't call sale but auth instead
-                this.Client.Authorize(transactionIdResult);
+                try
+                {
+                    this.Client.Authorize(transactionId);
+                }
+                catch (Exception ex)
+                {
+                    payment.Status = "Failed";
+                    result.Result = PaymentResponseCode.ErrorOccurred;
+                    result.ErrorMessage = ex.Message;
 
-                payment.ProviderTransactionID = transactionIdResult;
+                    Logger.Error(ex.Message);
+
+                    AddNote(payment.Parent, "Payment Authorize - Failed", "Error: " + result.ErrorMessage);
+                    return result;
+                }
+
+                payment.ProviderTransactionID = transactionId;
                 payment.SetMetaField(NetaxeptConstants.CardInformationPaymentMethodField, paymentResult.CardInformationPaymentMethod, false);
                 payment.SetMetaField(NetaxeptConstants.CardInformationExpiryDateField, paymentResult.CardInformationExpiryDate, false);
                 payment.SetMetaField(NetaxeptConstants.CardInformationIssuerCountryField, paymentResult.CardInformationIssuerCountry, false);
@@ -75,17 +107,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                         customerContact.SaveChanges();
                     }
                 }
-                PaymentStepHelper.SaveTransactionToCookie(null, NetaxeptConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
-
-                //AddNote(orderForm, "Payment - Authenticated", "Payment - Amount is authenticated");
-
-                return true;
+                result.Result = PaymentResponseCode.Success;
             }
-            else if (Successor != null)
-            {
-                return Successor.Process(payment, ref message);
-            }
-            return false;
+            return result;
         }
     }
 
