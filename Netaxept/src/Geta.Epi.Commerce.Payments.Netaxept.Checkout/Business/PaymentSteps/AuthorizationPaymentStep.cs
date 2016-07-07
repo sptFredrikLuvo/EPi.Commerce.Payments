@@ -51,7 +51,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 {
                     Logger.Error(ex.Message);
 
-                    AddNote(payment.Parent, "Payment Authorize - Failed", "Error: " + ex.Message);
+                    AddNote(payment.Parent, "Payment Query - Error", "Payment Query - Error: " + ex.Message, true);
                     return result;
                 }
                 
@@ -67,13 +67,22 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     result.Result = PaymentResponseCode.ErrorOccurred;
                     result.ErrorMessage = paymentResult.ErrorMessage;
 
-                    AddNote(payment.Parent, "Payment - Failed", "Error: " + result.ErrorMessage);
+                    AddNote(payment.Parent, "Payment - Failed", "Payment - Error: " + result.ErrorMessage, true);
                     return result;
                 }
 
                 try
                 {
-                    this.Client.Authorize(transactionId);
+                    var responseResult = this.Client.Authorize(transactionId);
+                    if (responseResult.ErrorOccurred)
+                    {
+                        AddNote(orderForm, "Payment Auth - Error", "Payment Auth - Error: " + responseResult.ErrorMessage, true);
+
+                        payment.Status = "Failed";
+                        result.Result = PaymentResponseCode.ErrorOccurred;
+
+                        return result;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -83,7 +92,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                     Logger.Error(ex.Message);
 
-                    AddNote(payment.Parent, "Payment Authorize - Failed", "Error: " + result.ErrorMessage);
+                    AddNote(payment.Parent, "Payment Auth - Error", "Payment Auth - Error: " + result.ErrorMessage, true);
                     return result;
                 }
 
@@ -108,6 +117,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     }
                 }
                 result.Result = PaymentResponseCode.Success;
+
+                AddNote(payment.Parent, "Payment - Auth", "Payment - Auth");
             }
             return result;
         }

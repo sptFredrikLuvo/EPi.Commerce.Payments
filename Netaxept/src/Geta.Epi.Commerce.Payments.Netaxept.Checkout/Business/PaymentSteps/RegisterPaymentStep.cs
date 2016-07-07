@@ -47,10 +47,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 {
                     Logger.Error(ex.Message);
                     message = ex.Message;
+                    AddNote(payment.Parent, "Payment Registered - Error", "Payment Registered - Error: " + ex.Message, true);
                     return false;
                 }
 
-                //AddNote(orderForm, "Payment - Registered", "Payment - Amount is registered");
+                AddNote(orderForm, "Payment - Registered", "Payment - Registered");
 
                 var url = new UriBuilder(GetTerminalUrl(paymentMethodDto));
                 var nvc = new NameValueCollection
@@ -109,7 +110,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             request.TaxTotal = PaymentStepHelper.GetAmount(orderForm.TaxTotal);
             request.CurrencyCode = orderForm.Parent.BillingCurrency;
             request.OrderDescription = "Netaxept order";
-            request.OrderNumber = CartOrderNumberHelper.GenerateOrderNumber(orderForm.Parent); //orderForm.Parent.OrderGroupId.ToString(); Generate order number
+            request.OrderNumber = CartOrderNumberHelper.GenerateOrderNumber(orderForm.Parent);
             
             request.Language = paymentMethodDto.GetParameter(NetaxeptConstants.TerminalLanguageField);
 

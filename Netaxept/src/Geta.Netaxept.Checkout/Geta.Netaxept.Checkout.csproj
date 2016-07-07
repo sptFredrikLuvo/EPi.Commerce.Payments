@@ -47,6 +47,7 @@
     <Compile Include="Models\ClientConnection.cs" />
     <Compile Include="Models\PaymentRequest.cs" />
     <Compile Include="Models\PaymentResult.cs" />
+    <Compile Include="Models\ProcessResult.cs" />
     <Compile Include="NetaxeptConstants.cs" />
     <Compile Include="NetaxeptServiceClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

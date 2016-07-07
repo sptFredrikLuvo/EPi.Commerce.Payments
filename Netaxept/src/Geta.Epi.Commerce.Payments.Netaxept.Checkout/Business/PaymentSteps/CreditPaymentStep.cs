@@ -34,7 +34,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     if (result.ErrorOccurred)
                     {
                         message = result.ErrorMessage;
-                        AddNote(orderForm, "Payment Credit - Failed", "Error: " + result.ErrorMessage);
+                        AddNote(orderForm, "Payment Credit - Error", "Payment Credit - Error: " + result.ErrorMessage, true);
+                        payment.Status = "Failed";
                         return false;
                     }
                 }
@@ -42,11 +43,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 {
                     Logger.Error(ex.Message);
                     message = ex.Message;
-                    AddNote(orderForm, "Payment Credit - Failed", "Error: " + ex.Message);
+                    AddNote(orderForm, "Payment Credit - Error", "Payment Credit - Error: " + ex.Message, true);
+                    payment.Status = "Failed";
                     return false;
                 }
 
-                AddNote(orderForm, "Payment - Credit", "Payment - Amount is credited");
+                AddNote(orderForm, "Payment - Credited", "Payment - Credited");
 
                 return true;
             }

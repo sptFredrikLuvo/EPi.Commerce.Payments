@@ -34,7 +34,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     if (result.ErrorOccurred)
                     {
                         message = result.ErrorMessage;
-                        AddNote(orderForm, "Payment Captured - Failed", "Error: " + result.ErrorMessage);
+                        payment.Status = "Failed";
+                        AddNote(orderForm, "Payment Captured - Error", "Payment - Captured - Error: " + result.ErrorMessage, true);
                         return false;
                     }
                 }
@@ -42,11 +43,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 {
                     Logger.Error(ex.Message);
                     message = ex.Message;
-                    AddNote(orderForm, "Payment Captured - Failed", "Error: " + ex.Message, true);
+                    payment.Status = "Failed";
+                    AddNote(orderForm, "Payment Captured - Error", "Payment - Captured - Error: " + ex.Message, true);
                     return false;
                 }
 
-                AddNote(orderForm, "Payment - Captured", "Payment - Amount is captured");
+                AddNote(orderForm, "Payment - Captured", "Payment - Captured");
 
                 return true;
             }
