@@ -17,7 +17,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.Models
                 case "GenericCreditCard":
                     return new GenericCreditCardViewModel() {PaymentMethod = new GenericCreditCardPaymentMethod()};
 
-                case "netaxeptcheckout":
+                case "netaxept":
                     return new NetaxeptViewModel() { PaymentMethod = new NetaxeptCheckoutPaymentGateway() };
             }
 

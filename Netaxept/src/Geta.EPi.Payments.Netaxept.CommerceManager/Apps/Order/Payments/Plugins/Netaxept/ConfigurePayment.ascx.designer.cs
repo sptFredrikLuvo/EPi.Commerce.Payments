@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Geta.EPi.Payments.Netaxept.CommerceManager.Apps.Order.Payments.Plugins.NetaxeptCheckout {
+namespace Geta.EPi.Payments.Netaxept.CommerceManager.Apps.Order.Payments.Plugins.Netaxept {
     
     
     public partial class ConfigurePayment {

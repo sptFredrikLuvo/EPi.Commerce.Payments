@@ -66,7 +66,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
             var payment = new NetaxeptPayment()
             {
                 PaymentMethodId = PaymentMethodId,
-                PaymentMethodName = "NetaxeptCheckout",
+                PaymentMethodName = "Netaxept",
                 OrderFormId = orderForm.OrderFormId,
                 OrderGroupId = orderForm.OrderGroupId,
                 Amount = orderForm.Total,

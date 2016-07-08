@@ -241,21 +241,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Apps\Order\Payments\Plugins\NetaxeptCheckout\ConfigurePayment.ascx.cs">
+    <Compile Include="Apps\Order\Payments\Plugins\Netaxept\ConfigurePayment.ascx.cs">
       <DependentUpon>ConfigurePayment.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Apps\Order\Payments\Plugins\NetaxeptCheckout\ConfigurePayment.ascx.designer.cs">
+    <Compile Include="Apps\Order\Payments\Plugins\Netaxept\ConfigurePayment.ascx.designer.cs">
       <DependentUpon>ConfigurePayment.ascx.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Apps\Order\Payments\Plugins\NetaxeptCheckout\ConfigurePayment.ascx">
+    <Content Include="Apps\Order\Payments\Plugins\Netaxept\ConfigurePayment.ascx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="web.config.uninstall.xdt">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="web.config.install.xdt">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
