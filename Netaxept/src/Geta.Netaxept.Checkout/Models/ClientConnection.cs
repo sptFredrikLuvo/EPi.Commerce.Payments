@@ -9,8 +9,15 @@ namespace Geta.Netaxept.Checkout.Models
     {
         public string MerchantId { get; private set; }
         public string Token { get; private set; }
+        public bool IsProduction { get; private set; }
 
-        public ClientConnection(string merchantId, string token)
+        /// <summary>
+        /// Public constructor, set the merchartId and token
+        /// </summary>
+        /// <param name="merchantId"></param>
+        /// <param name="token"></param>
+        /// <param name="isProduction"></param>
+        public ClientConnection(string merchantId, string token, bool isProduction)
         {
             if (string.IsNullOrEmpty(merchantId))
             {
@@ -22,6 +29,7 @@ namespace Geta.Netaxept.Checkout.Models
             }
             MerchantId = merchantId;
             Token = token;
+            IsProduction = isProduction;
         }
     }
 }

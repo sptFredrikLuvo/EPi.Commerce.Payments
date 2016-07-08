@@ -31,10 +31,10 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
         {
             MetaDataContext mdContext = CatalogContext.MetaDataContext;
 
-            var netaxeptBankPaymentMethod = GetOrCreateNetaxeptPaymentMethodField(mdContext);
+            var netaxeptBankPaymentMethod = GetOrCreateCardField(mdContext, NetaxeptConstants.NetaxeptPaymentMethod);
             JoinField(mdContext, netaxeptBankPaymentMethod, NetaxeptConstants.OtherPaymentClass);
 
-            var successUrl = GetOrCreateSuccessUrlField(mdContext);
+            var successUrl = GetOrCreateCardField(mdContext, NetaxeptConstants.SuccessfullUrl);
             JoinField(mdContext, successUrl, NetaxeptConstants.OtherPaymentClass);
 
             var cardInformationIssuerCountryField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationIssuerCountryField);
@@ -79,32 +79,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
 
         }
 
-        private MetaField GetOrCreateNetaxeptPaymentMethodField(MetaDataContext mdContext)
-        {
-
-            var f = MetaField.Load(mdContext, NetaxeptConstants.NetaxeptPaymentMethod);
-            if (f == null)
-            {
-                Logger.Debug(string.Format("Adding meta field '{0}' for Netaxept integration.", NetaxeptConstants.NetaxeptPaymentMethod));
-                f = MetaField.Create(mdContext, NetaxeptConstants.OrderNamespace, NetaxeptConstants.NetaxeptPaymentMethod, NetaxeptConstants.NetaxeptPaymentMethod, string.Empty, MetaDataType.ShortString, 255, true, false, false, false);
-            }
-
-            return f;
-        }
-
-        private MetaField GetOrCreateSuccessUrlField(MetaDataContext mdContext)
-        {
-
-            var f = MetaField.Load(mdContext, NetaxeptConstants.SuccessfullUrl);
-            if (f == null)
-            {
-                Logger.Debug(string.Format("Adding meta field '{0}' for Netaxept integration.", NetaxeptConstants.SuccessfullUrl));
-                f = MetaField.Create(mdContext, NetaxeptConstants.OrderNamespace, NetaxeptConstants.SuccessfullUrl, NetaxeptConstants.SuccessfullUrl, string.Empty, MetaDataType.LongString, Int32.MaxValue, true, false, false, false);
-            }
-
-            return f;
-        }
-
+        /// <summary>
+        /// Get or create card field
+        /// </summary>
+        /// <param name="mdContext"></param>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
         private MetaField GetOrCreateCardField(MetaDataContext mdContext, string fieldName)
         {
 
@@ -117,6 +97,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
             return f;
         }
 
+        /// <summary>
+        /// Add field to meta class
+        /// </summary>
+        /// <param name="mdContext"></param>
+        /// <param name="field"></param>
+        /// <param name="metaClassName"></param>
         private void JoinField(MetaDataContext mdContext, MetaField field, string metaClassName)
         {
             var cls = MetaClass.Load(mdContext, metaClassName);
@@ -127,6 +113,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="cls"></param>
+        /// <returns></returns>
         private static bool MetaFieldIsNotConnected(MetaField field, MetaClass cls)
         {
             return cls != null && !cls.MetaFields.Contains(field);

@@ -17,13 +17,18 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         protected NetaxeptServiceClient Client;
         protected PaymentStep Successor;
 
+        /// <summary>
+        /// Constructor. Get the merchantId and token and create a connection object
+        /// </summary>
+        /// <param name="payment"></param>
         protected PaymentStep(Payment payment)
         {
             var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
             var merchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
             var token = paymentMethodDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
+            var isProduction = bool.Parse(paymentMethodDto.GetParameter(NetaxeptConstants.IsProductionField, "false"));
 
-            var connection = new ClientConnection(merchantId, token);
+            var connection = new ClientConnection(merchantId, token, isProduction);
             Client = new NetaxeptServiceClient(connection);
         }
 

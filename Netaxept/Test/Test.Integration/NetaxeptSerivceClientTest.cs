@@ -13,7 +13,7 @@ namespace Test.Integration
         public void RegisterPayment()
         {
             var appSettings = ConfigurationManager.AppSettings;
-            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"]));
+            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"], false));
 
             var paymentRequest = CreatePaymentRequest();
             var transactionId = client.Register(paymentRequest);
@@ -25,7 +25,7 @@ namespace Test.Integration
         public void QueryPayment()
         {
             var appSettings = ConfigurationManager.AppSettings;
-            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"]));
+            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"], false));
 
             var paymentRequest = CreatePaymentRequest();
             var transactionId = client.Register(paymentRequest);
@@ -41,7 +41,7 @@ namespace Test.Integration
         public void RegisterPayment_Invalid_PhoneNumber()
         {
             var appSettings = ConfigurationManager.AppSettings;
-            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"]));
+            var client = new NetaxeptServiceClient(new ClientConnection(appSettings["Netaxept:MerchantId"], appSettings["Netaxept:Token"], false));
 
             var paymentRequest = CreatePaymentRequest();
             paymentRequest.CustomerPhoneNumber = "1";

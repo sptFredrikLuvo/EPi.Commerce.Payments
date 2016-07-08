@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ServiceModel;
 using Geta.Netaxept.Checkout.Extensions;
 using Geta.Netaxept.Checkout.Models;
 using Geta.Netaxept.Checkout.NetaxeptWebServiceClient;
@@ -21,6 +22,15 @@ namespace Geta.Netaxept.Checkout
         {
             _connection = connection;
             _client = new NetaxeptClient();
+
+            if (connection.IsProduction)
+            {
+                _client.Endpoint.Address = new EndpointAddress(NetaxeptConstants.NetaxeptServiceProductionAddress);
+            }
+            else
+            {
+                _client.Endpoint.Address = new EndpointAddress(NetaxeptConstants.NetaxeptServiceTestAddress);
+            }
         }
 
         /// <summary>

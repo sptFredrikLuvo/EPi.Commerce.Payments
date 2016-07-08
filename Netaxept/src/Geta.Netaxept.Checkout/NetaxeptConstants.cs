@@ -31,6 +31,8 @@
         /* Netaxept fields */
         public const string TerminalTestUrl = "https://test.epayment.nets.eu/terminal/default.aspx";
         public const string TerminalProductionUrl = "https://epayment.nets.eu/terminal/default.aspx";
+        public const string NetaxeptServiceTestAddress = "https://test.epayment.nets.eu/netaxept.svc";
+        public const string NetaxeptServiceProductionAddress = "https://epayment.nets.eu/netaxept.svc";
 
         /* Customer fields */
         public const string CustomerPanHashFieldName = "PanHash";
