@@ -5,7 +5,7 @@ Library for Netaxept (EasyPayments) Checkout integration with EPiServer Commerce
 
 ## What is Geta.EPi.Commerce.Payments.Netaxept.Checkout?
 
-Geta.EPi.Commerce.Payments.Netaxept.Checkout is library which helps to integrate Netaxept Checkout as one of the payment options in your EPiServer Commerce sites.
+Geta.EPi.Commerce.Payments.Netaxept.Checkout is a library which helps to integrate Netaxept Checkout as one of the payment options in your EPiServer Commerce sites.
 This library consists of three assemblies: 
 * Geta.Netaxept.Checkout is wrapper for Netaxept Checkout API and simplifies API usage 
 * Geta.EPi.Commerce.Payments.Netaxept.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration 
@@ -13,10 +13,10 @@ This library consists of three assemblies:
 
 ### Payment process
 
-Currently the Nuget package only supports payment by (credit)card. Below a description of the supported payment process.
+Currently, the Nuget package only supports payment by (credit)card. Below a description of the supported payment process.
 - **Register**  - Before the user is redirected first the payment must be registered at Netaxept. This call will return a transaction id, we will need it for the next steps.
 - **Terminal**  - Immediately after registering the payment, the user is redirected to the terminal of Netaxept. Here the user can select a payment option and enter his card information.
-- **Auth**      - User is redirected back to the website. When we receive an ok status (meaning the payment has pass the validation), we can call the Auth method to reserve the amount.
+- **Auth**      - User is redirected back to the website. When we receive an ok status (meaning the payment has passed the validation), we can call the Auth method to reserve the amount.
 - **Capture**   - When the order is ready for shipment, we can call the Capture method.
 - **Credit**    - The Credit method can be used for returns.
 
@@ -26,7 +26,7 @@ https://shop.nets.eu/web/partners/flow-outline
 ### Easy payments ###
 
 This package supports the easy payments functionality of Netaxept. This makes it possible to save the card information of the user at Netaxept. Whenever the user pays again with Netaxept only the CVC code needs to be entered.
-After a payment the panHash is saved on the (EPiServer Commerce) customer contact object. The next payment the panHash is send to Netaxept for using the easy payments functionality.  
+After a payment, the panHash is saved on the (EPiServer Commerce) customer contact object. The next payment the panHash is sent to Netaxept for using the easy payments functionality.  
 
 More information about easy payments:
 https://shop.nets.eu/web/partners/home
@@ -54,7 +54,7 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 - **Payment Class** - choose **Mediachase.Commerce.Orders.OtherPayment**
 - **IsActive** - **Yes**
 - select shipping methods available for this payment
-- navigate to parameters tab and fill inn settings (see screenshot below)
+- navigate to parameters tab and fill in settings (see screenshot below)
 
 ![Payment method settings](/Netaxept/screenshots/overview.PNG?raw=true "Payment method settings")
 
@@ -62,11 +62,11 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 
 **Note: If the parameters tab is empty (or gateway class is missing), make sure you have installed the commerce manager nuget (see above)**
 
-In **Markets** tab select market for which this payment will be available.
+In the **Markets** tab select a market for which this payment will be available.
 
 ### Callback
 
-The user will be redirected back to the website after fill out the card information in the terminal. The URL needs to be set on the PaymentGateway before running the checkout workflow (OrderGroupWorkflowManager.CartCheckOutWorkflowName).
+The user will be redirected back to the website after filling out the card information in the terminal. The URL needs to be set on the PaymentGateway before running the checkout workflow (OrderGroupWorkflowManager.CartCheckOutWorkflowName).
 Below an example. 
 
 ```
@@ -82,7 +82,7 @@ if (netaxept != null)
 
 ```
 
-The transaction id is passed as parameter to the Index method. On the NetaxeptCheckoutPaymentGateway the ProcessAuthorization method should be called. This method will complete the payment. The return value indicate if the payment is successfull otherwise
+The transaction id is passed as parameter to the Index method. On the NetaxeptCheckoutPaymentGateway the ProcessAuthorization method should be called. This method will complete the payment. The return value indicates if the payment is successfully otherwise
 an error code is returned. If the result is ok, then the cart should be saved as a purchase order to finalize the checkout. During the payment process, notes are saved on the cart (register and auth steps), you can copy the notes to the purchase order if you 
 would like a complete history of the payment process.
 
