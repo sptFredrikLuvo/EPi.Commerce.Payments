@@ -38,10 +38,9 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 - select shipping methods available for this payment
 - navigate to parameters tab and fill inn settings (see screenshot below)
 
+![Payment method settings](/Netaxept/screenshots/overview.PNG?raw=true "Payment method settings")
 
-![Payment method settings](/Netaxept/screenshots/overview.png?raw=true "Payment method settings")
-
-![Payment method settings](/Netaxept/screenshots/parameters.png?raw=true "Payment method parameters")
+![Payment method settings](/Netaxept/screenshots/parameters.PNG?raw=true "Payment method parameters")
 
 **Note: If the parameters tab is empty (or gateway class is missing), make sure you have installed the commerce manager nuget (see above)**
 
