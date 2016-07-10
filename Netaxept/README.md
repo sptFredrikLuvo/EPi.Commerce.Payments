@@ -58,6 +58,8 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 
 ![Payment method settings](/Netaxept/screenshots/overview.PNG?raw=true "Payment method settings")
 
+The merchant id and token are necessary for establishing a connection to the service of Netaxept.
+
 ![Payment method settings](/Netaxept/screenshots/parameters.PNG?raw=true "Payment method parameters")
 
 **Note: If the parameters tab is empty (or gateway class is missing), make sure you have installed the commerce manager nuget (see above)**
