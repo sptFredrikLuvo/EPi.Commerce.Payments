@@ -63,7 +63,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
         {
             if (orderForm == null) throw new ArgumentNullException(nameof(orderForm));
 
-            var payment = new NetaxeptPayment()
+            var payment = new OtherPayment()
             {
                 PaymentMethodId = PaymentMethodId,
                 PaymentMethodName = "Netaxept",

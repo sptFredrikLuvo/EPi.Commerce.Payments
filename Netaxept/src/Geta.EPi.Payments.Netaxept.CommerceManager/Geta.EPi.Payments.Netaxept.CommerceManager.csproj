@@ -277,7 +277,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /i /e /s "$(SolutionDir)\src\Geta.EPi.Payments.Netaxept.CommerceManager\Apps\Order\Payments\Plugins\NetaxeptCheckout\ConfigurePayment.ascx" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\Apps\Order\Payments\Plugins\NetaxeptCheckout\"
+    <PostBuildEvent>xcopy /Y /i /e /s "$(SolutionDir)\src\Geta.EPi.Payments.Netaxept.CommerceManager\Apps\Order\Payments\Plugins\Netaxept\ConfigurePayment.ascx" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\Apps\Order\Payments\Plugins\Netaxept\"
 xcopy /Y "$(SolutionDir)\src\Geta.Epi.Payments.Netaxept.CommerceManager\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.CommerceManager.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"
 xcopy /Y "$(SolutionDir)\src\Geta.Epi.Payments.Netaxept.CommerceManager\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"</PostBuildEvent>
   </PropertyGroup>

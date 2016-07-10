@@ -4,7 +4,7 @@ using Mediachase.Commerce.Orders;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
 {
-    [Serializable]
+    /*[Serializable]
     public class NetaxeptPayment : OtherPayment
     {
 
@@ -16,5 +16,5 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
         public NetaxeptPayment(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
-    }
+    }*/
 }
