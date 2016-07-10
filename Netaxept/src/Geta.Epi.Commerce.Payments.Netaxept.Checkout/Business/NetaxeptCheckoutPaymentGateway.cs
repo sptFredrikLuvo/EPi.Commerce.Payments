@@ -17,8 +17,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(NetaxeptCheckoutPaymentGateway));
 
         public Guid PaymentMethodId { get; set; }
-        public string SuccessUrl { get; set; }
-        public string CallBackUrlWhenFail { get; set; }
+        public string CallbackUrl { get; set; }
 
         /// <summary>
         /// Process payment method 
@@ -74,7 +73,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                 TransactionType = TransactionType.Authorization.ToString()
             };
 
-            payment.SetMetaField(NetaxeptConstants.SuccessfullUrl, SuccessUrl, false);
+            payment.SetMetaField(NetaxeptConstants.CallbackUrl, CallbackUrl, false);
 
             return payment;
         }

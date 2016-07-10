@@ -34,8 +34,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
             var netaxeptBankPaymentMethod = GetOrCreateCardField(mdContext, NetaxeptConstants.NetaxeptPaymentMethod);
             JoinField(mdContext, netaxeptBankPaymentMethod, NetaxeptConstants.OtherPaymentClass);
 
-            var successUrl = GetOrCreateCardField(mdContext, NetaxeptConstants.SuccessfullUrl);
-            JoinField(mdContext, successUrl, NetaxeptConstants.OtherPaymentClass);
+            var callbackUrl = GetOrCreateCardField(mdContext, NetaxeptConstants.CallbackUrl);
+            JoinField(mdContext, callbackUrl, NetaxeptConstants.OtherPaymentClass);
 
             var cardInformationIssuerCountryField = GetOrCreateCardField(mdContext, NetaxeptConstants.CardInformationIssuerCountryField);
             JoinField(mdContext, cardInformationIssuerCountryField, NetaxeptConstants.OtherPaymentClass);

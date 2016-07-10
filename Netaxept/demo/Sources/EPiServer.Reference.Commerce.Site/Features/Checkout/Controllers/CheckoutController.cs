@@ -527,23 +527,10 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                 var netaxept = checkoutViewModel.Payment as NetaxeptViewModel;
                 if (netaxept != null)
                 {
-                    var netaxeptPaymentMethod =
-                        checkoutViewModel.Payment.PaymentMethod as NetaxeptCheckoutPaymentGateway;
+                    var netaxeptPaymentMethod = checkoutViewModel.Payment.PaymentMethod as NetaxeptCheckoutPaymentGateway;
                     if (netaxeptPaymentMethod != null)
                     {
-                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("Index", "PaymentCallback");
-                        //netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("CompletePayment");
-                        
-                        /*netaxeptPaymentMethod.CardNumber = resursBank.CardNumber;
-                        netaxeptPaymentMethod.ResursPaymentMethod = resursBank.ResursPaymentMethod;
-                        //resursBankPaymentMethod.CallBackUrlWhenFail = Url.Action("BookSignedpayment", "Checkout", null, this.Request.Url.Scheme);
-                        netaxeptPaymentMethod.SuccessUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("BookSignedpayment");
-                        netaxeptPaymentMethod.CallBackUrlWhenFail = "http://" + this.Request.Url.DnsSafeHost + _contentRepository.GetFirstChild<OrderConfirmationPage>(currentPage.ContentLink).LinkURL;
-                        netaxeptPaymentMethod.GovernmentId = resursBank.GovernmentId;
-                        netaxeptPaymentMethod.AmountForNewCard = resursBank.AmountForNewCard;
-                        netaxeptPaymentMethod.MinLimit = resursBank.MinLimit;
-                        netaxeptPaymentMethod.MaxLimit = resursBank.MaxLimit;
-                        netaxeptPaymentMethod.InvoiceDeliveryType = resursBank.DeliveryType;*/
+                        netaxeptPaymentMethod.CallbackUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("Index", "PaymentCallback");
                     }
                 }
 

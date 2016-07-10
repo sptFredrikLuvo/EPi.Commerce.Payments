@@ -114,7 +114,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             
             request.Language = paymentMethodDto.GetParameter(NetaxeptConstants.TerminalLanguageField);
 
-            request.SuccessUrl = payment.GetStringValue(NetaxeptConstants.SuccessfullUrl, string.Empty);
+            request.SuccessUrl = payment.GetStringValue(NetaxeptConstants.CallbackUrl, string.Empty);
 
             request.CustomerNumber = (orderForm.Parent.CustomerId != Guid.Empty ? orderForm.Parent.CustomerId.ToString() : string.Empty);
 

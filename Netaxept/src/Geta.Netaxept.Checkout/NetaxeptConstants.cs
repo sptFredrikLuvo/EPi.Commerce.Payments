@@ -6,7 +6,7 @@
 
         /* Payment fields */
         public const string NetaxeptPaymentMethod = "NetaxeptPaymentMethod";
-        public const string SuccessfullUrl = "SuccessfullUrl";
+        public const string CallbackUrl = "CallbackUrl";
         public const string CardInformationMaskedPanField = "CardInformationMaskedPan";
         public const string CardInformationIssuerField = "CardInformationIssuer";
         public const string CardInformationExpiryDateField = "CardInformationExpiryDate";
