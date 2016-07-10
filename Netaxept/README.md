@@ -46,7 +46,7 @@ In **Markets** tab select market for which this payment will be available.
 
 ### Payment process
 
-Currently the Nuget package only supports payment by (credit)card. 
+Currently the Nuget package only supports payment by (credit)card. Below a description of the supported payment process.
 - **Register**  - Before the user is redirected first the payment must be registered at Netaxept. This call will return a transaction id, we will need it for the next steps.
 - **Terminal**  - Immediately after registering the payment, the user is redirected to the terminal of Netaxept. Here the user can select a payment option and enter his card information.
 - **Auth**      - User is redirected back to the website. When we receive an ok status (meaning the payment has pass the validation), we can call the Auth method to reserve the amount.
@@ -55,6 +55,14 @@ Currently the Nuget package only supports payment by (credit)card.
 
 More information about payment flows:
 https://shop.nets.eu/web/partners/flow-outline
+
+### Easy payments ###
+
+This package supports the easy payments functionality of Netaxept. This makes it possible to save the card information of the user at Netaxept. Whenever the user pays again with Netaxept only the CVC code needs to be entered.
+After a payment the panHash is saved on the (EPiServer Commerce) customer contact object. The next payment the panHash is send to Netaxept for using the easy payments functionality.  
+
+More information about easy payments:
+https://shop.nets.eu/web/partners/home
 
 ### Callback
 
@@ -78,7 +86,7 @@ The transaction id is passed as parameter to the Index method. On the NetaxeptCh
 an error code is returned. If the result is ok, then the cart should be saved as a purchase order to finalize the checkout. During the payment process, notes are saved on the cart (register and auth steps), you can copy the notes to the purchase order if you 
 would like a complete history of the payment process.
 
-![Payment method settings](/Netaxept/screenshots/notes.PNG?raw=true "Order notes")
+![Order notes](/Netaxept/screenshots/notes.PNG?raw=true "Order notes")
 
 ```
 public class PaymentCallbackController : Controller
@@ -157,5 +165,20 @@ public class PaymentCallbackController : Controller
         return null;
     }
 }
+```
+
+### Payment information
+
+The card information of the payment is saved on payment object. This information can be displayed on the order confirmation page.
+
+```
+<p>
+    Card information payment method: <strong>@Model.GetString(NetaxeptConstants.CardInformationPaymentMethodField)</strong> <br/>
+    Card information expiry date: <strong>@Model.GetString(NetaxeptConstants.CardInformationExpiryDateField)</strong> <br />
+    Card information issuer id: <strong>@Model.GetString(NetaxeptConstants.CardInformationIssuerIdField)</strong> <br />
+    Card information issuer: <strong>@Model.GetString(NetaxeptConstants.CardInformationIssuerField)</strong> <br />
+    Card information issuer country: <strong>@Model.GetString(NetaxeptConstants.CardInformationIssuerCountryField)</strong> <br />
+    Card information masked pan: <strong>@Model.GetString(NetaxeptConstants.CardInformationMaskedPanField)</strong> <br />
+</p>
 ```
 
