@@ -11,6 +11,26 @@ This library consists of three assemblies:
 * Geta.EPi.Commerce.Payments.Netaxept.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration 
 * Geta.EPi.Payments.Netaxept.CommerceManager contains .ascx for payment method settings for Commerce Manager
 
+### Payment process
+
+Currently the Nuget package only supports payment by (credit)card. Below a description of the supported payment process.
+- **Register**  - Before the user is redirected first the payment must be registered at Netaxept. This call will return a transaction id, we will need it for the next steps.
+- **Terminal**  - Immediately after registering the payment, the user is redirected to the terminal of Netaxept. Here the user can select a payment option and enter his card information.
+- **Auth**      - User is redirected back to the website. When we receive an ok status (meaning the payment has pass the validation), we can call the Auth method to reserve the amount.
+- **Capture**   - When the order is ready for shipment, we can call the Capture method.
+- **Credit**    - The Credit method can be used for returns.
+
+More information about payment flows:
+https://shop.nets.eu/web/partners/flow-outline
+
+### Easy payments ###
+
+This package supports the easy payments functionality of Netaxept. This makes it possible to save the card information of the user at Netaxept. Whenever the user pays again with Netaxept only the CVC code needs to be entered.
+After a payment the panHash is saved on the (EPiServer Commerce) customer contact object. The next payment the panHash is send to Netaxept for using the easy payments functionality.  
+
+More information about easy payments:
+https://shop.nets.eu/web/partners/home
+
 ## How to get started?
 
 Start by installing NuGet packages (use [NuGet](http://nuget.episerver.com/)):
@@ -43,26 +63,6 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 **Note: If the parameters tab is empty (or gateway class is missing), make sure you have installed the commerce manager nuget (see above)**
 
 In **Markets** tab select market for which this payment will be available.
-
-### Payment process
-
-Currently the Nuget package only supports payment by (credit)card. Below a description of the supported payment process.
-- **Register**  - Before the user is redirected first the payment must be registered at Netaxept. This call will return a transaction id, we will need it for the next steps.
-- **Terminal**  - Immediately after registering the payment, the user is redirected to the terminal of Netaxept. Here the user can select a payment option and enter his card information.
-- **Auth**      - User is redirected back to the website. When we receive an ok status (meaning the payment has pass the validation), we can call the Auth method to reserve the amount.
-- **Capture**   - When the order is ready for shipment, we can call the Capture method.
-- **Credit**    - The Credit method can be used for returns.
-
-More information about payment flows:
-https://shop.nets.eu/web/partners/flow-outline
-
-### Easy payments ###
-
-This package supports the easy payments functionality of Netaxept. This makes it possible to save the card information of the user at Netaxept. Whenever the user pays again with Netaxept only the CVC code needs to be entered.
-After a payment the panHash is saved on the (EPiServer Commerce) customer contact object. The next payment the panHash is send to Netaxept for using the easy payments functionality.  
-
-More information about easy payments:
-https://shop.nets.eu/web/partners/home
 
 ### Callback
 
