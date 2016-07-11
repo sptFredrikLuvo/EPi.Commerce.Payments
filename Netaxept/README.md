@@ -84,6 +84,32 @@ if (netaxept != null)
 
 ```
 
+Make sure that the PreProcess method is called on the NetaxeptCheckoutPaymentGateway before running the checkout workflow. Check the Quicksilver demo in the repository for an implementation example. 
+
+```
+public void ProcessPayment(IPaymentOption method)
+{
+    var cart = _cartHelper(Mediachase.Commerce.Orders.Cart.DefaultName).Cart;
+
+    if (!cart.OrderForms.Any())
+    {
+        cart.OrderForms.AddNew();
+    }
+
+    var payment = method.PreProcess(cart.OrderForms[0]);
+
+    if (payment == null)
+    {
+        throw new PreProcessException();
+    }
+
+    cart.OrderForms[0].Payments.Add(payment);
+    cart.AcceptChanges();
+
+    method.PostProcess(cart.OrderForms[0]);
+}
+```
+
 The transaction id is passed as parameter to the Index method. On the NetaxeptCheckoutPaymentGateway the ProcessAuthorization method should be called. This method will complete the payment. The return value indicates if the payment is successfully otherwise
 an error code is returned. If the result is ok, then the cart should be saved as a purchase order to finalize the checkout. During the payment process, notes are saved on the cart (register and auth steps), you can copy the notes to the purchase order if you 
 would like a complete history of the payment process.
