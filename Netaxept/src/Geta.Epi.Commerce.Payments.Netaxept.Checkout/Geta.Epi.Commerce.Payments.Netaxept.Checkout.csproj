@@ -276,10 +276,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Site\bin\"
-xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Site\bin\"
-xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"
-xcopy /Y "$(SolutionDir)\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll" "$(SolutionDir)\demo\Sources\EPiServer.Reference.Commerce.Manager\bin\"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
