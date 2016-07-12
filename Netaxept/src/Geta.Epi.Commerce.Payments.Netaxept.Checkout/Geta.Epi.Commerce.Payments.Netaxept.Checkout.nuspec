@@ -7,14 +7,18 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <iconUrl>https://cdn.geta.no/opensource/icons/Geta-logo-3.png</iconUrl>
-    <projectUrl>https://github.com/Geta/EPi.Commerce.Payments/tree/netaxept-development/Netaxept/src/Geta.Epi.Commerce.Payments.Netaxept.Checkout</projectUrl>
+    <projectUrl>https://github.com/Geta/EPi.Commerce.Payments/tree/master/Netaxept/src/Geta.Epi.Commerce.Payments.Netaxept.Checkout</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Copyright 2016 Geta</copyright>
     <tags>EPiServer Commerce 9</tags>
+    <dependencies>
+      <dependency id="EPiServer.CMS.Core" version="9.0.0" />
+      <dependency id="EPiServer.Commerce.Core" version="9.0.0" />
+    </dependencies>
   </metadata>
   <files>
     <file src="web.config.install.xdt" target="content" />
     <file src="web.config.uninstall.xdt" target="content" />
-  </files>
+  </files>  
 </package>
