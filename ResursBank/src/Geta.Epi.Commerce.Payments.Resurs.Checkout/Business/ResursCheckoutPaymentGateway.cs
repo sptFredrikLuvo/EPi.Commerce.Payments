@@ -314,7 +314,10 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
             var specLines = orderForm.LineItems.Select(item => item.ToSpecLineItem()).ToList();
             if (specLines != null && specLines.Any())
             {
-                specLine[] spLines = new specLine[specLines.Count];
+                var itemCount = orderForm.ShippingTotal > 0 ? specLines.Count + 1 : specLines.Count;
+
+                specLine[] spLines = new specLine[itemCount];
+
                 var i = 0;
                 decimal totalAmount = 0;
                 decimal totalVatAmount = 0;
@@ -337,6 +340,26 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                     spLines[i] = spLine;
                     i++;
                 }
+
+                if (orderForm.ShippingTotal > 0)
+                {
+                    var spLine = new specLine
+                    {
+                        id = "Shipping",
+                        artNo = "Shipping",
+                        unitMeasure = "st",
+                        description = "Frakt",
+                        totalAmount = orderForm.ShippingTotal,
+                        unitAmountWithoutVat = orderForm.ShippingTotal,
+                        quantity = 1
+                    };
+
+                    totalAmount += spLine.totalAmount;
+                    totalVatAmount += spLine.totalVatAmount;
+
+                    spLines[specLines.Count] = spLine;
+                }
+
                 paymentSpec.specLines = spLines;
                 paymentSpec.totalAmount = totalAmount;
                 paymentSpec.totalVatAmount = totalVatAmount;
@@ -363,11 +386,20 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                     postalArea = billingAddress.PostalCode,
                     postalCode = billingAddress.PostalCode
                 };
+
+                string billingCountryCode = billingAddress.CountryCode;
+
+                if (GlobalizationConstants.ThreeLetterCountryCodeMappings.ContainsKey(billingCountryCode))
+                {
+                    billingCountryCode = GlobalizationConstants.ThreeLetterCountryCodeMappings[billingCountryCode];
+                }
+
                 countryCode cCode;
-                if (!Enum.TryParse(billingAddress.CountryCode, true, out cCode))
+                if (!Enum.TryParse(billingCountryCode, true, out cCode))
                 {
                     cCode = countryCode.SE;
                 }
+
                 extendCustomer.address.country = cCode;
                 extendCustomer.phone = billingAddress.DaytimePhoneNumber ?? billingAddress.EveningPhoneNumber;
                 extendCustomer.email = billingAddress.Email;
