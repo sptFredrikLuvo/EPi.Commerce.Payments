@@ -1,3 +1,6 @@
+8/11/2016 - Version 1.1.6.9000
+Bug fix #13
+
 6/15/2016 - Version 1.1.5.900
 Solving issues #11 and #12 
 
