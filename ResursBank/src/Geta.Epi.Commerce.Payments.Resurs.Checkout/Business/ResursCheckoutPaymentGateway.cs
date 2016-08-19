@@ -115,17 +115,17 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                             //card info
                             cardData customerCard = null;
                             invoiceData invoice = null;
-                            if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.CARD))
+                            if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.CARD) || bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.ACCOUNT))
                             {
                                 customerCard = new cardData();
                                 customerCard.cardNumber = payment.GetStringValue(ResursConstants.CardNumber, string.Empty);
                             }
-                            else if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.NEWCARD))
+                            else if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.NEWCARD) || bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.NEWACCOUNT))
                             {
                                 
                                 customerCard = new cardData();
                                 customerCard.cardNumber = "0000";
-                                customerCard.amount = Decimal.Parse(payment.GetStringValue(ResursConstants.AmountForNewCard, string.Empty));
+                                customerCard.amount = decimal.Parse(payment.GetStringValue(ResursConstants.AmountForNewCard, string.Empty));
                                 customerCard.amountSpecified = true;
                                 bookPaymentObject.Signing.forceSigning = true;
                             }
@@ -163,6 +163,11 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                                 HttpContext.Current.Response.Redirect(bookPaymentResult.signingUrl);
                                 return false;
                             }
+                            else if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.DENIED)
+                            {
+                                message = "Booking of payment was denied.";
+                            }
+
                             return false;
                         }
                         return false;
