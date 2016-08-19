@@ -151,7 +151,7 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                             message = Newtonsoft.Json.JsonConvert.SerializeObject(bookPaymentResult);
 
                             // Booking succesfull
-                            if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.BOOKED || bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FINALIZED)
+                            if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.BOOKED || bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FINALIZED || bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FROZEN)
                             {
                                 return true;
                             }
