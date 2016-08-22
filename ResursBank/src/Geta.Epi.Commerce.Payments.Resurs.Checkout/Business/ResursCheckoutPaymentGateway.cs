@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.ServiceModel;
 using System.Web;
 using EPiServer.Framework.Cache;
 using EPiServer.Framework.Localization;
@@ -194,9 +195,17 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
             }
             catch (Exception exception)
             {
-                Logger.Error("Process payment failed with error: " + exception.Message, exception);
+				Logger.Error("Process payment failed with error: " + exception.Message, exception);
                 message = exception.Message;
-                throw;
+
+	            var detail = (FaultException<ECommerceError>) exception;
+	            if (detail !=null)
+	            {
+					Logger.Error(detail.Detail.errorTypeDescription);
+		            message = detail.Detail.userErrorMessage;
+	            }
+
+	            return false;
             }
             return true;
         }
