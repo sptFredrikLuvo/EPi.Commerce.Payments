@@ -67,143 +67,158 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
 
         public override bool ProcessPayment(Payment payment, ref string message)
         {
-            try
-            {
-                Logger.Debug("Resurs checkout gateway. Processing Payment ....");
-                if (VerifyConfiguration())
-                {
-                    var factory = ServiceLocator.Current.GetInstance<IResursBankServiceSettingFactory>();
-                    var resursBankServices = factory.Init(ResursCredential);
-                    // Check payment was processed or not.
-                    bookPaymentResult bookPaymentResult = GetObjectFromCookie<bookPaymentResult>(ResursConstants.PaymentResultCookieName);
+	        try
+	        {
+		        Logger.Debug("Resurs checkout gateway. Processing Payment ....");
+		        if (VerifyConfiguration())
+		        {
+			        var factory = ServiceLocator.Current.GetInstance<IResursBankServiceSettingFactory>();
+			        var resursBankServices = factory.Init(ResursCredential);
+			        // Check payment was processed or not.
+			        bookPaymentResult bookPaymentResult =
+				        GetObjectFromCookie<bookPaymentResult>(ResursConstants.PaymentResultCookieName);
 
-                    if (bookPaymentResult == null)
-                    {
-                        OrderForm orderForm = payment.Parent as OrderForm;
-                        BookPaymentObject bookPaymentObject = new BookPaymentObject();
-                        var resursBankPayment = payment as ResursBankPayment;
-                        if (resursBankPayment != null)
-                        {
-                            // Get information of Customer from Billing Address of Order form
-                            var billingAddress = orderForm.Parent.OrderAddresses.FirstOrDefault(x => x.Name == orderForm.BillingAddressId);
-                            
-                            bookPaymentObject.ExtendedCustomer = CreateExtendedCustomer(billingAddress);
+			        if (bookPaymentResult == null)
+			        {
+				        OrderForm orderForm = payment.Parent as OrderForm;
+				        BookPaymentObject bookPaymentObject = new BookPaymentObject();
+				        var resursBankPayment = payment as ResursBankPayment;
+				        if (resursBankPayment != null)
+				        {
+					        // Get information of Customer from Billing Address of Order form
+					        var billingAddress =
+						        orderForm.Parent.OrderAddresses.FirstOrDefault(x => x.Name == orderForm.BillingAddressId);
 
-                            bookPaymentObject.ExtendedCustomer.governmentId =
-                                payment.GetStringValue(ResursConstants.GovernmentId, string.Empty);
+					        bookPaymentObject.ExtendedCustomer = CreateExtendedCustomer(billingAddress);
 
-                            //create paymentData
-                            bookPaymentObject.PaymentData = new paymentData();
-                            bookPaymentObject.PaymentData.paymentMethodId = payment.GetStringValue(ResursConstants.ResursBankPaymentType, string.Empty);
-                            bookPaymentObject.PaymentData.customerIpAddress = HttpContext.Current.Request.UserHostAddress;
-                            
-                            //create paymentSpecification;
-                            bookPaymentObject.PaymentSpec = CreatePaymentSpecification(orderForm);
+					        bookPaymentObject.ExtendedCustomer.governmentId =
+						        payment.GetStringValue(ResursConstants.GovernmentId, string.Empty);
 
-                            bookPaymentObject.MapEntry = null;
-                            
-                            var _signing = new signing()
-                            {
-                                failUrl = payment.GetStringValue(ResursConstants.FailBackUrl, string.Empty),
-                                forceSigning = false,
-                                forceSigningSpecified = false,
-                                successUrl = payment.GetStringValue(ResursConstants.SuccessfullUrl, string.Empty)
-                            };
+					        //create paymentData
+					        bookPaymentObject.PaymentData = new paymentData();
+					        bookPaymentObject.PaymentData.paymentMethodId =
+						        payment.GetStringValue(ResursConstants.ResursBankPaymentType, string.Empty);
+					        bookPaymentObject.PaymentData.paymentMethodId = "test";
+					        bookPaymentObject.PaymentData.customerIpAddress = HttpContext.Current.Request.UserHostAddress;
 
-                            bookPaymentObject.Signing = _signing;
-                            bookPaymentObject.CallbackUrl = !string.IsNullOrEmpty(resursBankPayment.CallBackUrl) ? resursBankPayment.CallBackUrl : "/";
+					        //create paymentSpecification;
+					        bookPaymentObject.PaymentSpec = CreatePaymentSpecification(orderForm);
 
-                            //card info
-                            cardData customerCard = null;
-                            invoiceData invoice = null;
-                            if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.CARD) || bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.ACCOUNT))
-                            {
-                                customerCard = new cardData();
-                                customerCard.cardNumber = payment.GetStringValue(ResursConstants.CardNumber, string.Empty);
-                            }
-                            else if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.NEWCARD) || bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.NEWACCOUNT))
-                            {
-                                
-                                customerCard = new cardData();
-                                customerCard.cardNumber = "0000";
-                                customerCard.amount = decimal.Parse(payment.GetStringValue(ResursConstants.AmountForNewCard, string.Empty));
-                                customerCard.amountSpecified = true;
-                                bookPaymentObject.Signing.forceSigning = true;
-                            }
-                            else if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.INVOICE) || bookPaymentObject.PaymentData.finalizeIfBooked == true)
-                            {
-                                invoice = new invoiceData();
-                                invoice.invoiceDate = DateTime.Now;
-                                invoiceDeliveryTypeEnum dType;
-                                var invoiceDeliveryType = payment.GetStringValue(ResursConstants.InvoiceDeliveryType, string.Empty);
-                                if (!System.Enum.TryParse<invoiceDeliveryTypeEnum>(invoiceDeliveryType, true, out dType))
-                                {
-                                    dType = invoiceDeliveryTypeEnum.EMAIL;
-                                }
-                                invoice.invoiceDeliveryType = dType;
-                            }
-                            //card object
-                            bookPaymentObject.Card = customerCard;
-                            //Invoice data
-                            bookPaymentObject.InvoiceData = invoice;
+					        bookPaymentObject.MapEntry = null;
 
-                            // booking payment to Resurs API
-                            bookPaymentResult = resursBankServices.BookPayment(bookPaymentObject);
-                            message = Newtonsoft.Json.JsonConvert.SerializeObject(bookPaymentResult);
+					        var _signing = new signing()
+					        {
+						        failUrl = payment.GetStringValue(ResursConstants.FailBackUrl, string.Empty),
+						        forceSigning = false,
+						        forceSigningSpecified = false,
+						        successUrl = payment.GetStringValue(ResursConstants.SuccessfullUrl, string.Empty)
+					        };
 
-                            // Booking succesfull
-                            if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.BOOKED || bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FINALIZED || bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FROZEN)
-                            {
-                                return true;
-                            }
-                            // Required signing
-                            else if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.SIGNING)
-                            {
-                                // Save payment to Cookie for re-process.
-                                SaveObjectToCookie(bookPaymentResult, ResursConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
-                                HttpContext.Current.Response.Redirect(bookPaymentResult.signingUrl);
-                                return false;
-                            }
-                            else if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.DENIED)
-                            {
-                                message = "Booking of payment was denied.";
-                            }
+					        bookPaymentObject.Signing = _signing;
+					        bookPaymentObject.CallbackUrl = !string.IsNullOrEmpty(resursBankPayment.CallBackUrl)
+						        ? resursBankPayment.CallBackUrl
+						        : "/";
 
-                            return false;
-                        }
-                        return false;
-                    }
-                    // Re-process for booking require signing.
-                    else
-                    {
-                        // booking signed payment
-                        bookPaymentResult = resursBankServices.BookSignedPayment(bookPaymentResult.paymentId);
-                        SaveObjectToCookie(null, ResursConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
-                        message = Newtonsoft.Json.JsonConvert.SerializeObject(bookPaymentResult);
-                        if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.BOOKED || bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FINALIZED)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            SaveObjectToCookie(null, ResursConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
-                            return false;
-                        }
-                    }
-                }
+					        //card info
+					        cardData customerCard = null;
+					        invoiceData invoice = null;
+					        if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.CARD) ||
+					            bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.ACCOUNT))
+					        {
+						        customerCard = new cardData();
+						        customerCard.cardNumber = payment.GetStringValue(ResursConstants.CardNumber, string.Empty);
+					        }
+					        else if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.NEWCARD) ||
+					                 bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.NEWACCOUNT))
+					        {
 
-            }
+						        customerCard = new cardData();
+						        customerCard.cardNumber = "0000";
+						        customerCard.amount =
+							        decimal.Parse(payment.GetStringValue(ResursConstants.AmountForNewCard, string.Empty));
+						        customerCard.amountSpecified = true;
+						        bookPaymentObject.Signing.forceSigning = true;
+					        }
+					        else if (bookPaymentObject.PaymentData.paymentMethodId.Equals(ResursPaymentMethodType.INVOICE) ||
+					                 bookPaymentObject.PaymentData.finalizeIfBooked == true)
+					        {
+						        invoice = new invoiceData();
+						        invoice.invoiceDate = DateTime.Now;
+						        invoiceDeliveryTypeEnum dType;
+						        var invoiceDeliveryType = payment.GetStringValue(ResursConstants.InvoiceDeliveryType, string.Empty);
+						        if (!System.Enum.TryParse<invoiceDeliveryTypeEnum>(invoiceDeliveryType, true, out dType))
+						        {
+							        dType = invoiceDeliveryTypeEnum.EMAIL;
+						        }
+						        invoice.invoiceDeliveryType = dType;
+					        }
+					        //card object
+					        bookPaymentObject.Card = customerCard;
+					        //Invoice data
+					        bookPaymentObject.InvoiceData = invoice;
+
+					        // booking payment to Resurs API
+					        bookPaymentResult = resursBankServices.BookPayment(bookPaymentObject);
+					        message = Newtonsoft.Json.JsonConvert.SerializeObject(bookPaymentResult);
+
+					        // Booking succesfull
+					        if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.BOOKED ||
+					            bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FINALIZED ||
+					            bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FROZEN)
+					        {
+						        return true;
+					        }
+					        // Required signing
+					        else if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.SIGNING)
+					        {
+						        // Save payment to Cookie for re-process.
+						        SaveObjectToCookie(bookPaymentResult, ResursConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
+						        HttpContext.Current.Response.Redirect(bookPaymentResult.signingUrl);
+						        return false;
+					        }
+					        else if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.DENIED)
+					        {
+						        message = "Booking of payment was denied.";
+					        }
+
+					        return false;
+				        }
+				        return false;
+			        }
+			        // Re-process for booking require signing.
+			        else
+			        {
+				        // booking signed payment
+				        bookPaymentResult = resursBankServices.BookSignedPayment(bookPaymentResult.paymentId);
+				        SaveObjectToCookie(null, ResursConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
+				        message = Newtonsoft.Json.JsonConvert.SerializeObject(bookPaymentResult);
+				        if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.BOOKED ||
+				            bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FINALIZED)
+				        {
+					        return true;
+				        }
+				        else
+				        {
+					        SaveObjectToCookie(null, ResursConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
+					        return false;
+				        }
+			        }
+		        }
+
+	        }
+	        catch (FaultException<ECommerceError> exception)
+	        {
+				Logger.Error("Process payment failed with error: " + exception.Message, exception);
+				Logger.Error(exception.Detail.errorTypeDescription);
+				message = exception.Detail.userErrorMessage;
+				return false;
+			}
             catch (Exception exception)
             {
 				Logger.Error("Process payment failed with error: " + exception.Message, exception);
                 message = exception.Message;
 
-	            var detail = (FaultException<ECommerceError>) exception;
-	            if (detail !=null)
-	            {
-					Logger.Error(detail.Detail.errorTypeDescription);
-		            message = detail.Detail.userErrorMessage;
-	            }
+	            
 
 	            return false;
             }
