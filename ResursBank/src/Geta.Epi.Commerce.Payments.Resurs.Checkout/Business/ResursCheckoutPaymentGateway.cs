@@ -98,7 +98,6 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
 					        bookPaymentObject.PaymentData = new paymentData();
 					        bookPaymentObject.PaymentData.paymentMethodId =
 						        payment.GetStringValue(ResursConstants.ResursBankPaymentType, string.Empty);
-					        bookPaymentObject.PaymentData.paymentMethodId = "test";
 					        bookPaymentObject.PaymentData.customerIpAddress = HttpContext.Current.Request.UserHostAddress;
 
 					        //create paymentSpecification;
