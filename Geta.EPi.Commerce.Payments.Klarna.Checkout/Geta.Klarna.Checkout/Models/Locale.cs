@@ -29,6 +29,7 @@ namespace Geta.Klarna.Checkout.Models
         public static readonly Locale Finland = new Locale("Finland", "Finnish", "FI", "EUR", "fi-fi");
         public static readonly Locale Germany = new Locale("Germany", "German", "DE", "EUR", "de-de");
         public static readonly Locale Denmark = new Locale("Denmark", "Danish", "DA", "DKK", "da-dk");
+        public static readonly Locale Austria = new Locale("Austria", "German", "AT", "EUR", "de-at");
 
         public static IEnumerable<Locale> Locales
         {
@@ -39,6 +40,7 @@ namespace Geta.Klarna.Checkout.Models
                 yield return Finland;
                 yield return Germany;
                 yield return Denmark;
+                yield return Austria;
             }
         }
     }

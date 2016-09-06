@@ -166,6 +166,11 @@ namespace Geta.Klarna.Checkout
                 config = new Configuration(Country.Code.DK, Language.Code.DA, Currency.Code.DKK,
                     Encoding.Denmark);
             }
+            else if (purchaseCountry == "AT")
+            {
+                config = new Configuration(Country.Code.AT, Language.Code.DE, Currency.Code.EUR,
+                    Encoding.Austria);
+            }
             else {
                 // default to Sweden
                 config = new Configuration(Country.Code.SE, Language.Code.SV, Currency.Code.SEK,
