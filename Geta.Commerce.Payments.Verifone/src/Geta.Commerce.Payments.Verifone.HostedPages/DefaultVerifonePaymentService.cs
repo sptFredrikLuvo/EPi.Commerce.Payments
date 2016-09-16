@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using EPiServer.Globalization;
 using EPiServer.ServiceLocation;
@@ -14,6 +15,7 @@ using Mediachase.Commerce;
 using Mediachase.Commerce.Orders;
 using Mediachase.Commerce.Orders.Dto;
 using Mediachase.Commerce.Orders.Managers;
+using HashAlgorithm = Geta.Verifone.Security.HashAlgorithm;
 
 namespace Geta.Commerce.Payments.Verifone.HostedPages
 {
@@ -160,30 +162,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
 
             return FindBillingAddress(payment, orderGroup);
         }
-
-        //protected virtual string ExtractFirstName(string customerName)
-        //{
-        //    if (string.IsNullOrWhiteSpace(customerName))
-        //    {
-        //        return null;
-        //    }
-
-        //    var lastSpaceIndex = customerName.LastIndexOf(" ", StringComparison.InvariantCultureIgnoreCase);
-        //    var length = customerName.Length - lastSpaceIndex;
-        //    return customerName.Substring(0, length);
-        //}
-
-        //protected virtual string ExtractLastName(string customerName)
-        //{
-        //    if (string.IsNullOrWhiteSpace(customerName))
-        //    {
-        //        return null;
-        //    }
-
-        //    var lastSpaceIndex = customerName.LastIndexOf(" ", StringComparison.InvariantCultureIgnoreCase);
-        //    return customerName.Substring(lastSpaceIndex + 1);
-        //}
-
+        
         protected virtual OrderAddress FindBillingAddress(VerifonePaymentRequest payment, OrderGroup orderGroup)
         {
             OrderForm orderForm = FindCorrectOrderForm(payment.PaymentMethodId, orderGroup.OrderForms);
@@ -324,7 +303,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
         {
             PaymentMethodDto paymentMethodDto = GetPaymentMethodDto(payment);
 
-            return paymentMethodDto.GetParameter(VerifoneConstants.Configuration.IsProduction, "0") == "1";
+            return paymentMethodDto.GetParameter(VerifoneConstants.Configuration.IsProduction, "false") == "true";
         }
 
         protected virtual PaymentMethodDto GetPaymentMethodDto(VerifonePaymentRequest payment)
@@ -356,10 +335,11 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
             parametersCopy.Remove(VerifoneConstants.ParameterName.SignatureTwo);
 
             string content = PointSignatureUtil.FormatParameters(parametersCopy);
-            X509Certificate2 certificate = PointCertificateUtil.GetPointCertificate();
+            RSA publicKey = PointCertificateUtil.GetPointPublicKey();
+            //X509Certificate2 certificate = PointCertificateUtil.GetPointCertificate();
 
-            return PointSignatureUtil.VerifySignature(certificate, signatureOne, content, HashAlgorithm.SHA1)
-                    && PointSignatureUtil.VerifySignature(certificate, signatureTwo, content, HashAlgorithm.SHA512);
+            return PointSignatureUtil.VerifySignature(publicKey, signatureOne, content, HashAlgorithm.SHA1)
+                    && PointSignatureUtil.VerifySignature(publicKey, signatureTwo, content, HashAlgorithm.SHA512);
         }
 
         #endregion

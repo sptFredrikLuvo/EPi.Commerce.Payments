@@ -199,6 +199,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
                 Amount = form.Total,
                 Status = PaymentStatus.Pending.ToString(),
                 PaymentType = PaymentType.Other,
+                TransactionType = TransactionType.Authorization.ToString(),
                 BillingAddressId = form.BillingAddressId,
                 CustomerName = orderAddress != null
                     ? string.Format("{0} {1}", orderAddress.FirstName, orderAddress.LastName)
@@ -221,9 +222,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Models
             payment.SetMetaField(MetadataConstants.FilingCode, this.FilingCode);
             payment.SetMetaField(MetadataConstants.ReferenceNumber, this.ReferenceNumber ?? string.Empty);
             payment.SetMetaField(MetadataConstants.PaymentMethodCode, this.PaymentMethodCode);
-
             payment.Status = PaymentStatus.Processed.ToString();
-            payment.AcceptChanges();
             return true;
         }
     }

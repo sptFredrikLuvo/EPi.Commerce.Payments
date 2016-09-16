@@ -270,22 +270,18 @@
     <Content Include="packages.config" />
     <Content Include="Views\Shared\_VerifoneInitializeForm.cshtml" />
     <Content Include="Views\Web.config" />
-    <Content Include="Views\Test\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="DefaultVerifonePaymentService.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Extensions\DecimalExtensions.cs" />
     <Compile Include="Extensions\ICurrentMarketExtensions.cs" />
     <Compile Include="Extensions\UrlExtensions.cs" />
     <Compile Include="Extensions\VerifonePaymentRequestExtensions.cs" />
-    <Compile Include="Extensions\PaymentInitializationRequestExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodExtensions.cs" />
-    <Compile Include="Extensions\MetaStorageBaseExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -294,7 +290,6 @@
     <Compile Include="MetadataInitialization.cs" />
     <Compile Include="Models\BasketItem.cs" />
     <Compile Include="Models\PaymentCancelResponse.cs" />
-    <Compile Include="Models\PaymentInitializationRequest.cs" />
     <Compile Include="Models\PaymentSuccessResponse.cs" />
     <Compile Include="Models\VerifoneParameterModelBase.cs" />
     <Compile Include="Models\VerifonePaymentRequest.cs" />

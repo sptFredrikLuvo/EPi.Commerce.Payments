@@ -121,11 +121,24 @@ namespace Geta.Verifone.Security
         /// <returns>true if signature was succesfully verified</returns>
         public static bool VerifySignature(X509Certificate2 certificate, string signature, string content, HashAlgorithm hashAlgorithm)
         {
+            RSACryptoServiceProvider rsa = (RSACryptoServiceProvider)certificate.PublicKey.Key;
+            return VerifySignature(rsa, signature, content, hashAlgorithm);
+        }
+
+        /// <summary>
+        /// Verifies content signature.
+        /// </summary>
+        /// <param name="rsa"></param>
+        /// <param name="signature"></param>
+        /// <param name="content"></param>
+        /// <param name="hashAlgorithm"></param>
+        /// <returns>true if signature was succesfully verified</returns>
+        public static bool VerifySignature(RSA rsa, string signature, string content, HashAlgorithm hashAlgorithm)
+        {
             byte[] contentBytes = Encoding.UTF8.GetBytes(content);
             byte[] signatureBytes = HexStringToByteArray(signature);
 
-            RSACryptoServiceProvider RSA = (RSACryptoServiceProvider)certificate.PublicKey.Key;
-            RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(RSA);
+            RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(rsa);
 
             string algorithm = null;
 
@@ -147,36 +160,6 @@ namespace Geta.Verifone.Security
             Debug.WriteLine("SIGN:" + ByteArrayToHexString(signatureBytes));
 
             return signer.VerifySignature(signatureBytes);
-
-            /*RSACryptoServiceProvider RSA = (RSACryptoServiceProvider)certificate.PublicKey.Key;
-            RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(RSA);
-
-            IBufferedCipher cipher = CipherUtilities.GetCipher("RSA/ECB/PKCS1Padding");
-            cipher.Init(false, publicKey);
-
-            byte[] contentBytes = Encoding.UTF8.GetBytes(content);
-            byte[] signatureBytes = HexStringToByteArray(signature);
-            byte[] candidateHashBytes = hashAlgorithm == HashAlgorithm.SHA1 ? Sha1(contentBytes) : Sha512(contentBytes);
-            byte[] hashBytes = cipher.DoFinal(signatureBytes, 0, signatureBytes.Length);
-
-            Debug.WriteLine("DATA:" + ByteArrayToHexString(contentBytes));
-            Debug.WriteLine("SIGN:" + ByteArrayToHexString(signatureBytes));
-            Debug.WriteLine("HASH1:" + ByteArrayToHexString(hashBytes));
-            Debug.WriteLine("HASH2:" + ByteArrayToHexString(candidateHashBytes));
-
-            if (candidateHashBytes.Length != hashBytes.Length)
-            {
-            return false;
-            }
-            for (int i = 0; i < candidateHashBytes.Length; i++)
-            {
-            if (candidateHashBytes[i] != hashBytes[i])
-            {
-                return false;
-            }
-            }
-
-            return true;*/
         }
 
         /// <summary>
@@ -205,28 +188,5 @@ namespace Geta.Verifone.Security
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             return bytes;
         }
-
-        /// <summary>
-        /// Calculates SHA1 hash.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private static byte[] Sha1(byte[] data)
-        {
-            SHA1 sha = new SHA1CryptoServiceProvider();
-            return sha.ComputeHash(data);
-        }
-
-        /// <summary>
-        /// Calculates SHA512 hash.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private static byte[] Sha512(byte[] data)
-        {
-            SHA512 sha = new SHA512CryptoServiceProvider();
-            return sha.ComputeHash(data);
-        }
-
     }
 }

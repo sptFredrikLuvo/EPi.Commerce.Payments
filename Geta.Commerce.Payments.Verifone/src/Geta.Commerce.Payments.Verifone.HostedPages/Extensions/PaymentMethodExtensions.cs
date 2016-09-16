@@ -51,7 +51,7 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Extensions
 
         public static string GetPaymentUrl(this PaymentMethodDto paymentMethod)
         {
-            return paymentMethod.GetParameter(VerifoneConstants.Configuration.IsProduction, "0") == "1"
+            return paymentMethod.GetParameter(VerifoneConstants.Configuration.IsProduction, "false") == "true"
                 ? paymentMethod.GetParameter(VerifoneConstants.Configuration.ProductionUrl, VerifoneConstants.Configuration.PaymentProductionNode1Url)
                 : VerifoneConstants.Configuration.PaymentTestUrl;
         }
