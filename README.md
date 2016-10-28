@@ -7,3 +7,6 @@ For more information see Klarna Checkout [README](https://github.com/Geta/EPi.Co
 
 ## Resurs Bank
 For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/blob/master/ResursBank/README.md).
+
+## Netaxept (EasyPayments)
+For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/blob/master/Netaxept/README.md).
