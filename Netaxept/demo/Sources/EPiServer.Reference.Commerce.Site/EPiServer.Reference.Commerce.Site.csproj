@@ -174,12 +174,12 @@
       <HintPath>..\..\packages\EPiServer.CMS.Core.9.10.2\lib\net45\EPiServer.XForms.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Geta.Epi.Commerce.Payments.Netaxept.Checkout, Version=0.1.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Geta.Epi.Commerce.Payments.Netaxept.Checkout.0.1.11\lib\net452\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll</HintPath>
+    <Reference Include="Geta.Epi.Commerce.Payments.Netaxept.Checkout, Version=0.1.13.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Geta.Epi.Commerce.Payments.Netaxept.Checkout.0.1.13\lib\net452\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Geta.Netaxept.Checkout, Version=0.1.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Geta.Epi.Commerce.Payments.Netaxept.Checkout.0.1.11\lib\net452\Geta.Netaxept.Checkout.dll</HintPath>
+    <Reference Include="Geta.Netaxept.Checkout, Version=0.1.13.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Geta.Epi.Commerce.Payments.Netaxept.Checkout.0.1.13\lib\net452\Geta.Netaxept.Checkout.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
