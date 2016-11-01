@@ -60,7 +60,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
 
             // Create PanHash field on the customer contact. We need this for using EasyPayments
             var customContactMetaClass = DataContext.Current.MetaModel.MetaClasses["Contact"];
-            if (customContactMetaClass.Fields[NetaxeptConstants.CustomerPanHashFieldName] == null)
+            if (customContactMetaClass != null && customContactMetaClass.Fields[NetaxeptConstants.CustomerPanHashFieldName] == null)
             {
                 using (MetaFieldBuilder builder = new MetaFieldBuilder(customContactMetaClass))
                 {
