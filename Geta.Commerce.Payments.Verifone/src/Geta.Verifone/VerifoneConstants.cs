@@ -7,6 +7,7 @@
             public const string IsProduction = "IsProduction";
             public const string MerchantAgreementCode = "MerchantAgreementCode";
             public const string ProductionUrl = "ProductionUrl";
+            public const string ProductionUrl2 = "ProductionUrl2";
             public const string CancelUrl = "CancelUrl";
             public const string ErrorUrl = "ErrorUrl";
             public const string ExpiredUrl = "ExpiredUrl";

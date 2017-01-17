@@ -58,10 +58,17 @@
             </td>
         </tr>
         <tr>
-            <td class="FormLabelCell">Production URL:</td>
+            <td class="FormLabelCell">Production URL (node 1):</td>
             <td class="FormFieldCell">
                 <asp:TextBox runat="server" ID="txtProductionUrl" />
-                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtProductionUrl" ErrorMessage="The production URL is required." />
+                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtProductionUrl" ErrorMessage="The production URL (node 1) is required." />
+            </td>
+        </tr>
+        <tr>
+            <td class="FormLabelCell">Production URL (node 2):</td>
+            <td class="FormFieldCell">
+                <asp:TextBox runat="server" ID="txtProductionUrl2" />
+                <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" ControlToValidate="txtProductionUrl2" ErrorMessage="The production URL (node 2) is required." />
             </td>
         </tr>
     </tbody>

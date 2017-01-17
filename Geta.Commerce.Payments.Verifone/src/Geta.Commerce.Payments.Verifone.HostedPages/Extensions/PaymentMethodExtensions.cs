@@ -56,6 +56,26 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages.Extensions
                 : VerifoneConstants.Configuration.PaymentTestUrl;
         }
 
+        public static bool IsVerifoneProduction(this PaymentMethodDto paymentMethod)
+        {
+            return paymentMethod.GetParameter(VerifoneConstants.Configuration.IsProduction, "false") == "true";
+        }
+
+        public static string GetPaymentNode1Url(this PaymentMethodDto paymentMethod)
+        {
+            return paymentMethod.GetParameter(VerifoneConstants.Configuration.ProductionUrl, VerifoneConstants.Configuration.PaymentProductionNode1Url);
+        }
+
+        public static string GetPaymentNode2Url(this PaymentMethodDto paymentMethod)
+        {
+            return paymentMethod.GetParameter(VerifoneConstants.Configuration.ProductionUrl2, VerifoneConstants.Configuration.PaymentProductionNode2Url);
+        }
+
+        public static string GetPaymentTestUrl(this PaymentMethodDto paymentMethod)
+        {
+            return VerifoneConstants.Configuration.PaymentTestUrl;
+        }
+
         public static string GetMerchantAgreementCode(this PaymentMethodDto paymentMethod)
         {
             return paymentMethod.GetParameter(VerifoneConstants.Configuration.MerchantAgreementCode, "demo-agreement-code");

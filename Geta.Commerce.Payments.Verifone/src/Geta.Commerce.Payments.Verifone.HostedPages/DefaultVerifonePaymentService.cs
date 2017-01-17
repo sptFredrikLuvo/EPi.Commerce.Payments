@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using EPiServer.Globalization;
 using EPiServer.ServiceLocation;
 using Geta.Commerce.Payments.Verifone.HostedPages.Extensions;
@@ -64,9 +67,76 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
         {
             PaymentMethodDto paymentMethodDto = GetPaymentMethodDto(payment);
 
-            return paymentMethodDto != null
-                ? paymentMethodDto.GetPaymentUrl()
-                : null;
+            if (paymentMethodDto == null)
+            {
+                return null;
+            }
+
+            var isProduction = paymentMethodDto.IsVerifoneProduction();
+
+            if (isProduction)
+            {
+                return Task.Run(() => GetOnlinePaymentNodeUrl(paymentMethodDto)).Result;
+            }
+
+            return paymentMethodDto.GetPaymentTestUrl();
+        }
+
+        protected virtual async Task<string> GetOnlinePaymentNodeUrl(PaymentMethodDto paymentMethod)
+        {
+            string node1Url = paymentMethod.GetPaymentNode1Url();
+            string node2Url = paymentMethod.GetPaymentNode2Url();
+
+            if (string.IsNullOrWhiteSpace(node1Url) && string.IsNullOrWhiteSpace(node2Url))
+            {
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(node2Url))
+            {
+                return node1Url;
+            }
+
+            if (string.IsNullOrWhiteSpace(node1Url))
+            {
+                return node2Url;
+            }
+
+            string onlineNodeUrl = null;
+
+            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(3)})
+            {
+                using (HttpResponseMessage response = await client.GetAsync(node1Url))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string content = await response.Content.ReadAsStringAsync();
+
+                        if (string.IsNullOrEmpty(content))
+                        {
+                            onlineNodeUrl = node1Url;
+                        }
+                    }
+                }
+
+                if (onlineNodeUrl == null)
+                {
+                    using (HttpResponseMessage response = await client.GetAsync(node2Url))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string content = await response.Content.ReadAsStringAsync();
+
+                            if (string.IsNullOrEmpty(content))
+                            {
+                                onlineNodeUrl = node2Url;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return onlineNodeUrl ?? node1Url;
         }
 
         /// <summary>
