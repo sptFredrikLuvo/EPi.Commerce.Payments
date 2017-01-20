@@ -106,22 +106,9 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
 
             using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(3)})
             {
-                using (HttpResponseMessage response = await client.GetAsync(node1Url))
+                try
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string content = await response.Content.ReadAsStringAsync();
-
-                        if (string.IsNullOrEmpty(content))
-                        {
-                            onlineNodeUrl = node1Url;
-                        }
-                    }
-                }
-
-                if (onlineNodeUrl == null)
-                {
-                    using (HttpResponseMessage response = await client.GetAsync(node2Url))
+                    using (HttpResponseMessage response = await client.GetAsync(node1Url))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -129,14 +116,41 @@ namespace Geta.Commerce.Payments.Verifone.HostedPages
 
                             if (string.IsNullOrEmpty(content))
                             {
-                                onlineNodeUrl = node2Url;
+                                onlineNodeUrl = node1Url;
                             }
                         }
                     }
                 }
+                catch (Exception)
+                {
+                    // Node 1 is most likely offline
+                }
+
+                if (onlineNodeUrl == null)
+                {
+                    try
+                    {
+                        using (HttpResponseMessage response = await client.GetAsync(node2Url))
+                        {
+                            if (response.IsSuccessStatusCode)
+                            {
+                                string content = await response.Content.ReadAsStringAsync();
+
+                                if (string.IsNullOrEmpty(content))
+                                {
+                                    onlineNodeUrl = node2Url;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // Node 1 is most likely offline
+                    }
+                }
             }
 
-            return onlineNodeUrl ?? node1Url;
+            return onlineNodeUrl ?? node1Url; // Fallback to node 1.
         }
 
         /// <summary>
