@@ -8,14 +8,24 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
     {
         public static string GenerateOrderNumber(OrderGroup orderGroup)
         {
-            int num = (new Random()).Next(100, 999);
-            string str = num.ToString();
+            var metaField = orderGroup[NetaxeptConstants.CartOrderNumberTempField];
 
-            var orderNumber = string.Format("PO{0}{1}", orderGroup.OrderGroupId, str);
-            
-            orderGroup.SetMetaField(NetaxeptConstants.CartOrderNumberTempField, orderNumber, false);
+            if (metaField == null)
+            {
 
-            return orderNumber;
+                int num = (new Random()).Next(100, 999);
+                string str = num.ToString();
+
+                var orderNumber = string.Format("PO{0}{1}", orderGroup.OrderGroupId, str);
+
+                orderGroup.SetMetaField(NetaxeptConstants.CartOrderNumberTempField, orderNumber, false);
+
+                return orderNumber;
+            }
+            else
+            {
+                return metaField.ToString();
+            }
         }
 
         public static string GetOrderNumber(OrderGroup orderGroup)
