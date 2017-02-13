@@ -53,6 +53,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                 AddNote(orderForm, "Payment - Registered", "Payment - Registered");
 
+
                 var url = new UriBuilder(GetTerminalUrl(paymentMethodDto));
                 var nvc = new NameValueCollection
                     {
@@ -61,6 +62,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     };
 
                 url.Query = string.Join("&", nvc.AllKeys.Select(key => string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(nvc[key]))));
+
+                orderForm.AcceptChanges();
 
                 HttpContext.Current.Response.Redirect(url.ToString());
 
