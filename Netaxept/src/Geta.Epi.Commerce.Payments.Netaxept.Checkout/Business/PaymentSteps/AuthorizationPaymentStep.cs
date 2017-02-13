@@ -96,6 +96,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     return result;
                 }
 
+                payment.TransactionID = transactionId;
                 payment.ProviderTransactionID = transactionId;
                 payment.SetMetaField(NetaxeptConstants.CardInformationPaymentMethodField, paymentResult.CardInformationPaymentMethod, false);
                 payment.SetMetaField(NetaxeptConstants.CardInformationExpiryDateField, paymentResult.CardInformationExpiryDate, false);
