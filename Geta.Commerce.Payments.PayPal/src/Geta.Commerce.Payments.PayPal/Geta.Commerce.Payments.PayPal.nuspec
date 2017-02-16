@@ -1,0 +1,25 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Geta.Commerce.Payments.PayPal</id>
+    <version>$version$</version>
+    <title>Geta.Commerce.Payments.PayPal</title>
+    <authors>Geta</authors>
+    <owners>Geta</owners>
+    <projectUrl>https://github.com/Geta/</projectUrl>
+    <iconUrl>https://cdn.geta.no/opensource/icons/Geta-logo-3.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Paypal payment provider for Episerver Commerce</description>
+    <copyright>Copyright 2017 Geta</copyright>
+    <tags>EPiServer Commerce 10</tags>
+    <dependencies>
+      <dependency id="EPiServer.CMS.Core" version="10.2.0.0" />
+      <dependency id="EPiServer.Commerce.Core" version="10.2.0.0" />
+      <dependency id="Geta.PayPal" version="0.8.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="data\CanadianOrUSstates.txt" target="content\modules\_protected\Geta.Commerce.Payments.PayPal\" />
+    <file src="data\ISOCodes.txt" target="content\modules\_protected\Geta.Commerce.Payments.PayPal\" />
+  </files>
+</package>
