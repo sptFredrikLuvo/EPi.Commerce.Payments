@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<languages>
+  <language name="svenska" id="sv">
+    <Commerce>
+      <PayPalPayment>
+        <PayPalText>Ett enkelt sätt att betala och få betalningar.</PayPalText>
+        <PayPalSettingsError>Fel i PayPal API-nställningar. Kontakta administratören.</PayPalSettingsError>
+        <PayPalCancelMessage>Transaktionen avbröts av PayPal.</PayPalCancelMessage>
+        <ProcessPaymentNullHttpContext>HttpContext.Current är null</ProcessPaymentNullHttpContext>
+        <ProcessPaymentCaptureRequest>Betalning har utförts, slutförandet av transaktionen måste göras av PayPal</ProcessPaymentCaptureRequest>
+        <ProcessPaymentStatusCompleted>Den här kundkorgen har redan betalats.</ProcessPaymentStatusCompleted>
+        <ProcessPaymentSetExpressCheckoutError>Fel vid anrop till SetExpressCheckout på PayPal API</ProcessPaymentSetExpressCheckoutError>
+        <CommitTranErrorCartNull>Varukorgen (Cart) är null vid behandling av godkänd transaktion som dirigerats tillbaks från PayPal</CommitTranErrorCartNull>
+        <CommitTranErrorGetExpressCheckoutDetails>Kan inte anropa PayPal API GetExpressCheckoutDetails</CommitTranErrorGetExpressCheckoutDetails>
+        <CommitTranErrorDoExpressCheckoutPayment>Kan inte anropa PayPal API DoExpressCheckoutPayment</CommitTranErrorDoExpressCheckoutPayment>
+        <CommitTranErrorCartReset>Varukorgen återställdes medan PayPal-transaktionen behandlades.</CommitTranErrorCartReset>
+        <CommitTranErrorPayPalBillingAddressEmpty>PayPal's BillingAddress är tom.</CommitTranErrorPayPalBillingAddressEmpty>
+        <CommitTranErrorPayPalShippingAddressEmpty>PayPal's ShippingAddress är tom.</CommitTranErrorPayPalShippingAddressEmpty>
+        <PaymentCancelMessage>Din betalning nekades eller avbröts. Försök igen eller välj annat betalningssätt.</PaymentCancelMessage>
+      </PayPalPayment>
+    </Commerce>
+  </language>
+</languages>
