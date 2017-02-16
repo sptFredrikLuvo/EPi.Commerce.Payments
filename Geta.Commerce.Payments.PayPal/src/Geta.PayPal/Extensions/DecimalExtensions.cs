@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using PayPal.PayPalAPIInterfaceService.Model;
 
-namespace Geta.Commerce.Payments.PayPal.Extensions
+namespace Geta.PayPal.Extensions
 {
     public static class DecimalExtensions
     {

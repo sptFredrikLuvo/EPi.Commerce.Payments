@@ -1,6 +1,6 @@
 ﻿using Mediachase.Commerce.Orders.Dto;
 
-namespace Geta.Commerce.Payments.PayPal.Extensions
+namespace Geta.PayPal.Extensions
 {
     public static class PaymentMethodDtoExtensions
     {

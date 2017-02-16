@@ -1,30 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading;
-using System.Web;
-using EPiServer;
-using EPiServer.Commerce.Order;
-using EPiServer.Core;
-using EPiServer.Framework.Localization;
-using EPiServer.ServiceLocation;
-using EPiServer.Web;
-using Geta.Commerce.Payments.PayPal.Extensions;
-using Geta.PayPal;
+﻿using EPiServer.Commerce.Order;
 using Mediachase.Commerce.Catalog;
 using Mediachase.Commerce.Catalog.Managers;
 using Mediachase.Commerce.Catalog.Objects;
-using Mediachase.Commerce.Core;
-using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Orders.Dto;
-using Mediachase.Commerce.Orders.Managers;
-using Mediachase.Commerce.Website;
 using Mediachase.Commerce.Website.Helpers;
-using PayPal.PayPalAPIInterfaceService;
-using PayPal.PayPalAPIInterfaceService.Model;
 
-namespace Geta.Commerce.Payments.PayPal.Extensions
+namespace Geta.PayPal.Extensions
 {
     public static class ILineItemExtensions
     {

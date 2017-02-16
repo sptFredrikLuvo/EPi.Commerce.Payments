@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
-using Geta.Commerce.Payments.PayPal.Extensions;
 using Geta.PayPal;
+using Geta.PayPal.Extensions;
 using Mediachase.Commerce.Orders.Dto;
 using Mediachase.Web.Console.Interfaces;
 

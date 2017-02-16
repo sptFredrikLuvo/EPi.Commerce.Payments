@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Geta.Commerce.Payments.PayPal.Extensions
+namespace Geta.PayPal.Extensions
 {
     public static class StringExtensions
     {

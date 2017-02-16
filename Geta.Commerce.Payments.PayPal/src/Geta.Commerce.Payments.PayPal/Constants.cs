@@ -9,7 +9,7 @@ namespace Geta.Commerce.Payments.PayPal
     {
         public const string SystemKeyword = "PayPal";
 
-        public const string ModuleFilePath = "~/"; //"modules\\_protected\\Geta.Commerce.Payments.PayPal\\files\\";
+        public const string ModuleFilePath = "\\modules\\_protected\\Geta.Commerce.Payments.PayPal\\";
 
         public static List<string> PayPalSupportedCurrencies = new List<string>() { "AUD", "BRL", "CAD",
             "CZK", "DKK", "EUR", "HKD", "HUF", "ILS", "JPY", "MYR",

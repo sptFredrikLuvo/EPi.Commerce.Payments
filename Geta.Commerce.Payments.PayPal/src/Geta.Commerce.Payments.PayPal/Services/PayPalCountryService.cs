@@ -14,7 +14,6 @@ using EPiServer.Framework.Localization;
 using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
-using Geta.Commerce.Payments.PayPal.Extensions;
 using Geta.PayPal;
 using Mediachase.Commerce;
 using Mediachase.Commerce.Core;

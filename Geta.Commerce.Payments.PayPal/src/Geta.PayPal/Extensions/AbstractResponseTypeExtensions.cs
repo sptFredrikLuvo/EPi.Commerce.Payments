@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using PayPal.PayPalAPIInterfaceService.Model;
+﻿using PayPal.PayPalAPIInterfaceService.Model;
 
-namespace Geta.Commerce.Payments.PayPal.Extensions
+namespace Geta.PayPal.Extensions
 {
     public static class AbstractResponseTypeExtensions
     {
