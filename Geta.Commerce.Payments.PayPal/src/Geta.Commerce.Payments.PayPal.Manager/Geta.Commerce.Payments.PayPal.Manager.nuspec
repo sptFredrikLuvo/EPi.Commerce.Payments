@@ -12,11 +12,6 @@
     <description>Commerce manager integration for PayPal</description>
     <copyright>Copyright 2017 Geta</copyright>
     <tags>EPiServer Commerce 10</tags>
-    <dependencies>
-      <dependency id="EPiServer.CMS.Core" version="10.2.0.0" />
-      <dependency id="EPiServer.Commerce.Core" version="10.2.0.0" />
-      <dependency id="Geta.PayPal" version="0.8.0.0" />
-    </dependencies>
   </metadata>
   <files>
     <file src="Apps\Order\Payments\Plugins\PayPal\ConfigurePayment.ascx" target="content\modules\_protected\Geta.Commerce.Payments.PayPal.Manager\Apps\Order\Payments\Plugins\PayPal\" />

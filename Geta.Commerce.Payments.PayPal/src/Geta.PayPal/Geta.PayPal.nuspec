@@ -12,9 +12,5 @@
     <description>Extensions and constants</description>
     <copyright>Copyright 2017 Geta</copyright>
     <tags>EPiServer Commerce 10</tags>
-    <dependencies>
-      <dependency id="EPiServer.CMS.Core" version="10.2.0.0" />
-      <dependency id="EPiServer.Commerce.Core" version="10.2.0.0" />
-    </dependencies>
   </metadata>
 </package>
