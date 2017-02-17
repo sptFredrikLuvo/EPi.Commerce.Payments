@@ -267,7 +267,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Content Include="Geta.Commerce.Payments.PayPal.Manager.nuspec" />
+    <Content Include="Geta.Commerce.Payments.PayPal.Manager.nuspec">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
