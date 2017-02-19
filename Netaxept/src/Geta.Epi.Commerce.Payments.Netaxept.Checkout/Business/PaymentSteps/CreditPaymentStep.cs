@@ -1,4 +1,5 @@
 ﻿using System;
+using EPiServer.Commerce.Order;
 using EPiServer.Logging;
 using Mediachase.Commerce.Orders;
 
@@ -11,7 +12,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(CreditPaymentStep));
 
-        public CreditPaymentStep(Payment payment) : base(payment)
+        public CreditPaymentStep(IPayment payment) : base(payment)
         { }
 
         /// <summary>
@@ -20,12 +21,10 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <param name="payment"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public override bool Process(Payment payment, ref string message)
+        public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
         {
             if (payment.TransactionType == "Credit")
             {
-                var orderForm = payment.Parent;
-
                 var amount = PaymentStepHelper.GetAmount(payment.Amount);
 
                 try
@@ -34,8 +33,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     if (result.ErrorOccurred)
                     {
                         message = result.ErrorMessage;
-                        AddNote(orderForm, "Payment Credit - Error", "Payment Credit - Error: " + result.ErrorMessage, true);
                         payment.Status = "Failed";
+                        AddNoteAndSaveChanges(orderGroup, "Payment Credit - Error", "Payment Credit - Error: " + result.ErrorMessage);
                         return false;
                     }
                 }
@@ -43,20 +42,22 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 {
                     Logger.Error(ex.Message);
                     message = ex.Message;
-                    AddNote(orderForm, "Payment Credit - Error", "Payment Credit - Error: " + ex.Message, true);
                     payment.Status = "Failed";
+                    AddNoteAndSaveChanges(orderGroup, "Payment Credit - Error", "Payment Credit - Error: " + ex.Message);
                     return false;
                 }
 
-                AddNote(orderForm, "Payment - Credited", "Payment - Credited");
+                AddNoteAndSaveChanges(orderGroup, "Payment - Credited", "Payment - Credited");
 
                 return true;
             }
             else if (Successor != null)
             {
-                return Successor.Process(payment, ref message);
+                return Successor.Process(payment, orderForm, orderGroup, ref message);
             }
             return false;
         }
+
+        
     }
 }

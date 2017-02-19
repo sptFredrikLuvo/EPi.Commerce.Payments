@@ -1,20 +1,23 @@
-﻿using Mediachase.Commerce.Storage;
+﻿using System.Collections;
+using EPiServer.Commerce.Order;
+using EPiServer.Commerce.Storage;
+using Mediachase.Commerce.Storage;
 
 namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions
 {
     public static class MetaStorageExtensions
     {
-        public static string GetStringValue(this MetaStorageBase item, string fieldName)
+        public static string GetStringValue(this Hashtable item, string fieldName)
         {
             return item.GetStringValue(fieldName, string.Empty);
         }
 
-        public static string GetStringValue(this MetaStorageBase item, string fieldName, string defaultValue)
+        public static string GetStringValue(this Hashtable item, string fieldName, string defaultValue)
         {
             return item[fieldName] != null ? item[fieldName].ToString() : defaultValue;
         }
 
-        public static decimal GetDecimalValue(this MetaStorageBase item, string fieldName, decimal defaultValue)
+        public static decimal GetDecimalValue(this Hashtable item, string fieldName, decimal defaultValue)
         {
             if (item[fieldName] != null)
             {

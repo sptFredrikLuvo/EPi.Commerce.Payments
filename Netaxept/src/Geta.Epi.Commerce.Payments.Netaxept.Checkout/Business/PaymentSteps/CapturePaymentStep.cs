@@ -1,4 +1,5 @@
 ﻿using System;
+using EPiServer.Commerce.Order;
 using EPiServer.Logging;
 using Mediachase.Commerce.Orders;
 
@@ -11,22 +12,22 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(CapturePaymentStep));
 
-        public CapturePaymentStep(Payment payment) : base(payment)
+        public CapturePaymentStep(IPayment payment) : base(payment)
         { }
 
         /// <summary>
         /// Process 
         /// </summary>
         /// <param name="payment"></param>
+        /// <param name="orderGroup"></param>
         /// <param name="message"></param>
+        /// <param name="orderForm"></param>
         /// <returns></returns>
-        public override bool Process(Payment payment, ref string message)
+        public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
         {
             if (payment.TransactionType == "Capture")
             {
-                var orderForm = payment.Parent;
-                
-                var amount = PaymentStepHelper.GetAmount(orderForm.Total);
+                var amount = PaymentStepHelper.GetAmount(payment.Amount);
 
                 try
                 {
@@ -35,7 +36,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     {
                         message = result.ErrorMessage;
                         payment.Status = "Failed";
-                        AddNote(orderForm, "Payment Captured - Error", "Payment - Captured - Error: " + result.ErrorMessage, true);
+                        AddNoteAndSaveChanges(orderGroup, "Payment Captured - Error", "Payment - Captured - Error: " + result.ErrorMessage);
                         return false;
                     }
                 }
@@ -44,19 +45,20 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     Logger.Error(ex.Message);
                     message = ex.Message;
                     payment.Status = "Failed";
-                    AddNote(orderForm, "Payment Captured - Error", "Payment - Captured - Error: " + ex.Message, true);
+                    AddNoteAndSaveChanges(orderGroup, "Payment Captured - Error", "Payment - Captured - Error: " + ex.Message);
                     return false;
                 }
 
-                AddNote(orderForm, "Payment - Captured", "Payment - Captured");
+                AddNoteAndSaveChanges(orderGroup, "Payment - Captured", "Payment - Captured");
 
                 return true;
             }
             else if (Successor != null)
             {
-                return Successor.Process(payment, ref message);
+                return Successor.Process(payment, orderForm, orderGroup, ref message);
             }
             return false;
         }
+        
     }
 }

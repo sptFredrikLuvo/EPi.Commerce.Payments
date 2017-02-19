@@ -1,8 +1,11 @@
 ﻿using System;
+using EPiServer.Commerce.Order;
 using EPiServer.Security;
+using EPiServer.ServiceLocation;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Netaxept.Checkout;
 using Geta.Netaxept.Checkout.Models;
+using Mediachase.Commerce.Customers;
 using Mediachase.Commerce.Orders;
 using Mediachase.Commerce.Orders.Managers;
 using Mediachase.Commerce.Security;
@@ -16,12 +19,14 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     {
         protected NetaxeptServiceClient Client;
         protected PaymentStep Successor;
+        private readonly Injected<IOrderRepository> _orderRepository;
+        private readonly Injected<IOrderGroupFactory> _orderGroupFactory;
 
         /// <summary>
         /// Constructor. Get the merchantId and token and create a connection object
         /// </summary>
         /// <param name="payment"></param>
-        protected PaymentStep(Payment payment)
+        protected PaymentStep(IPayment payment)
         {
             var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
             var merchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
@@ -41,41 +46,25 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// Process payment step
         /// </summary>
         /// <param name="payment"></param>
+        /// <param name="orderForm"></param>
+        /// <param name="orderGroup"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public abstract bool Process(Payment payment, ref string message);
+        public abstract bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message);
 
-        /// <summary>
-        /// Add note to order
-        /// </summary>
-        /// <param name="orderForm"></param>
-        /// <param name="title"></param>
-        /// <param name="detail"></param>
-        public void AddNote(OrderForm orderForm, string title, string detail)
+        
+        protected void AddNoteAndSaveChanges(IOrderGroup orderGroup, string noteTitle, string noteMessage)
         {
-            AddNote(orderForm, title, detail, false);
+            var note = _orderGroupFactory.Service.CreateOrderNote(orderGroup);
+            note.CustomerId = CustomerContext.Current.CurrentContactId;
+            note.Type = OrderNoteTypes.Custom.ToString();
+            note.Title = noteTitle;
+            note.Detail = noteMessage;
+            note.Created = DateTime.UtcNow;
+            orderGroup.Notes.Add(note);
+
+            _orderRepository.Service.Save(orderGroup);
         }
 
-        /// <summary>
-        /// Add note to order
-        /// </summary>
-        /// <param name="orderForm"></param>
-        /// <param name="title"></param>
-        /// <param name="detail"></param>
-        /// <param name="save"></param>
-        public void AddNote(OrderForm orderForm, string title, string detail, bool save)
-        {
-            OrderNote on = orderForm.Parent.OrderNotes.AddNew();
-            on.Detail = detail;
-            on.Title = title;
-            on.Type = OrderNoteTypes.System.ToString();
-            on.Created = DateTime.Now;
-            on.CustomerId = PrincipalInfo.CurrentPrincipal.GetContactId();
-
-            if (save)
-            {
-                orderForm.Parent.AcceptChanges();
-            }
-        }
     }
 }
