@@ -10,7 +10,6 @@ using EPiServer.Core;
 using EPiServer.Framework.Localization;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
-using Geta.EPi.Extensions;
 using Geta.PayPal;
 using Mediachase.Commerce.Catalog;
 using Mediachase.Commerce.Catalog.Managers;

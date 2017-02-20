@@ -135,10 +135,6 @@
       <HintPath>..\packages\EPiServer.CMS.Core.10.2.0\lib\net45\EPiServer.XForms.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Geta.EPi.Extensions, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Geta.EPi.Extensions.1.5.1\lib\net451\Geta.EPi.Extensions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
@@ -315,6 +311,13 @@
     <Content Include="lang\PayPalPayment_NO.xml" />
     <Content Include="lang\PayPalPayment_SV.xml" />
     <Content Include="lang\PayPalPayment_ZH.xml" />
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
