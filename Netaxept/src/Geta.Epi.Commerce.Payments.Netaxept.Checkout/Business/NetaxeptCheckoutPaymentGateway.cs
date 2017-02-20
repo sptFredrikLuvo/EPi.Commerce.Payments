@@ -14,7 +14,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
     /// <summary>
     /// Netaxept payment gateway
     /// </summary>
-    public class NetaxeptCheckoutPaymentGateway : AbstractPaymentGateway, IPaymentPlugin, IPaymentOption
+    public class NetaxeptCheckoutPaymentGateway : AbstractPaymentGateway, IPaymentPlugin
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(NetaxeptCheckoutPaymentGateway));
 

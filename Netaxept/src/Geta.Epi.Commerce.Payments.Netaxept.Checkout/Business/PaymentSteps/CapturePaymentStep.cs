@@ -31,7 +31,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                 try
                 {
-                    var result = this.Client.Capture(payment.ProviderTransactionID, amount);
+                    var result = this.Client.Capture(payment.TransactionID, amount);
                     if (result.ErrorOccurred)
                     {
                         message = result.ErrorMessage;
