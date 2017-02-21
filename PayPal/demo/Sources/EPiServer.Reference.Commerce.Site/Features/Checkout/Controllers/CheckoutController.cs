@@ -28,8 +28,14 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using EPiServer.Reference.Commerce.Site.Infrastructure;
+using Geta.Commerce.Payments.PayPal;
+using Geta.Commerce.Payments.PayPal.Models;
+using Mediachase.Commerce.Core;
+using Mediachase.Commerce.Orders.Dto;
+using Mediachase.Commerce.Orders.Managers;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
@@ -598,6 +604,70 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             return viewModel;
         }
 
+
+
+        [HttpGet]
+        public virtual ActionResult ProcessPayPalPayment(CheckoutPage currentPage, PayPalAcceptResponse payPalResponse)
+        {
+            string acceptUrl = UriSupport.AbsoluteUrlBySettings(Cart.Properties[MetaDataConstants.SuccessRedirectUrl] as string);
+            string failUrl = UriSupport.AbsoluteUrlBySettings(Cart.Properties[MetaDataConstants.FailRedirectUrl] as string);
+
+            var payments = Cart.GetFirstForm().Payments.ToArray();
+
+            //get PayPal payment by PaymentMethodName, instead of get the first payment in the list.
+            PaymentMethodDto payPalPaymentMethod = PaymentManager.GetPaymentMethodBySystemName("PayPal", SiteContext.Current.LanguageName);
+
+            var payment = payments.FirstOrDefault(c => c.PaymentMethodId.Equals(payPalPaymentMethod.PaymentMethod.Rows[0]["PaymentMethodId"]));
+            var payPalPayment = payment as PayPalPayment;
+
+            if (payPalPayment == null)
+            {
+                return Error(string.Empty, "PayPal payment does not exist.", failUrl);
+            }
+
+            var payPalGateway = new PayPalPaymentGateway { OrderGroup = Cart };
+            string payPalErrorMessage = null;
+
+            if (payPalResponse.Accept && string.IsNullOrWhiteSpace(payPalResponse.Hash) == false)
+            {
+                if (string.IsNullOrEmpty(payPalPayment.PayPalOrderNumber) == false && UrlSettings.GetMD5Key(payPalPayment.PayPalOrderNumber + "accepted") == payPalResponse.Hash)
+                {
+                    var transactionResult = payPalGateway.ProcessSuccessfulTransaction(payPalPayment);
+
+                    if (transactionResult.Success)
+                    {
+                        var checkoutViewModel = CreateCheckoutViewModel(currentPage);
+                        return Finish(transactionResult.PurchaseOrder, checkoutViewModel);
+                    }
+
+                    payPalErrorMessage = transactionResult.Message;
+                }
+            }
+            else if (payPalResponse.Accept == false && string.IsNullOrWhiteSpace(payPalResponse.Hash) == false)
+            {
+                payPalErrorMessage = "PayPal payment was cancelled.";
+            }
+
+            if (string.IsNullOrWhiteSpace(payPalErrorMessage))
+            {
+                payPalErrorMessage = "PayPal transaction is not valid.";
+            }
+
+            return Error(string.Empty, payPalErrorMessage, failUrl);
+        }
+
+        private ActionResult Error(string view, string message, string failUrl)
+        {
+            var urlBuilder = new UrlBuilder(failUrl);
+            urlBuilder.QueryCollection["message"] = HttpUtility.UrlEncode(message);
+
+            if (!string.IsNullOrWhiteSpace(view))
+            {
+                urlBuilder.QueryCollection["view"] = view;
+            }
+
+            return Redirect(urlBuilder.ToString());
+        }
 
     }
 }
