@@ -822,6 +822,7 @@
     <Content Include="Views\Shared\_AuthorizePaymentMethod.cshtml" />
     <Content Include="Views\Shared\_AuthorizeConfirmation.cshtml" />
     <Content Include="Views\Shared\_PayPalPaymentMethod.cshtml" />
+    <Content Include="Views\Shared\_PayPalConfirmation.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
