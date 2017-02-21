@@ -1,5 +1,7 @@
 ﻿using System;
+using EPiServer.Commerce.Order;
 using EPiServer.Logging;
+using EPiServer.ServiceLocation;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Models;
 using Geta.Netaxept.Checkout;
 using Geta.Netaxept.Checkout.Models;
@@ -15,16 +17,18 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(AuthorizationPaymentStep));
 
-        public AuthorizationPaymentStep(Payment payment) : base(payment)
+        public AuthorizationPaymentStep(IPayment payment) : base(payment)
         { }
 
-        /// <summary>
-        /// This step is not used in the chain.
-        /// </summary>
-        /// <param name="payment"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public override bool Process(Payment payment, ref string message)
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="payment"></param>
+       /// <param name="orderForm"></param>
+       /// <param name="orderGroup"></param>
+       /// <param name="message"></param>
+       /// <returns></returns>
+        public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
         {
             throw new NotImplementedException();
         }
@@ -33,15 +37,14 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// Process payment
         /// </summary>
         /// <param name="payment"></param>
+        /// <param name="orderGroup"></param>
         /// <param name="transactionId"></param>
         /// <returns></returns>
-        public PaymentAuthorizationResult Process(Payment payment, string transactionId)
+        public PaymentAuthorizationResult Process(IPayment payment, IOrderGroup orderGroup, string transactionId)
         {
             var result = new PaymentAuthorizationResult();
             if (payment.TransactionType == "Authorization" && !string.IsNullOrEmpty(transactionId))
             {
-                var orderForm = payment.Parent;
-
                 PaymentResult paymentResult = null;
                 try
                 {
@@ -51,7 +54,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 {
                     Logger.Error(ex.Message);
 
-                    AddNote(payment.Parent, "Payment Query - Error", "Payment Query - Error: " + ex.Message, true);
+                    AddNoteAndSaveChanges(orderGroup, "Payment Query - Error", "Payment Query - Error: " + ex.Message);
                     return result;
                 }
                 
@@ -67,7 +70,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     result.Result = PaymentResponseCode.ErrorOccurred;
                     result.ErrorMessage = paymentResult.ErrorMessage;
 
-                    AddNote(payment.Parent, "Payment - Failed", "Payment - Error: " + result.ErrorMessage, true);
+                    AddNoteAndSaveChanges(orderGroup, "Payment - Failed", "Payment - Error: " + result.ErrorMessage);
                     return result;
                 }
 
@@ -76,10 +79,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     var responseResult = this.Client.Authorize(transactionId);
                     if (responseResult.ErrorOccurred)
                     {
-                        AddNote(orderForm, "Payment Auth - Error", "Payment Auth - Error: " + responseResult.ErrorMessage, true);
-
                         payment.Status = "Failed";
                         result.Result = PaymentResponseCode.ErrorOccurred;
+                        AddNoteAndSaveChanges(orderGroup, "Payment Auth - Error", "Payment Auth - Error: " + responseResult.ErrorMessage);
 
                         return result;
                     }
@@ -92,24 +94,24 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                     Logger.Error(ex.Message);
 
-                    AddNote(payment.Parent, "Payment Auth - Error", "Payment Auth - Error: " + result.ErrorMessage, true);
+                    AddNoteAndSaveChanges(orderGroup, "Payment Auth - Error", "Payment Auth - Error: " + result.ErrorMessage);
                     return result;
                 }
 
                 payment.TransactionID = transactionId;
                 payment.ProviderTransactionID = transactionId;
-                payment.SetMetaField(NetaxeptConstants.CardInformationPaymentMethodField, paymentResult.CardInformationPaymentMethod, false);
-                payment.SetMetaField(NetaxeptConstants.CardInformationExpiryDateField, paymentResult.CardInformationExpiryDate, false);
-                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerCountryField, paymentResult.CardInformationIssuerCountry, false);
-                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerField, paymentResult.CardInformationIssuer, false);
-                payment.SetMetaField(NetaxeptConstants.CardInformationIssuerIdField, paymentResult.CardInformationIssuerId, false);
-                payment.SetMetaField(NetaxeptConstants.CardInformationMaskedPanField, paymentResult.CardInformationMaskedPan, false);
+                payment.Properties[NetaxeptConstants.CardInformationPaymentMethodField] = paymentResult.CardInformationPaymentMethod;
+                payment.Properties[NetaxeptConstants.CardInformationExpiryDateField] = paymentResult.CardInformationExpiryDate;
+                payment.Properties[NetaxeptConstants.CardInformationIssuerCountryField] = paymentResult.CardInformationIssuerCountry;
+                payment.Properties[NetaxeptConstants.CardInformationIssuerField] = paymentResult.CardInformationIssuer;
+                payment.Properties[NetaxeptConstants.CardInformationIssuerIdField] = paymentResult.CardInformationIssuerId;
+                payment.Properties[NetaxeptConstants.CardInformationMaskedPanField] = paymentResult.CardInformationMaskedPan;
                 
                 // Save the PanHash(if not empty) on the customer contact, so we can use EasyPayment for next payment
                 if (!string.IsNullOrEmpty(paymentResult.CardInformationPanHash) &&
-                    orderForm.Parent.CustomerId != Guid.Empty)
+                    orderGroup.CustomerId != Guid.Empty)
                 {
-                    var customerContact = CustomerContext.Current.GetContactById(orderForm.Parent.CustomerId);
+                    var customerContact = CustomerContext.Current.GetContactById(orderGroup.CustomerId);
                     if (customerContact != null)
                     {
                         customerContact[NetaxeptConstants.CustomerPanHashFieldName] =
@@ -119,10 +121,12 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 }
                 result.Result = PaymentResponseCode.Success;
 
-                AddNote(payment.Parent, "Payment - Auth", "Payment - Auth");
+                AddNoteAndSaveChanges(orderGroup, "Payment - Auth", "Payment - Auth");
+
             }
             return result;
         }
+        
     }
 
 }
