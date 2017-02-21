@@ -311,13 +311,6 @@
     <Content Include="lang\PayPalPayment_NO.xml" />
     <Content Include="lang\PayPalPayment_SV.xml" />
     <Content Include="lang\PayPalPayment_ZH.xml" />
-    <Content Include="web.config" />
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
