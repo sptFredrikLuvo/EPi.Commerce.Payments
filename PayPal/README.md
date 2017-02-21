@@ -40,11 +40,11 @@ Login into Commerce Manager and open **Administration -> Order System -> Payment
 - **Use test environment (sandbox)** -
 - **Allow buyers to change shipping address at PayPal** -
 - **Payment action** -
-- **Allow guest checkout** -
-- **Express Checkout Url** -
-- **Success URL** -
-- **Cancel URL** -
-- **Skip OrderConfirmation page** -
+- **Allow guest checkout** - 
+- **Express Checkout Url** - https://www.sandbox.paypal.com/cgi-bin/webscr
+- **Success URL** - /en/checkout/ProcessPayPalPayment
+- **Cancel URL** - /en/checkout/ProcessPayPalPayment
+- **Skip OrderConfirmation page** - 
 - **PayPal Secure Merchant Account ID (PAL) (optional)** -
 
 
