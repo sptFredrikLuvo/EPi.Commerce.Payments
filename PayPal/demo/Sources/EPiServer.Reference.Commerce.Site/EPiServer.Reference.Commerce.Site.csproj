@@ -456,6 +456,7 @@
     <Compile Include="Features\Payment\Services\PaymentService.cs" />
     <Compile Include="Features\Payment\ViewModelFactories\PaymentMethodViewModelFactory.cs" />
     <Compile Include="Features\Payment\ViewModels\AuthorizeViewModel.cs" />
+    <Compile Include="Features\Payment\ViewModels\PayPalViewModel.cs" />
     <Compile Include="Features\Profile\ViewModels\ProfilePageViewModel.cs" />
     <Compile Include="Features\ResetPassword\ViewModels\ResetPasswordMailPageViewModel.cs" />
     <Compile Include="Features\Shared\ViewModels\CountryRegionViewModel.cs" />
@@ -818,6 +819,7 @@
     <Content Include="App_Data\GeoLiteCity.dat" />
     <Content Include="Views\Shared\_AuthorizePaymentMethod.cshtml" />
     <Content Include="Views\Shared\_AuthorizeConfirmation.cshtml" />
+    <Content Include="Views\Shared\_PayPalPaymentMethod.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
