@@ -29,6 +29,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
+using EPiServer.Reference.Commerce.Site.Infrastructure;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
@@ -291,19 +292,40 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             CreatePayment(checkoutViewModel.Payment, checkoutViewModel.BillingAddress);
 
-            var startpage = _contentRepository.Get<StartPage>(ContentReference.StartPage);
-            var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(checkoutViewModel.CurrentPage.ContentLink);
+
             IPurchaseOrder purchaseOrder = null;
 
             try
             {
+                // Set custom urls on cart
+                UpdateCartMetadata(checkoutViewModel);
+
                 purchaseOrder = PlaceOrder(checkoutViewModel);
+                if (purchaseOrder != null)
+                {
+                    return Finish(purchaseOrder, checkoutViewModel);
+                }
             }
-            catch (PaymentException)
+            catch (PaymentException ex)
             {
-                ModelState.AddModelError("", _localizationService.GetString("/Checkout/Payment/Errors/ProcessingPaymentFailure"));
+                ModelState.AddModelError("", _localizationService.GetString("/Checkout/Payment/Errors/ProcessingPaymentFailure") + ex.Message + ex.StackTrace);
                 return View(checkoutViewModel, paymentViewModel);
             }
+
+            // Todo: fix
+            return View(checkoutViewModel, paymentViewModel);
+        }
+
+        private void UpdateCartMetadata(CheckoutViewModel checkoutViewModel)
+        {
+            Cart.Properties[MetaDataConstants.SuccessRedirectUrl] = checkoutViewModel.SuccessRedirectUrl ?? Url.ContentUrl(PageContext.Page.ContentLink);
+            Cart.Properties[MetaDataConstants.FailRedirectUrl] = checkoutViewModel.FailRedirectUrl ?? Url.ContentUrl(PageContext.Page.ContentLink);
+        }
+
+        private ActionResult Finish(IPurchaseOrder purchaseOrder, CheckoutViewModel checkoutViewModel)
+        {
+            var startpage = _contentRepository.Get<StartPage>(ContentReference.StartPage);
+            var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(checkoutViewModel.CurrentPage.ContentLink);
 
             var queryCollection = new NameValueCollection
             {
@@ -406,6 +428,13 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         private IPurchaseOrder PlaceOrder(CheckoutViewModel checkoutViewModel)
         {
             Cart.ProcessPayments(_paymentProcessor, _orderGroupCalculator);
+
+            // prevent further execution, is request being redirected doesnt work.
+            if (checkoutViewModel.Payment.SystemName == "PayPal")
+            {
+                return null;
+            }
+
             var totalProcessedAmount = Cart.GetFirstForm().Payments.Where(x => x.Status.Equals(PaymentStatus.Processed.ToString())).Sum(x => x.Amount);
 
             if (totalProcessedAmount != Cart.GetTotal(_orderGroupCalculator).Amount)
@@ -457,7 +486,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             Cart.AddPayment(payment, _orderGroupFactory);
             payment.BillingAddress = address;
         }
-                
+
         private ViewResult View(CheckoutViewModel checkoutViewModel, IPaymentMethodViewModel<PaymentMethodBase> paymentViewModel)
         {
             return View(checkoutViewModel.ViewName, CreateCheckoutViewModel(checkoutViewModel.CurrentPage, paymentViewModel));
@@ -496,7 +525,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                 i++;
             }
 
-            Cart.ApplyDiscounts(_promotionEngine, new PromotionEngineSettings());            
+            Cart.ApplyDiscounts(_promotionEngine, new PromotionEngineSettings());
         }
 
         private void UpdateAddressNames(CheckoutViewModel viewModel)
@@ -568,5 +597,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             return viewModel;
         }
+
+
     }
 }
