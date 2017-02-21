@@ -15,9 +15,8 @@ It consits of:
 
 ## Setup
 
-
 ### Solution specific
-The solution needs to implement the following...
+See demo implementation for example.
 
 
 ### Commerce Manager
