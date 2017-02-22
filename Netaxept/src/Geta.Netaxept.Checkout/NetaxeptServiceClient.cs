@@ -160,6 +160,20 @@ namespace Geta.Netaxept.Checkout
             return Create(response);
         }
 
+        public ProcessResult Annul(string transactionId)
+        {
+            if (string.IsNullOrEmpty(transactionId))
+            {
+                throw new ArgumentNullException(nameof(transactionId));
+            }
+            var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
+            {
+                Operation = "ANNUL",
+                TransactionId = transactionId
+            });
+            return Create(response);
+        }
+
         /// <summary>
         /// Execute authorize method
         /// </summary>
