@@ -38,9 +38,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                 var registerPaymentStep = new RegisterPaymentStep(payment);
                 var capturePaymentStep = new CapturePaymentStep(payment);
                 var creditPaymentStep = new CreditPaymentStep(payment);
+                var annulPaymentStep = new AnnulPaymentStep(payment);
 
                 registerPaymentStep.SetSuccessor(capturePaymentStep);
                 capturePaymentStep.SetSuccessor(creditPaymentStep);
+                creditPaymentStep.SetSuccessor(annulPaymentStep);
 
                 return registerPaymentStep.Process(payment, _orderForm, OrderGroup, ref message);
             }
@@ -50,44 +52,6 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                 message = exception.Message;
                 throw;
             }
-        }
-
-        public bool ValidateData()
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// Pre process method. Set all fields for the payment
-        /// </summary>
-        /// <param name="orderForm"></param>
-        /// <returns></returns>
-        public Payment PreProcess(OrderForm orderForm)
-        {
-            if (orderForm == null) throw new ArgumentNullException(nameof(orderForm));
-
-            var payment = new OtherPayment()
-            {
-                PaymentMethodId = PaymentMethodId,
-                PaymentMethodName = "Netaxept",
-                OrderFormId = orderForm.OrderFormId,
-                OrderGroupId = orderForm.OrderGroupId,
-                Amount = orderForm.Total,
-                Status = PaymentStatus.Pending.ToString(),
-                TransactionType = TransactionType.Authorization.ToString()
-            };
-
-            return payment;
-        }
-
-        /// <summary>
-        /// Will always return true
-        /// </summary>
-        /// <param name="orderForm"></param>
-        /// <returns></returns>
-        public bool PostProcess(OrderForm orderForm)
-        {
-            return true;
         }
 
         /// <summary>

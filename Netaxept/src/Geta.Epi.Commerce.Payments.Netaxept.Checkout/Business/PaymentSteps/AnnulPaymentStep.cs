@@ -8,11 +8,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     /// <summary>
     /// Credit payment step
     /// </summary>
-    public class CreditPaymentStep : PaymentStep
+    public class AnnulPaymentStep : PaymentStep
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(CreditPaymentStep));
+        private static readonly ILogger Logger = LogManager.GetLogger(typeof(AnnulPaymentStep));
 
-        public CreditPaymentStep(IPayment payment) : base(payment)
+        public AnnulPaymentStep(IPayment payment) : base(payment)
         { }
 
         /// <summary>
@@ -23,18 +23,16 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <returns></returns>
         public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
         {
-            if (payment.TransactionType == "Credit")
+            if (payment.TransactionType == "Void")
             {
-                var amount = PaymentStepHelper.GetAmount(payment.Amount);
-
                 try
                 {
-                    var result = this.Client.Credit(payment.TransactionID, amount);
+                    var result = this.Client.Annul(payment.TransactionID);
                     if (result.ErrorOccurred)
                     {
                         message = result.ErrorMessage;
                         payment.Status = "Failed";
-                        AddNoteAndSaveChanges(orderGroup, "Payment Credit - Error", "Payment Credit - Error: " + result.ErrorMessage);
+                        AddNoteAndSaveChanges(orderGroup, "Payment Annul - Error", "Payment Annul - Error: " + result.ErrorMessage);
                         return false;
                     }
                 }
@@ -43,11 +41,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     Logger.Error(ex.Message);
                     message = ex.Message;
                     payment.Status = "Failed";
-                    AddNoteAndSaveChanges(orderGroup, "Payment Credit - Error", "Payment Credit - Error: " + ex.Message);
+                    AddNoteAndSaveChanges(orderGroup, "Payment Annul - Error", "Payment Annul - Error: " + ex.Message);
                     return false;
                 }
 
-                AddNoteAndSaveChanges(orderGroup, "Payment - Credited", "Payment - Credited");
+                AddNoteAndSaveChanges(orderGroup, "Payment - Annul", "Payment - Annulled");
 
                 return true;
             }
