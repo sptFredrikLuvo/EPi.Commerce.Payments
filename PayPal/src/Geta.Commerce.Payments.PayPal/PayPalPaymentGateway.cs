@@ -727,13 +727,11 @@ namespace Geta.Commerce.Payments.PayPal
                     shipAdd.LastName = index >= 0 ? name.Substring(index + 1) : string.Empty;
 
                     // Update shippingAddressId when shipping address was changed
-                    OrderGroup.GetFirstShipment().ShippingAddress.Id = shipAdd.Id;
+                    OrderGroup.GetFirstShipment().ShippingAddress = shipAdd;
 
                     if (existingShippingAddress == null)
                     {
                         modifiedShippingAddress = shipAdd;
-                        // cart.OrderAddresses.Add(shipAdd);
-                        cart.GetFirstShipment().ShippingAddress = shipAdd;
                     }
                 }
 
@@ -954,7 +952,8 @@ namespace Geta.Commerce.Payments.PayPal
         public AddressType GetShippingAddress(IPayment payment)
         {
             AddressType shipingAdd = new AddressType();
-            var shippingAddress = _orderForm.Shipments.First().ShippingAddress;
+            var shipment = _orderForm.Shipments.First();
+            var shippingAddress = shipment.ShippingAddress;
             shipingAdd.CityName = shippingAddress.City;
             shipingAdd.Country = _countryService.Service.GetAlpha2CountryCode(shippingAddress);
             shipingAdd.Street1 = shippingAddress.Line1;
