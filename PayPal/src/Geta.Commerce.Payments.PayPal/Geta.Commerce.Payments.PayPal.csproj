@@ -225,12 +225,12 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="PayPalCoreSDK, Version=1.7.1.0, Culture=neutral, PublicKeyToken=5b4afc1ccaef40fb, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\PayPalCoreSDK.1.7.1\lib\net451\PayPalCoreSDK.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PayPalCoreSDK.1.7.1\lib\net451\PayPalCoreSDK.dll</HintPath>
     </Reference>
     <Reference Include="PayPalMerchantSDK, Version=2.16.204.0, Culture=neutral, PublicKeyToken=5b4afc1ccaef40fb, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\PayPalMerchantSDK.2.16.204\lib\net20\PayPalMerchantSDK.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PayPalMerchantSDK.2.16.204\lib\net20\PayPalMerchantSDK.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap, Version=3.1.9.463, Culture=neutral, PublicKeyToken=e60ad81abae3c223, processorArchitecture=MSIL">
       <HintPath>..\packages\structuremap-signed.3.1.9.463\lib\net40\StructureMap.dll</HintPath>
