@@ -154,7 +154,65 @@ public PaymentCallbackController(IOrderGroupCalculator orderGroupCalculator,
             }
 
            var netaxeptCheckoutPaymentGateway = new NetaxeptCheckoutPaymentGateway();
-       }
+           var result = netaxeptCheckoutPaymentGateway.ProcessAuthorization(
+                    payment,
+                    cart.GetFirstForm(), 
+                    cart, 
+                    transactionId);
+                if (result.Result == PaymentResponseCode.Success)
+                {
+                    payment.Status = PaymentStatus.Processed.ToString();
+                    var orderReference = _orderRepository.SaveAsPurchaseOrder(cart);
+                    purchaseOrder = _orderRepository.Load(orderReference) as IPurchaseOrder;
+
+                    // Make sure ordernumber is same as generated with NETS
+                    string orderNumber = cart.Properties[NetaxeptConstants.CartOrderNumberTempField] as string;
+                    if (!string.IsNullOrEmpty(orderNumber))
+                        purchaseOrder.OrderNumber = orderNumber;
+
+                    // this will copy all notes from the Cart to the PurchaseOrder
+                    CopyNotesFromCartToPurchaseOrder(purchaseOrder, cart);
+
+                    string currentContactId = string.Empty;
+                    //if not a logged in user, we see if there is a contact with email address, else we create one
+                    if (!User.Identity.IsAuthenticated)
+                    {
+                        currentContactId = _orderService.SetOrCreateCustomerToOrder(purchaseOrder, payment, string.Empty,
+                            false);
+                    }
+                    else
+                    {
+                        currentContactId = _customerContext.CurrentContactId.ToString();
+                    }
+
+                    if(CustomerContext.Current.CurrentContact != null)
+                        ((PurchaseOrder)purchaseOrder).CustomerName = CustomerContext.Current.CurrentContact.FullName;
+                    
+                    _orderRepository.Save(purchaseOrder);
+                    _orderRepository.Delete(cart.OrderLink);
+
+                    var queryCollection = new NameValueCollection
+                    {
+                        {"contactId", currentContactId},
+                        {"orderNumber", purchaseOrder.OrderNumber.ToString(CultureInfo.InvariantCulture)}
+                    };
+                    
+                    
+                    var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(checkoutPage.ContentLink);
+                    var orderConfirmationLink = new UrlBuilder(confirmationPage.ContentLink.GetFriendlyUrl(true)) { QueryCollection = queryCollection }.ToString();
+
+                    return Redirect(orderConfirmationLink);
+                }
+                else
+                {
+                    // payment failed - log error
+                    _log.Log(Level.Debug, $"Payment failed with message: {result.ErrorMessage}");
+                    return RedirectBackToCheckout(checkoutPage, _paymentRedirect.GetErrorReasonCode());
+
+                }
+         }
+         
+          return new RedirectResult(new UrlBuilder("/error-pages/payment-failed/").ToString());
     }
 
     /// <summary>
@@ -162,19 +220,25 @@ public PaymentCallbackController(IOrderGroupCalculator orderGroupCalculator,
     /// </summary>
     /// <param name="purchaseOrder"></param>
     /// <param name="cart"></param>
-    private void CopyNotesFromCartToPurchaseOrder(PurchaseOrder purchaseOrder, Mediachase.Commerce.Orders.Cart cart)
-    {
-        foreach (var note in cart.OrderNotes.OrderByDescending(n => n.Created))
+    private void CopyNotesFromCartToPurchaseOrder(IPurchaseOrder purchaseOrder, ICart cart)
         {
-            OrderNote on = purchaseOrder.OrderNotes.AddNew();
-            on.Detail = note.Detail;
-            on.Title = note.Title;
-            on.Type = OrderNoteTypes.System.ToString();
-            on.Created = note.Created;
-            on.CustomerId = note.CustomerId;
+            if (cart.Notes.Any())
+            {
+                foreach (var note in cart.Notes.OrderByDescending(n => n.Created))
+                {
+                    var on = _orderGroupFactory.CreateOrderNote(purchaseOrder);
+                    on.Detail = note.Detail;
+                    on.Title = note.Title;
+                    on.Type = OrderNoteTypes.System.ToString();
+                    on.Created = note.Created;
+                    on.CustomerId = note.CustomerId;
+                    purchaseOrder.Notes.Add(on);
+                }
+
+                // save changes
+                _orderRepository.Save(purchaseOrder);
+            }
         }
-        purchaseOrder.AcceptChanges();
-    }
 
     private IPayment GetPaymentByStatus(ICart cart, PaymentStatus paymentStatus, TransactionType transactionType)
         {
