@@ -258,7 +258,7 @@ public PaymentCallbackController(IOrderGroupCalculator orderGroupCalculator,
 
 ### Payment information
 
-The card information of the payment is saved on payment object. This information can be displayed on the order confirmation page.
+The card information of the payment is saved on payment object and the customer contact. 
 
 ```
 <p>
@@ -268,6 +268,18 @@ The card information of the payment is saved on payment object. This information
     Card information issuer: <strong>@Model.GetString(NetaxeptConstants.CardInformationIssuerField)</strong> <br />
     Card information issuer country: <strong>@Model.GetString(NetaxeptConstants.CardInformationIssuerCountryField)</strong> <br />
     Card information masked pan: <strong>@Model.GetString(NetaxeptConstants.CardInformationMaskedPanField)</strong> <br />
+</p>
+```
+
+
+```
+<p>
+    Card information payment method: <strong>@customerContact[NetaxeptConstants.CustomerCardPaymentMethodFieldName]</strong> <br/>
+    Card information expiry date: <strong>@customerContact[NetaxeptConstants.CustomerCardExpirationDateFieldName]</strong> <br />
+    Card information issuer id: <strong>@customerContact[NetaxeptConstants.CustomerCardIssuerIdFieldName]</strong> <br />
+    Card information issuer: <strong>@customerContact[NetaxeptConstants.CustomerCardIssuerFieldName]</strong> <br />
+    Card information issuer country: <strong>@customerContact[NetaxeptConstants.CustomerCardIssuerCountryFieldName]</strong> <br />
+    Card information masked pan: <strong>@customerContact[NetaxeptConstants.CustomerCardMaskedFieldName]</strong> <br />
 </p>
 ```
 
