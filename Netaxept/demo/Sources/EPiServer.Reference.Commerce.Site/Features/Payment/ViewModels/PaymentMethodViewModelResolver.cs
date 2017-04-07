@@ -1,5 +1,8 @@
 ﻿using System;
 using EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods;
+using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
+using EPiServer.ServiceLocation;
+using Geta.Netaxept.Checkout;
 
 
 namespace EPiServer.Reference.Commerce.Site.Features.Payment.ViewModels
@@ -17,7 +20,19 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.ViewModels
                 case "Authorize":
                     return new AuthorizeViewModel { PaymentMethod = new AuthorizePaymentMethod() };
                 case "netaxept":
-                    return new NetaxeptViewModel { PaymentMethod = new NetaxeptPaymentMethod() };
+                    var model =  new NetaxeptViewModel { PaymentMethod = new NetaxeptPaymentMethod() };
+
+                    var customerContextFacade = ServiceLocator.Current.GetInstance<CustomerContextFacade>();
+
+                    model.CustomerCardMaskedFieldName = customerContextFacade.CurrentContact.CurrentContact[NetaxeptConstants.CustomerCardMaskedFieldName]?.ToString();
+                    model.CustomerCardExpirationDateFieldName = customerContextFacade.CurrentContact.CurrentContact[NetaxeptConstants.CustomerCardExpirationDateFieldName]?.ToString();
+                    model.CustomerCardExpirationDateFieldName = customerContextFacade.CurrentContact.CurrentContact[NetaxeptConstants.CustomerCardExpirationDateFieldName]?.ToString();
+                    model.CustomerCardPaymentMethodField = customerContextFacade.CurrentContact.CurrentContact[NetaxeptConstants.CustomerCardPaymentMethodFieldName]?.ToString();
+                    model.CustomerCardIssuerCountryField = customerContextFacade.CurrentContact.CurrentContact[NetaxeptConstants.CustomerCardIssuerCountryFieldName]?.ToString();
+                    model.CustomerCardIssuerIdField = customerContextFacade.CurrentContact.CurrentContact[NetaxeptConstants.CustomerCardIssuerIdFieldName]?.ToString();
+                    model.CustomerCardIssuerField = customerContextFacade.CurrentContact.CurrentContact[NetaxeptConstants.CustomerCardIssuerFieldName]?.ToString();
+
+                    return model;
             }
 
             throw new ArgumentException("No view model has been implemented for the method " + paymentMethodName, "paymentMethodName");

@@ -155,10 +155,12 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Geta.Epi.Commerce.Payments.Netaxept.Checkout, Version=0.1.18.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Geta.Epi.Commerce.Payments.Netaxept.Checkout.0.1.18\lib\net452\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Epi.Commerce.Payments.Netaxept.Checkout.dll</HintPath>
     </Reference>
     <Reference Include="Geta.Netaxept.Checkout, Version=0.1.18.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Geta.Epi.Commerce.Payments.Netaxept.Checkout.0.1.18\lib\net452\Geta.Netaxept.Checkout.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\src\Geta.Epi.Commerce.Payments.Netaxept.Checkout\bin\Debug\Geta.Netaxept.Checkout.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>

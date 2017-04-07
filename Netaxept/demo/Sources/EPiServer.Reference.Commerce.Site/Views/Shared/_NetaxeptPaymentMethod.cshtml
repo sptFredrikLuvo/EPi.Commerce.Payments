@@ -3,5 +3,15 @@
 @Html.HiddenFor(model => model.PaymentMethod.PaymentMethodId)
 
 <div class="alert alert-info">
-   Netaxept
+    <h2>Netaxept</h2>
+    
+    <strong>Previous card information</strong>
+    <p>
+        <label>Card: @Model.CustomerCardMaskedFieldName</label><br />
+        <label>Expiration date: @Model.CustomerCardExpirationDateFieldName</label><br />
+        <label>Payment method: @Model.CustomerCardPaymentMethodField</label><br />
+        <label>Issuer country: @Model.CustomerCardIssuerCountryField</label><br />
+        <label>Issuer: @Model.CustomerCardIssuerField</label><br />
+        <label>Issuer id: @Model.CustomerCardIssuerIdField</label>
+    </p>
 </div>

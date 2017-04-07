@@ -108,14 +108,19 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 payment.Properties[NetaxeptConstants.CardInformationMaskedPanField] = paymentResult.CardInformationMaskedPan;
                 
                 // Save the PanHash(if not empty) on the customer contact, so we can use EasyPayment for next payment
-                if (!string.IsNullOrEmpty(paymentResult.CardInformationPanHash) &&
-                    orderGroup.CustomerId != Guid.Empty)
+                if (!string.IsNullOrEmpty(paymentResult.CardInformationPanHash) && orderGroup.CustomerId != Guid.Empty)
                 {
                     var customerContact = CustomerContext.Current.GetContactById(orderGroup.CustomerId);
                     if (customerContact != null)
                     {
-                        customerContact[NetaxeptConstants.CustomerPanHashFieldName] =
-                            paymentResult.CardInformationPanHash;
+                        customerContact[NetaxeptConstants.CustomerPanHashFieldName] = paymentResult.CardInformationPanHash;
+                        customerContact[NetaxeptConstants.CustomerCardMaskedFieldName] = paymentResult.CardInformationMaskedPan;
+                        customerContact[NetaxeptConstants.CustomerCardExpirationDateFieldName] = paymentResult.CardInformationExpiryDate;
+                        customerContact[NetaxeptConstants.CustomerCardPaymentMethodFieldName] = paymentResult.CardInformationPaymentMethod;
+                        customerContact[NetaxeptConstants.CustomerCardIssuerCountryFieldName] = paymentResult.CardInformationIssuerCountry;
+                        customerContact[NetaxeptConstants.CustomerCardIssuerIdFieldName] = paymentResult.CardInformationIssuerId;
+                        customerContact[NetaxeptConstants.CustomerCardIssuerFieldName] = paymentResult.CardInformationIssuer;
+
                         customerContact.SaveChanges();
                     }
                 }

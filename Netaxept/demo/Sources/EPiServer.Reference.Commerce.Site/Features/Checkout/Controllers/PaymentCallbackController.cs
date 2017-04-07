@@ -53,9 +53,9 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                 var queryCollection = new NameValueCollection
                 {
                     {"contactId", _customerContext.CurrentContactId.ToString()},
-                    {"orderNumber", purchaseOrder.OrderNumber.ToString(CultureInfo.InvariantCulture)}
+                    {"orderNumber", purchaseOrder.OrderLink.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
                 };
-                return new RedirectResult(new UrlBuilder("/checkout/order-confirmation/") { QueryCollection = queryCollection }.ToString());
+                return new RedirectResult(new UrlBuilder("en/checkout/order-confirmation/") { QueryCollection = queryCollection }.ToString());
             }
             return new RedirectResult(new UrlBuilder("/error-pages/payment-failed/").ToString());
         }
