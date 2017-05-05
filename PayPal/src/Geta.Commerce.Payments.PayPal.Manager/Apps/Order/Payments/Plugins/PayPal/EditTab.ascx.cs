@@ -8,20 +8,14 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
     /// </summary>
     public partial class EditTab : CoreBaseUserControl, IAdminContextControl, IAdminTabControl
     {
-        #region IAdminContextControl Members
-
         /// <summary>
         /// Loads the context.
         /// </summary>
         /// <param name="context">The context.</param>
         public void LoadContext(System.Collections.IDictionary context)
         {
-            
+
         }
-
-        #endregion
-
-        #region IAdminTabControl Members
 
         /// <summary>
         /// Saves the changes.
@@ -31,7 +25,5 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
         {
 
         }
-
-        #endregion
     }
 }

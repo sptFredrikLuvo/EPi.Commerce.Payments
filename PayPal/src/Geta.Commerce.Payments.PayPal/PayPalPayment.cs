@@ -11,14 +11,16 @@ namespace Geta.Commerce.Payments.PayPal
     [Serializable]
     public class PayPalPayment : Mediachase.Commerce.Orders.Payment
     {
+        private static MetaClass _metaClass;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PayPalPayment"/> class.
         /// </summary>
         public PayPalPayment()
             : base(PayPalPaymentMetaClass)
         {
-            this.PaymentType = Mediachase.Commerce.Orders.PaymentType.Other;
-            ImplementationClass = this.GetType().AssemblyQualifiedName; // need to have assembly name in order to retreive the correct type in ClassInfo
+            PaymentType = PaymentType.Other;
+            ImplementationClass = GetType().AssemblyQualifiedName; // need to have assembly name in order to retrieve the correct type in ClassInfo
         }
 
         /// <summary>
@@ -27,37 +29,25 @@ namespace Geta.Commerce.Payments.PayPal
         /// <param name="info">The info.</param>
         /// <param name="context">The context.</param>
         protected PayPalPayment(SerializationInfo info, StreamingContext context)
-            : base(info, context) 
+            : base(info, context)
         {
-            this.PaymentType = Mediachase.Commerce.Orders.PaymentType.Other;
-            ImplementationClass = this.GetType().AssemblyQualifiedName; // need to have assembly name in order to retreive the correct type in ClassInfo
+            PaymentType = PaymentType.Other;
+            ImplementationClass = GetType().AssemblyQualifiedName; // need to have assembly name in order to retrieve the correct type in ClassInfo
         }
 
-        private static MetaClass _MetaClass;
         /// <summary>
         /// Gets the credit card payment meta class.
         /// </summary>
         /// <value>The credit card payment meta class.</value>
-        public static MetaClass PayPalPaymentMetaClass
-        {
-            get
-            {
-                if (_MetaClass == null)
-                {
-                    _MetaClass = MetaClass.Load(OrderContext.MetaDataContext, "PayPalPayment");
-                }
-
-                return _MetaClass;
-            }
-        }
+        public static MetaClass PayPalPaymentMetaClass => _metaClass ?? (_metaClass = MetaClass.Load(OrderContext.MetaDataContext, "PayPalPayment"));
 
         /// <summary>
         /// Represents the PayPal order number
         /// </summary>
         public string PayPalOrderNumber
         {
-            get { return GetString("PayPalOrderNumber"); }
-            set { this["PayPalOrderNumber"] = value; }
+            get { return GetString(PayPalPaymentGateway.PayPalOrderNumberPropertyName); }
+            set { this[PayPalPaymentGateway.PayPalOrderNumberPropertyName] = value; }
         }
 
         /// <summary>
@@ -65,8 +55,8 @@ namespace Geta.Commerce.Payments.PayPal
         /// </summary>
         public string PayPalExpToken
         {
-            get { return GetString("PayPalExpToken"); }
-            set { this["PayPalExpToken"] = value; }
+            get { return GetString(PayPalPaymentGateway.PayPalExpTokenPropertyName); }
+            set { this[PayPalPaymentGateway.PayPalExpTokenPropertyName] = value; }
         }
     }
 }

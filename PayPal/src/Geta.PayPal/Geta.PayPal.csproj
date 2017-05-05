@@ -232,13 +232,7 @@
     <Content Include="Geta.PayPal.nuspec" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\AbstractResponseTypeExtensions.cs" />
-    <Compile Include="Extensions\DecimalExtensions.cs" />
-    <Compile Include="Extensions\IPurchaseOrderExtensions.cs" />
-    <Compile Include="Extensions\LineItemExtensions.cs" />
-    <Compile Include="Extensions\PaymentMethodDtoExtensions.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="PayPalConstants.cs" />
+    <Compile Include="PayPalConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
