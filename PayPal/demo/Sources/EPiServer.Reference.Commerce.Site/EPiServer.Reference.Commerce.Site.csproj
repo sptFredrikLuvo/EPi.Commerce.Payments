@@ -424,6 +424,7 @@
     <Compile Include="Features\Market\Models\EmptyMarket.cs" />
     <Compile Include="Features\Market\Services\MarketContentLoader.cs" />
     <Compile Include="Features\Payment\PaymentMethods\AuthorizePaymentOption.cs" />
+    <Compile Include="Features\Payment\PaymentMethods\PayPalPaymentOption.cs" />
     <Compile Include="Features\Payment\Services\IPaymentService.cs" />
     <Compile Include="Features\Payment\Services\PaymentService.cs" />
     <Compile Include="Features\Payment\ViewModelFactories\PaymentMethodViewModelFactory.cs" />
