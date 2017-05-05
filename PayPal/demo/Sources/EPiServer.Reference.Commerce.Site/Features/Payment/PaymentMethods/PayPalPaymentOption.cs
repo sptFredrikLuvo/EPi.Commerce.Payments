@@ -37,7 +37,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods
         {
             var payment = _orderGroupFactory.CreatePayPalPayment(orderGroup);
             payment.PaymentMethodId = PaymentMethodId;
-            payment.PaymentMethodName = "PayPal";
+            payment.PaymentMethodName = SystemKeyword;
             payment.Amount = amount;
             payment.Status = PaymentStatus.Pending.ToString();
             payment.TransactionType = TransactionType.Authorization.ToString();
