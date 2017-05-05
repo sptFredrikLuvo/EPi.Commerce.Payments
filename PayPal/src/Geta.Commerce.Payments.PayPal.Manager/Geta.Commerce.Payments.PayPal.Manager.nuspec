@@ -13,8 +13,4 @@
     <copyright>Copyright 2017 Geta</copyright>
     <tags>EPiServer Commerce 10</tags>
   </metadata>
-  <files>
-    <file src="Apps\Order\Payments\Plugins\PayPal\ConfigurePayment.ascx" target="content\modules\_protected\Geta.Commerce.Payments.PayPal.Manager\Apps\Order\Payments\Plugins\PayPal\" />
-    <file src="Apps\Order\Payments\Plugins\PayPal\EditTab.ascx" target="content\modules\_protected\Geta.Commerce.Payments.PayPal.Manager\Apps\Order\Payments\Plugins\PayPal\" />
-  </files>
 </package>
