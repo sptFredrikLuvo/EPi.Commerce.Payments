@@ -28,6 +28,8 @@ namespace Geta.PayPal
         public const string SandBoxParameter = "PayPalSandBox";
         public const string ExpChkoutURLParameter = "PayPalExpChkoutURL";
         public const string SkipConfirmPageParameter = "SkipConfirmPage";
+        public const string SuccessUrl = "PayPalSuccessUrl";
+        public const string CancelUrl = "PayPalCancelUrl";
 
         public Guid PaymentMethodId { get; protected set; }
 
