@@ -14,6 +14,7 @@
     <tags>EPiServer Commerce 10</tags>
     <dependencies>
       <dependency id="Geta.PayPal" version="0.9.0.0" />
+      <dependency id="Geta.Commerce.Payments.PayPal" version="0.9.0.0" />
     </dependencies>
   </metadata>
 </package>
