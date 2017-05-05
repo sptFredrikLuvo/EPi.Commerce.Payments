@@ -91,6 +91,8 @@
     }
 
     <form class="jsCheckoutForm" action="@Url.Action("Purchase", "Checkout")" method="post" novalidate data-updateurl="@Url.Action("Update", null, null)">
+        @Html.HiddenFor(m => m.SuccessRedirectUrl)
+        @Html.HiddenFor(m => m.FailRedirectUrl)
 
         @if (!(bool)ViewData["IsReadOnly"])
         {
