@@ -49,7 +49,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
             IContentRepository contentRepository,
             CustomerContextFacade customerContext,
             LocalizationService localizationService,
-            IMailService mailService, 
+            IMailService mailService,
             IPromotionEngine promotionEngine)
         {
             _addressBookService = addressBookService;
@@ -76,7 +76,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
                 shipment.ShippingMethodId = shipmentViewModels[index++].ShippingMethodId;
             }
         }
-        
+
         public virtual void UpdateShippingAddresses(ICart cart, CheckoutViewModel viewModel)
         {
             if (viewModel.UseBillingAddressForShipment)
@@ -118,6 +118,12 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
             {
                 cart.ProcessPayments(_paymentProcessor, _orderGroupCalculator);
 
+                // prevent further execution, is request being redirected doesnt work.
+                if (checkoutViewModel.Payment.SystemKeyword == "PayPal")
+                {
+                    return null;
+                }
+
                 var processedPayments = cart.GetFirstForm().Payments.Where(x => x.Status.Equals(PaymentStatus.Processed.ToString()));
                 if (!processedPayments.Any())
                 {
@@ -130,7 +136,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
                 {
                     throw new InvalidOperationException("Wrong amount");
                 }
-                
+
                 var orderReference = _orderRepository.SaveAsPurchaseOrder(cart);
                 var purchaseOrder = _orderRepository.Load<IPurchaseOrder>(orderReference.OrderGroupId);
                 _orderRepository.Delete(cart.OrderLink);

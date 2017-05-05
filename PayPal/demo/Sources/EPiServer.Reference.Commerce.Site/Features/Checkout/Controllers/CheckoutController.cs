@@ -16,6 +16,7 @@ using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
 using System.Linq;
 using System.Web.Mvc;
+using EPiServer.Reference.Commerce.Site.Infrastructure;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
@@ -63,7 +64,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             var viewModel = CreateCheckoutViewModel(currentPage);
 
             Cart.Currency = _currencyService.GetCurrentCurrency();
-            
+
             if (User.Identity.IsAuthenticated)
             {
                 _checkoutService.UpdateShippingAddresses(Cart, viewModel);
@@ -119,7 +120,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             {
                 _checkoutService.UpdateShippingAddresses(Cart, viewModel);
             }
-            
+
             _orderRepository.Save(Cart);
 
             var addressViewName = addressViewModel.ShippingAddressIndex > -1 ? "SingleShippingAddress" : "BillingAddress";
@@ -155,7 +156,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             var viewModel = CreateCheckoutViewModel(currentPage);
             return View(viewModel.ViewName, viewModel);
         }
-        
+
         [HttpPost]
         [AllowDBWrite]
         public ActionResult Purchase(CheckoutViewModel viewModel, IPaymentOption paymentOption)
@@ -168,7 +169,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             // Since the payment property is marked with an exclude binding attribute in the CheckoutViewModel
             // it needs to be manually re-added again.
             viewModel.Payment = paymentOption;
-            
+
             if (User.Identity.IsAuthenticated)
             {
                 _checkoutService.CheckoutAddressHandling.UpdateAuthenticatedUserAddresses(viewModel);
@@ -187,7 +188,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                 _checkoutService.CheckoutAddressHandling.UpdateAnonymousUserAddresses(viewModel);
 
                 var validation = _checkoutService.AnonymousPurchaseValidation;
-              
+
                 if (!validation.ValidateModel(ModelState, viewModel) ||
                     !validation.ValidateOrderOperation(ModelState, _cartService.ValidateCart(Cart)) ||
                     !validation.ValidateOrderOperation(ModelState, _cartService.RequestInventory(Cart)))
@@ -195,28 +196,38 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                     return View(viewModel);
                 }
             }
-            
+
             if (!paymentOption.ValidateData())
             {
                 return View(viewModel);
             }
 
             _checkoutService.UpdateShippingAddresses(Cart, viewModel);
-            
+
             _checkoutService.CreateAndAddPaymentToCart(Cart, viewModel);
+
+            // Set custom urls on cart
+            UpdateCartMetadata(viewModel);
 
             var purchaseOrder = _checkoutService.PlaceOrder(Cart, ModelState, viewModel);
             if (purchaseOrder == null)
             {
                 return View(viewModel);
             }
-            
+
             var confirmationSentSuccessfully = _checkoutService.SendConfirmation(viewModel, purchaseOrder);
-            
+
             _recommendationService.SendOrderTracking(HttpContext, purchaseOrder);
 
             return Redirect(_checkoutService.BuildRedirectionUrl(viewModel, purchaseOrder, confirmationSentSuccessfully));
         }
+
+        private void UpdateCartMetadata(CheckoutViewModel checkoutViewModel)
+         {
+             Cart.Properties[MetaDataConstants.SuccessRedirectUrl] = checkoutViewModel.SuccessRedirectUrl ?? Url.ContentUrl(PageContext.Page.ContentLink);
+             Cart.Properties[MetaDataConstants.FailRedirectUrl] = checkoutViewModel.FailRedirectUrl ?? Url.ContentUrl(PageContext.Page.ContentLink);
+         }
+
 
         public ActionResult OnPurchaseException(ExceptionContext filterContext)
         {
