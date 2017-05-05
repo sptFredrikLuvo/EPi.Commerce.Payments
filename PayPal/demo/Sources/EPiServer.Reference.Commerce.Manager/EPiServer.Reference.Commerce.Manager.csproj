@@ -126,6 +126,9 @@
     <Reference Include="EPiServer.XForms, Version=10.7.0.0, Culture=neutral, PublicKeyToken=8fe83dea738b45b7, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EPiServer.CMS.Core.10.7.0\lib\net45\EPiServer.XForms.dll</HintPath>
     </Reference>
+    <Reference Include="Geta.Commerce.Payments.PayPal, Version=0.9.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Geta.Commerce.Payments.PayPal.0.9.0.1\lib\net451\Geta.Commerce.Payments.PayPal.dll</HintPath>
+    </Reference>
     <Reference Include="Geta.Commerce.Payments.PayPal.Manager, Version=0.9.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Geta.Commerce.Payments.PayPal.Manager.0.9.0.1\lib\net451\Geta.Commerce.Payments.PayPal.Manager.dll</HintPath>
     </Reference>
@@ -3157,9 +3160,22 @@
     <Content Include="Apps\Shell\Styles\Tabs.css" />
     <Content Include="Apps\Shell\Styles\ToolbarStyle.css" />
     <Content Include="BlobStorage\Public\placeholder.txt" />
+    <Content Include="data\PayPalPaymentMetaClass.xml" />
     <Content Include="Default.aspx" />
     <Content Include="EPiServerDefault.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="lang\PayPalPayment_DA.xml" />
+    <Content Include="lang\PayPalPayment_DE.xml" />
+    <Content Include="lang\PayPalPayment_EN.xml" />
+    <Content Include="lang\PayPalPayment_ES.xml" />
+    <Content Include="lang\PayPalPayment_FI.xml" />
+    <Content Include="lang\PayPalPayment_FR.xml" />
+    <Content Include="lang\PayPalPayment_IT.xml" />
+    <Content Include="lang\PayPalPayment_JA.xml" />
+    <Content Include="lang\PayPalPayment_NL.xml" />
+    <Content Include="lang\PayPalPayment_NO.xml" />
+    <Content Include="lang\PayPalPayment_SV.xml" />
+    <Content Include="lang\PayPalPayment_ZH.xml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

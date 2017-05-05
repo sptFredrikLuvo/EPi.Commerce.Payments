@@ -117,5 +117,25 @@
 	          </td>
         </tr>
 
+        <tr>
+              <td class="FormLabelCell"><asp:Literal ID="Literal13" runat="server" Text="Success URL" />:</td>
+	          <td class="FormFieldCell">
+	                <asp:TextBox Runat="server" ID="SuccessUrl" Width="300px" MaxLength="250"></asp:TextBox><br/>
+                    <asp:RequiredFieldValidator ControlToValidate="SuccessUrl" Display="dynamic" Font-Name="verdana" Font-Size="9pt"
+			                ErrorMessage="SuccessUrl required" runat="server" id="Requiredfieldvalidator6"></asp:RequiredFieldValidator>
+	          </td>
+        </tr>
+         <tr>
+            <td colspan="2" class="FormSpacerCell"></td>
+        </tr>
+        <tr>
+              <td class="FormLabelCell"><asp:Literal ID="Literal14" runat="server" Text="Cancel URL" />:</td>
+	          <td class="FormFieldCell">
+	                <asp:TextBox Runat="server" ID="CancelUrl" Width="300px" MaxLength="250"></asp:TextBox><br/>
+                    <asp:RequiredFieldValidator ControlToValidate="CancelUrl" Display="dynamic" Font-Name="verdana" Font-Size="9pt"
+			                ErrorMessage="CancelUrl URL required" runat="server" id="Requiredfieldvalidator7"></asp:RequiredFieldValidator>
+	          </td>
+        </tr>
+
     </table>
 </div>
