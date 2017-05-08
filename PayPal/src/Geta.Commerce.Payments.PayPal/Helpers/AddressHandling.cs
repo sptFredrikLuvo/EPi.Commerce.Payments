@@ -54,7 +54,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         /// <param name="payerEmail">The PayPal payer email.</param>
         public static void UpdateOrderAddress(IOrderAddress orderAddress, CustomerAddressTypeEnum customerAddressType, AddressType addressType, string payerEmail)
         {
-            var name = Utilities.StripPreviewText(addressType.Name.Trim(), 46);
+            var name = PayPalUtilities.StripPreviewText(addressType.Name.Trim(), 46);
 
             orderAddress.Id = name;
             orderAddress.City = addressType.CityName;
@@ -138,7 +138,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
 
                 if (customerContact.ContactAddresses == null || !StoreHelper.IsAddressInCollection(customerContact.ContactAddresses, customerAddress))
                 {
-                    // If there is an address has the same name with new address, 
+                    // If there is an address has the same name with new address,
                     // rename new address by appending the index to the name.
                     var addressCount = customerContact.ContactAddresses.Where(a => a.Name == customerAddress.Name).Count();
                     customerAddress.Name = $"{customerAddress.Name}{(addressCount == 0 ? string.Empty : "-" + addressCount.ToString())}";

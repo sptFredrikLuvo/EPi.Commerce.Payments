@@ -292,7 +292,7 @@
     <Compile Include="Helpers\CountriesAndStates.cs" />
     <Compile Include="Helpers\PayPalAPIHelper.cs" />
     <Compile Include="Helpers\PayPalCurrencies.cs" />
-    <Compile Include="Helpers\Utilities.cs" />
+    <Compile Include="Helpers\PayPalUtilities.cs" />
     <Compile Include="MetadataConstants.cs" />
     <Compile Include="MetaDataInitialization.cs" />
     <Compile Include="PayPalPayment.cs" />

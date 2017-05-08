@@ -97,26 +97,26 @@ namespace Geta.Commerce.Payments.PayPal
         {
             if (HttpContext.Current == null)
             {
-                message = Utilities.Translate("ProcessPaymentNullHttpContext");
+                message = PayPalUtilities.Translate("ProcessPaymentNullHttpContext");
                 return true;
             }
 
             if (payment == null)
             {
-                message = Utilities.Translate("PaymentNotSpecified");
+                message = PayPalUtilities.Translate("PaymentNotSpecified");
                 return false;
             }
 
             if (OrderGroup == null)
             {
-                message = Utilities.Translate("PaymentNotAssociatedOrderGroup");
+                message = PayPalUtilities.Translate("PaymentNotAssociatedOrderGroup");
                 return false;
             }
 
             _orderForm = _orderForm ?? OrderGroup.Forms.FirstOrDefault(f => f.Payments.Contains(payment));
             if (_orderForm == null)
             {
-                message = Utilities.Translate("PaymentNotAssociatedOrderForm");
+                message = PayPalUtilities.Translate("PaymentNotAssociatedOrderForm");
                 return false;
             }
 
@@ -152,7 +152,7 @@ namespace Geta.Commerce.Payments.PayPal
             {
                 // return true because this shopping cart has been paid already on PayPal
                 // when program flow redirects back from PayPal to PayPal.aspx file, call ProcessSuccessfulTransaction, run WorkFlow
-                message = Utilities.Translate("ProcessPaymentStatusCompleted");
+                message = PayPalUtilities.Translate("ProcessPaymentStatusCompleted");
                 return true;
             }
 
@@ -184,7 +184,7 @@ namespace Geta.Commerce.Payments.PayPal
             if (cart == null)
             {
                 // return to the shopping cart page immediately and show error messages
-                return ProcessUnsuccessfulTransaction(cancelUrl, Utilities.Translate("CommitTranErrorCartNull"));
+                return ProcessUnsuccessfulTransaction(cancelUrl, PayPalUtilities.Translate("CommitTranErrorCartNull"));
             }
 
             var redirectionUrl = acceptUrl;
@@ -249,7 +249,7 @@ namespace Geta.Commerce.Payments.PayPal
                     {
                         _orderRepository.Save(cart); // Saving cart to submit order address changed.
                         scope.Complete();
-                        return ProcessUnsuccessfulTransaction(cancelUrl, Utilities.Translate("ProcessPaymentTaxValueChangedWarning"));
+                        return ProcessUnsuccessfulTransaction(cancelUrl, PayPalUtilities.Translate("ProcessPaymentTaxValueChangedWarning"));
                     }
                 }
 
@@ -362,7 +362,7 @@ namespace Geta.Commerce.Payments.PayPal
             _orderRepository.Delete(cart.OrderLink);
 
             // Update display name of product by current language
-            Utilities.UpdateDisplayNameWithCurrentLanguage(purchaseOrder);
+            PayPalUtilities.UpdateDisplayNameWithCurrentLanguage(purchaseOrder);
 
             ((PurchaseOrder)purchaseOrder).Status = PaymentStatusCompleted;
 
@@ -376,7 +376,7 @@ namespace Geta.Commerce.Payments.PayPal
             var redirectionUrl = UriSupport.AddQueryString(acceptUrl, "success", "true");
             redirectionUrl = UriSupport.AddQueryString(redirectionUrl, "contactId", purchaseOrder.CustomerId.ToString());
             redirectionUrl = UriSupport.AddQueryString(redirectionUrl, "orderNumber", purchaseOrder.OrderLink.OrderGroupId.ToString());
-            redirectionUrl = UriSupport.AddQueryString(redirectionUrl, "notificationMessage", string.Format(Utilities.GetLocalizationMessage("/OrderConfirmationMail/ErrorMessages/SmtpFailure"), email));
+            redirectionUrl = UriSupport.AddQueryString(redirectionUrl, "notificationMessage", string.Format(PayPalUtilities.GetLocalizationMessage("/OrderConfirmationMail/ErrorMessages/SmtpFailure"), email));
             redirectionUrl = UriSupport.AddQueryString(redirectionUrl, "email", email);
 
             return redirectionUrl;
@@ -481,7 +481,7 @@ namespace Geta.Commerce.Payments.PayPal
             var purchaseOrder = (orderGroup as IPurchaseOrder);
             if (purchaseOrder == null || refundAmount <= 0)
             {
-                message = Utilities.Translate("PayPalRefundError");
+                message = PayPalUtilities.Translate("PayPalRefundError");
                 return false;
             }
 
@@ -533,7 +533,7 @@ namespace Geta.Commerce.Payments.PayPal
 
             if (string.IsNullOrEmpty(_paymentMethodConfiguration.ExpChkoutURL) || string.IsNullOrEmpty(_paymentMethodConfiguration.PaymentAction))
             {
-                message = Utilities.Translate("PayPalSettingsError");
+                message = PayPalUtilities.Translate("PayPalSettingsError");
                 return false; // raise exception
             }
 
@@ -575,10 +575,10 @@ namespace Geta.Commerce.Payments.PayPal
 
             // This key is sent to PayPal using https so it is not likely it will come from other because
             // only PayPal knows this key to send back to us
-            var acceptSecurityKey = Utilities.GetAcceptUrlHashValue(orderNumber);
-            var cancelSecurityKey = Utilities.GetCancelUrlHashValue(orderNumber);
+            var acceptSecurityKey = PayPalUtilities.GetAcceptUrlHashValue(orderNumber);
+            var cancelSecurityKey = PayPalUtilities.GetCancelUrlHashValue(orderNumber);
 
-            _notifyUrl = UriSupport.AbsoluteUrlBySettings(Utilities.GetUrlFromStartPageReferenceProperty("PayPalPaymentPage"));
+            _notifyUrl = UriSupport.AbsoluteUrlBySettings(PayPalUtilities.GetUrlFromStartPageReferenceProperty("PayPalPaymentPage"));
 
             var acceptUrl = UriSupport.AddQueryString(_notifyUrl, "accept", "true");
             acceptUrl = UriSupport.AddQueryString(acceptUrl, "hash", acceptSecurityKey);
