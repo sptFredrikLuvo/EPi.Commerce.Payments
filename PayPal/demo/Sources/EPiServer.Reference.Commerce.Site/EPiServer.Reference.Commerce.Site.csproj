@@ -141,10 +141,12 @@
       <HintPath>..\..\packages\EPiServer.CMS.Core.10.7.0\lib\net45\EPiServer.XForms.dll</HintPath>
     </Reference>
     <Reference Include="Geta.Commerce.Payments.PayPal, Version=0.9.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Geta.Commerce.Payments.PayPal.0.9.0.1\lib\net451\Geta.Commerce.Payments.PayPal.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Geta.Commerce.Payments.PayPal.dll</HintPath>
     </Reference>
     <Reference Include="Geta.PayPal, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Geta.PayPal.0.9.0\lib\net451\Geta.PayPal.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Geta.PayPal.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
