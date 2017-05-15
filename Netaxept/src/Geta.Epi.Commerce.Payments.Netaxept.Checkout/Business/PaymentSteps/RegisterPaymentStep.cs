@@ -71,7 +71,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                 if (!HttpContext.Current.Response.IsRequestBeingRedirected)
                 {
-                    HttpContext.Current.Response.Redirect(url.ToString());
+                    HttpContext.Current.Response.Redirect(url.ToString(), true);
                 }
 
                 return true;
