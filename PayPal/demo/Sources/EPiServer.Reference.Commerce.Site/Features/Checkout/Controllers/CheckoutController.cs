@@ -15,8 +15,19 @@ using EPiServer.Web.Mvc;
 using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using EPiServer.Reference.Commerce.Site.Infrastructure;
+using EPiServer.Security;
+using Geta.Commerce.Payments.PayPal;
+using Geta.PayPal;
+using Mediachase.Commerce.Orders.Exceptions;
+using Mediachase.Commerce.Security;
+using EPiServer.Editor;
+using EPiServer.ServiceLocation;
+using Mediachase.Commerce.Orders;
+using System;
+using Geta.Commerce.Payments.PayPal.Helpers;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
@@ -31,6 +42,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         private readonly IRecommendationService _recommendationService;
         private ICart _cart;
         private readonly CheckoutService _checkoutService;
+        private readonly UrlResolver _urlResolver;
 
         public CheckoutController(
             ICurrencyService currencyService,
@@ -40,7 +52,9 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             ICartService cartService,
             OrderSummaryViewModelFactory orderSummaryViewModelFactory,
             IRecommendationService recommendationService,
-            CheckoutService checkoutService)
+            CheckoutService checkoutService,
+            UrlResolver urlResolver
+            )
         {
             _currencyService = currencyService;
             _controllerExceptionHandler = controllerExceptionHandler;
@@ -50,6 +64,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             _orderSummaryViewModelFactory = orderSummaryViewModelFactory;
             _recommendationService = recommendationService;
             _checkoutService = checkoutService;
+            _urlResolver = urlResolver;
         }
 
         [HttpGet]
@@ -206,9 +221,6 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             _checkoutService.CreateAndAddPaymentToCart(Cart, viewModel);
 
-            // Set custom urls on cart
-            UpdateCartMetadata(viewModel);
-
             var purchaseOrder = _checkoutService.PlaceOrder(Cart, ModelState, viewModel);
             if (purchaseOrder == null)
             {
@@ -221,13 +233,6 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             return Redirect(_checkoutService.BuildRedirectionUrl(viewModel, purchaseOrder, confirmationSentSuccessfully));
         }
-
-        private void UpdateCartMetadata(CheckoutViewModel checkoutViewModel)
-         {
-             Cart.Properties[MetaDataConstants.SuccessRedirectUrl] = checkoutViewModel.SuccessRedirectUrl ?? Url.ContentUrl(PageContext.Page.ContentLink);
-             Cart.Properties[MetaDataConstants.FailRedirectUrl] = checkoutViewModel.FailRedirectUrl ?? Url.ContentUrl(PageContext.Page.ContentLink);
-         }
-
 
         public ActionResult OnPurchaseException(ExceptionContext filterContext)
         {
@@ -266,6 +271,81 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         private bool CartIsNullOrEmpty()
         {
             return Cart == null || !Cart.GetAllLineItems().Any();
+        }
+
+
+        [HttpGet]
+        public virtual ActionResult FinishPaypalTransaction(CheckoutPage currentPage, bool success, string contactId, int orderNumber, string notificationMessage, string email)
+        {
+            var viewModel = CreateCheckoutViewModel(currentPage);
+
+            var purchaseOrder = _orderRepository.Load<IPurchaseOrder>(orderNumber);
+
+            return Redirect(_checkoutService.BuildRedirectionUrl(viewModel, purchaseOrder,true));
+        }
+
+        [HttpGet]
+        public virtual ActionResult ProcessPayPalPayment(CheckoutPage currentPage)
+        {
+            var currentCart = _orderRepository.LoadCart<ICart>(PrincipalInfo.CurrentPrincipal.GetContactId(), _cartService.DefaultCartName);
+            if (!currentCart.Forms.Any() || !currentCart.GetFirstForm().Payments.Any())
+            {
+                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", PayPalUtilities.Translate("GenericError"));
+            }
+
+            var paymentConfiguration = new PayPalConfiguration();
+            var payment = currentCart.Forms.SelectMany(f => f.Payments).FirstOrDefault(c => c.PaymentMethodId.Equals(paymentConfiguration.PaymentMethodId));
+            if (payment == null)
+            {
+                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", PayPalUtilities.Translate("PaymentNotSpecified"));
+            }
+
+
+            var orderNumber = payment.Properties[PayPalPaymentGateway.PayPalOrderNumberPropertyName] as string;
+            if (string.IsNullOrEmpty(orderNumber))
+            {
+                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", PayPalUtilities.Translate("PaymentNotSpecified"));
+            }
+
+
+
+            var currentPageUrl = _urlResolver.GetUrl(currentPage.ContentLink);
+
+            // Redirect customer to receipt page
+            var cancelUrl = currentPageUrl;// get link to Checkout page
+            cancelUrl = UriSupport.AddQueryString(cancelUrl, "success", "false");
+            cancelUrl = UriSupport.AddQueryString(cancelUrl, "paymentmethod", "paypal");
+
+            var gateway = new PayPalPaymentGateway();
+            var redirectUrl = cancelUrl;
+            if (string.Equals(Request.QueryString["accept"], "true") && PayPalUtilities.GetAcceptUrlHashValue(orderNumber) == Request.QueryString["hash"])
+            {
+
+                // Try to load purchase order and return redirect based on viewmodel and purchaseorder.
+                // this is not working with serializeable cart, since properties for OrderNumber is not persisted from gateway. Properties are empty for IPayment when getting here.
+                var acceptUrl = currentPageUrl + "/FinishPaypalTransaction";
+                redirectUrl = gateway.ProcessSuccessfulTransaction(currentCart, payment, acceptUrl, cancelUrl);
+            }
+            else if (string.Equals(Request.QueryString["accept"], "false") && PayPalUtilities.GetCancelUrlHashValue(orderNumber) == Request.QueryString["hash"])
+            {
+                TempData["Message"] = PayPalUtilities.Translate("CancelMessage");
+                redirectUrl = gateway.ProcessUnsuccessfulTransaction(cancelUrl, PayPalUtilities.Translate("CancelMessage"));
+            }
+
+            return Redirect(redirectUrl);
+        }
+
+        private ActionResult Error(string view, string message, string failUrl)
+        {
+            var urlBuilder = new UrlBuilder(failUrl);
+            urlBuilder.QueryCollection["message"] = HttpUtility.UrlEncode(message);
+
+            if (!string.IsNullOrWhiteSpace(view))
+            {
+                urlBuilder.QueryCollection["view"] = view;
+            }
+
+            return Redirect(urlBuilder.ToString());
         }
     }
 }

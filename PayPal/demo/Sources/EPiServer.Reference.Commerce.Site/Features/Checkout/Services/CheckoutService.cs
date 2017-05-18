@@ -150,7 +150,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
             return null;
         }
 
-        public virtual bool SendConfirmation(CheckoutViewModel viewModel, IPurchaseOrder purchaseOrder)
+        public virtual bool SendConfirmation(CheckoutViewModel viewModel, IPurchaseOrder purchaseOrder, string email = "")
         {
             var queryCollection = new NameValueCollection
             {
@@ -163,7 +163,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
 
             try
             {
-                _mailService.Send(startpage.OrderConfirmationMail, queryCollection, viewModel.BillingAddress.Email, confirmationPage.Language.Name);
+                string confirmationEmail = string.IsNullOrWhiteSpace(email) ? viewModel.BillingAddress.Email : email;
+                _mailService.Send(startpage.OrderConfirmationMail, queryCollection, confirmationEmail, confirmationPage.Language.Name);
             }
             catch (Exception e)
             {
