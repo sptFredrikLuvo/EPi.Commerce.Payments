@@ -28,8 +28,8 @@ namespace Geta.PayPal
         public const string SandBoxParameter = "PayPalSandBox";
         public const string ExpChkoutURLParameter = "PayPalExpChkoutURL";
         public const string SkipConfirmPageParameter = "SkipConfirmPage";
-        public const string SuccessUrl = "PayPalSuccessUrl";
-        public const string CancelUrl = "PayPalCancelUrl";
+        public const string SuccessUrlParameter = "PayPalSuccessUrl";
+        public const string CancelUrlParameter = "PayPalCancelUrl";
 
         public Guid PaymentMethodId { get; protected set; }
 
@@ -54,6 +54,10 @@ namespace Geta.PayPal
         public string ExpChkoutURL { get; protected set; }
 
         public string SkipConfirmPage { get; protected set; }
+
+        public string SuccessUrl { get; protected set; }
+
+        public string CancelUrl { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="PayPalConfiguration"/>.
@@ -124,6 +128,8 @@ namespace Geta.PayPal
                 SandBox = GetParameterValue(SandBoxParameter);
                 ExpChkoutURL = GetParameterValue(ExpChkoutURLParameter);
                 SkipConfirmPage = GetParameterValue(SkipConfirmPageParameter);
+                SuccessUrl = GetParameterValue(SuccessUrlParameter);
+                CancelUrl = GetParameterValue(CancelUrlParameter);
             }
         }
 

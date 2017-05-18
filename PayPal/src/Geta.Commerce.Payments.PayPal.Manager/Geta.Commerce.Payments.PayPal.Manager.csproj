@@ -249,8 +249,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y "$(TargetDir)$(TargetName).dll" ..\..\..\demo\Sources\EPiServer.Reference.Commerce.Manager\bin
-xcopy /y "$(TargetDir)$(TargetName).pdb" ..\..\..\demo\Sources\EPiServer.Reference.Commerce.Manager\bin</PostBuildEvent>
+    <PostBuildEvent>xcopy /y "$(TargetDir)$(TargetName).dll" c :\Projects\Geta\Fork\Epi.Commerce.Payments\PayPal\demo\Sources\EPiServer.Reference.Commerce.Manager\bin
+xcopy /y "$(TargetDir)$(TargetName).pdb" c:\Projects\Geta\Fork\Epi.Commerce.Payments\PayPal\demo\Sources\EPiServer.Reference.Commerce.Manager\bin
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

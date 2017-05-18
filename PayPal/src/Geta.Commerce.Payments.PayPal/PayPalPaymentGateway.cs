@@ -38,6 +38,8 @@ namespace Geta.Commerce.Payments.PayPal
         private readonly PayPalAPIHelper _payPalAPIHelper;
 
         private string _notifyUrl = string.Empty;
+        private string _cancelUrl = string.Empty;
+
         private IOrderForm _orderForm;
         private PayPalConfiguration _paymentMethodConfiguration;
 
@@ -578,12 +580,13 @@ namespace Geta.Commerce.Payments.PayPal
             var acceptSecurityKey = PayPalUtilities.GetAcceptUrlHashValue(orderNumber);
             var cancelSecurityKey = PayPalUtilities.GetCancelUrlHashValue(orderNumber);
 
-            _notifyUrl = UriSupport.AbsoluteUrlBySettings(PayPalUtilities.GetUrlFromStartPageReferenceProperty("PayPalPaymentPage"));
+            _notifyUrl = UriSupport.AbsoluteUrlBySettings(_paymentMethodConfiguration.SuccessUrl);
+            _cancelUrl = UriSupport.AbsoluteUrlBySettings(_paymentMethodConfiguration.CancelUrl);
 
             var acceptUrl = UriSupport.AddQueryString(_notifyUrl, "accept", "true");
             acceptUrl = UriSupport.AddQueryString(acceptUrl, "hash", acceptSecurityKey);
 
-            var cancelUrl = UriSupport.AddQueryString(_notifyUrl, "accept", "false");
+            var cancelUrl = UriSupport.AddQueryString(_cancelUrl, "accept", "false");
             cancelUrl = UriSupport.AddQueryString(cancelUrl, "hash", cancelSecurityKey);
 
             setExpressChkOutReqDetails.CancelURL = cancelUrl;

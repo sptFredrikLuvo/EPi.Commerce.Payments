@@ -71,8 +71,8 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
                 UpdateOrCreateParameter(PayPalConfiguration.SkipConfirmPageParameter, CheckBoxSkipConfirmPage, paymentMethodId);
                 UpdateOrCreateParameter(PayPalConfiguration.AllowGuestParameter, CheckBoxGuestCheckout, paymentMethodId);
                 UpdateOrCreateParameter(PayPalConfiguration.PaymentActionParameter, DropDownListPaymentAction, paymentMethodId);
-                UpdateOrCreateParameter(PayPalConfiguration.SuccessUrl, SuccessUrl, paymentMethodId);
-                UpdateOrCreateParameter(PayPalConfiguration.CancelUrl, CancelUrl, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.SuccessUrlParameter, SuccessUrl, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.CancelUrlParameter, CancelUrl, paymentMethodId);
             }
         }
 
@@ -94,8 +94,8 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
                 BindParamterData(PayPalConfiguration.SkipConfirmPageParameter, CheckBoxSkipConfirmPage);
                 BindParamterData(PayPalConfiguration.AllowGuestParameter, CheckBoxGuestCheckout);
                 BindParamterData(PayPalConfiguration.PaymentActionParameter, DropDownListPaymentAction);
-                BindParamterData(PayPalConfiguration.SuccessUrl, SuccessUrl);
-                BindParamterData(PayPalConfiguration.CancelUrl, CancelUrl);
+                BindParamterData(PayPalConfiguration.SuccessUrlParameter, SuccessUrl);
+                BindParamterData(PayPalConfiguration.CancelUrlParameter, CancelUrl);
 
 
             }

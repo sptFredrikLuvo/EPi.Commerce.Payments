@@ -297,7 +297,6 @@
     <Compile Include="MetaDataInitialization.cs" />
     <Compile Include="PayPalPayment.cs" />
     <Compile Include="PayPalPaymentGateway.cs" />
-    <Compile Include="PayPalPaymentOption.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -339,10 +338,9 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y "$(TargetDir)$(TargetName).dll" ..\..\..\demo\Sources\EPiServer.Reference.Commerce\bin
-xcopy /y "$(TargetDir)$(TargetName).pdb" ..\..\..\demo\Sources\EPiServer.Reference.Commerce\bin
-xcopy /y "$(TargetDir)$(TargetName).dll" ..\..\..\demo\Sources\EPiServer.Reference.Commerce.Manager\bin
-xcopy /y "$(TargetDir)$(TargetName).pdb" ..\..\..\demo\Sources\EPiServer.Reference.Commerce.Manager\bin</PostBuildEvent>
+    <PostBuildEvent>xcopy /y "$(TargetDir)$(TargetName).dll" C:\Projects\Geta\Fork\Epi.Commerce.Payments\PayPal\demo\Sources\EPiServer.Reference.Commerce.Site\bin
+xcopy /y "$(TargetDir)$(TargetName).pdb" C:\Projects\Geta\Fork\Epi.Commerce.Payments\PayPal\demo\Sources\EPiServer.Reference.Commerce.Site\bin
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
