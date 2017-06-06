@@ -14,3 +14,11 @@ As a work around NETS provides a the possibility to define a custom callback url
 
 When Netaxept sends a callback to the configured callback URL the transactionID is sent as a json in the request body. 
 
+### How to solve it
+Add a new api controller that acts as an endpoint for the callback. 
+
+The controller should pick up the transaction id from json body and 
+ - Query NETS to check if authorize has been approved
+ - Use order search (and payment meta fields) to find any carts that has not been processed
+ - If match: process cart (create order) and send email confirmation
+
