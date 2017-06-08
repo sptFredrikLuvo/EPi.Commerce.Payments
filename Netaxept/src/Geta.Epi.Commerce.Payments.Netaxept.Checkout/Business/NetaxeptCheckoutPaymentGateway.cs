@@ -3,9 +3,12 @@ using System.Linq;
 using EPiServer.Commerce.Order;
 using EPiServer.Logging;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps;
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Models;
 using Geta.Netaxept.Checkout;
+using Geta.Netaxept.Checkout.Models;
 using Mediachase.Commerce.Orders;
+using Mediachase.Commerce.Orders.Managers;
 using Mediachase.Commerce.Plugins.Payment;
 using Mediachase.Commerce.Website;
 
@@ -67,7 +70,27 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
             return authorizePaymentStep.Process(payment, orderGroup, transactionId);
         }
 
-        
+        public PaymentResult QueryTransaction(Guid paymentMethodId, string transactionId)
+        {
+            try
+            {
+                var paymentMethodDto = PaymentManager.GetPaymentMethod(paymentMethodId);
+                var merchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
+                var token = paymentMethodDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
+                var isProduction = bool.Parse(paymentMethodDto.GetParameter(NetaxeptConstants.IsProductionField, "false"));
+
+                var connection = new ClientConnection(merchantId, token, isProduction);
+                var client = new NetaxeptServiceClient(connection);
+                return client.Query(transactionId);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message);
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Process payment method 

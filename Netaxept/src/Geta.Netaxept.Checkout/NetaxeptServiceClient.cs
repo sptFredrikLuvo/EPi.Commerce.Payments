@@ -234,7 +234,8 @@ namespace Geta.Netaxept.Checkout
                 CardInformationPaymentMethod = info.CardInformation.PaymentMethod,
 
                 AmountCaptured = int.Parse(info.Summary.AmountCaptured),
-
+                Authorized = info.Summary.Authorized,
+                
                 Cancelled = (info.Error != null ? info.Error.ResponseCode.Equals("17") : false),
                 ErrorOccurred = (info.Error != null),
                 ErrorCode = (info.Error != null ? info.Error.ResponseCode : string.Empty),
