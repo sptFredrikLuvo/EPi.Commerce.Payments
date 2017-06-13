@@ -56,7 +56,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     return false;
                 }
 
-                AddNoteAndSaveChanges(orderGroup, "Payment - Registered", "Payment - Registered");
+                AddNoteAndSaveChanges(orderGroup, "Payment - Registered", $"Payment - Registered with transactionId {transactionId}");
 
 
                 var url = new UriBuilder(GetTerminalUrl(paymentMethodDto));
