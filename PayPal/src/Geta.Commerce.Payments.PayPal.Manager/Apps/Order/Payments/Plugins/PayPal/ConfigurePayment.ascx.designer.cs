@@ -229,6 +229,42 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
         protected global::System.Web.UI.WebControls.RequiredFieldValidator Requiredfieldvalidator5;
         
         /// <summary>
+        /// Literal12 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal Literal12;
+        
+        /// <summary>
+        /// CheckBoxSkipConfirmPage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox CheckBoxSkipConfirmPage;
+        
+        /// <summary>
+        /// Literal10 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal Literal10;
+        
+        /// <summary>
+        /// PAL control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox PAL;
+        
+        /// <summary>
         /// Literal13 control.
         /// </summary>
         /// <remarks>
@@ -281,41 +317,5 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.RequiredFieldValidator Requiredfieldvalidator7;
-        
-        /// <summary>
-        /// Literal12 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal Literal12;
-        
-        /// <summary>
-        /// CheckBoxSkipConfirmPage control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox CheckBoxSkipConfirmPage;
-        
-        /// <summary>
-        /// Literal10 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal Literal10;
-        
-        /// <summary>
-        /// PAL control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox PAL;
     }
 }

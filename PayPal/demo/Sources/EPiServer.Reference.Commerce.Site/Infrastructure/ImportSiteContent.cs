@@ -7,7 +7,6 @@ using EPiServer.DataAbstraction;
 using EPiServer.DataAbstraction.RuntimeModel;
 using EPiServer.DataAccess;
 using EPiServer.Enterprise;
-using EPiServer.Enterprise.Transfer;
 using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
@@ -33,6 +32,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Hosting;
+using Mediachase.Commerce.Orders.ImportExport;
 
 namespace EPiServer.Reference.Commerce.Site.Infrastructure
 {
@@ -41,9 +41,10 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure
     {
         private IProgressMessenger _progressMessenger;
 
-        private Injected<IContentRepository> _contentRepository { get; set; }
-        private Injected<ReferenceConverter> _referenceConverter { get; set; }
-        private Injected<IDataImporter> DataImporter { get; set; }
+        private Injected<IContentRepository> _contentRepository = default(Injected<IContentRepository>);
+        private Injected<ReferenceConverter> _referenceConverter = default(Injected<ReferenceConverter>);
+        private Injected<IDataImporter> DataImporter = default(Injected<IDataImporter>);
+        private Injected<TaxImportExport> TaxImportExport = default(Injected<TaxImportExport>);
 
         public int Order
         {
@@ -63,6 +64,9 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure
 
                 _progressMessenger.AddProgressMessageText("Enabling currencies...", false, 0);
                 EnableCurrencies();
+
+                _progressMessenger.AddProgressMessageText("Importing taxes...", false, 0);
+                ImportTaxes();
 
                 _progressMessenger.AddProgressMessageText("Importing catalog...", false, 0);
                 ImportCatalog(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, @"App_Data\Catalog_Fashion.zip"));
@@ -138,7 +142,7 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure
                     false, 2, allMarkets, language, paymentMethodDto);
 
                 AddPaymentMethod(Guid.NewGuid(),
-                    "Pay By Credit Card",
+                    "Authorize - Pay By Credit Card",
                     "Authorize",
                     "Authorize - Pay By Credit Card.",
                     "Mediachase.Commerce.Orders.CreditCardPayment, Mediachase.Commerce",
@@ -208,6 +212,11 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure
             {
                 method.Delete();
             }
+        }
+
+        private void ImportTaxes()
+        {
+            TaxImportExport.Service.Import(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, @"App_Data\Taxes.csv"), AppContext.Current.ApplicationId, null, ',');
         }
 
         private IEnumerable<ShippingMethodDto.ShippingMethodRow> CreateShippingMethodsForLanguageAndCurrencies(ShippingMethodDto dto, IEnumerable<IMarket> markets, string languageId)

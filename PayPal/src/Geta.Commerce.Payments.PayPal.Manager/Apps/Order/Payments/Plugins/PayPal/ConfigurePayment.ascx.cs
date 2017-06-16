@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
+using System.Web.UI.WebControls;
 using Geta.PayPal;
-using Geta.PayPal.Extensions;
 using Mediachase.Commerce.Orders.Dto;
 using Mediachase.Web.Console.Interfaces;
 
@@ -9,139 +9,35 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
 {
     public partial class ConfigurePayment : System.Web.UI.UserControl, IGatewayControl
     {
-        // Fields
         private PaymentMethodDto _paymentMethodDto;
-        private string _validationGroup;
+
+        /// <summary>
+        /// Gets or sets the validation group.
+        /// </summary>
+        /// <value>The validation group.</value>
+        public string ValidationGroup { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurePayment"/> class.
         /// </summary>
         public ConfigurePayment()
         {
-            this._validationGroup = string.Empty;
-            this._paymentMethodDto = null;
+            ValidationGroup = string.Empty;
+            _paymentMethodDto = null;
         }
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            this.BindData();
+            BindData();
         }
 
         /// <summary>
-        /// Binds the data.
+        /// Loads the PaymentMethodDto object.
         /// </summary>
-        public void BindData()
-        {
-            if ((this._paymentMethodDto != null) && (this._paymentMethodDto.PaymentMethodParameter != null))
-            {
-                PaymentMethodDto.PaymentMethodParameterRow parameterByName = null;
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.UserParameter);
-                if (parameterByName != null)
-                {
-                    this.APIUser.Text = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.PALParameter);
-                if (parameterByName != null)
-                {
-                    this.PAL.Text = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.PasswordParameter);
-                if (parameterByName != null)
-                {
-                    this.Password.Text = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.APISisnatureParameter);
-                if (parameterByName != null)
-                {
-                    this.Signature.Text = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.SandBoxParameter);
-                if (parameterByName != null)
-                {
-                    this.CheckBoxTest.Checked = parameterByName.Value == "1";
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.ExpChkoutURLParameter);
-                if (parameterByName != null)
-                {
-                    this.ExpChkoutURL.Text = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.BusinessEmailParameter);
-                if (parameterByName != null)
-                {
-                    this.BusinessEmail.Text = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.AllowChangeAddressParameter);
-                if (parameterByName != null)
-                {
-                    this.CheckBoxAllowChangeAddress.Checked = parameterByName.Value == "1";
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.SkipConfirmPageParameter);
-                if (parameterByName != null)
-                {
-                    this.CheckBoxSkipConfirmPage.Checked = parameterByName.Value == "1";
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.AllowGuestParameter);
-                if (parameterByName != null)
-                {
-                    this.CheckBoxGuestCheckout.Checked = parameterByName.Value == "1";
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.PaymentActionParameter);
-                if (parameterByName != null)
-                {
-                    this.DropDownListPaymentAction.SelectedValue = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.SuccessUrl);
-                if (parameterByName != null)
-                {
-                    this.SuccessUrl.Text = parameterByName.Value;
-                }
-                parameterByName = this.GetParameterByName(PayPalConstants.Configuration.CancelUrl);
-                if (parameterByName != null)
-                {
-                    this.CancelUrl.Text = parameterByName.Value;
-                }
-            }
-            else
-            {
-                this.Visible = false;
-            }
-        }
-
-        private PaymentMethodDto.PaymentMethodParameterRow GetParameterByName(string name)
-        {
-            return this._paymentMethodDto.GetParameterByName(name);
-        }
-
-        /// <summary>
-        /// Create parameters (settings) for paymentMethodDto (which is PayPal).
-        /// <example>APIUsername, APIPassword, PayPalCheckoutUrl, ...</example>
-        /// </summary>
-        /// <param name="dto">the PayPal payment method</param>
-        /// <param name="name">param's name</param>
-        /// <param name="value">param's value</param>
-        /// <param name="paymentMethodId">id of PayPal payment method</param>
-        private void CreateParameter(PaymentMethodDto dto, string name, string value, Guid paymentMethodId)
-        {
-            PaymentMethodDto.PaymentMethodParameterRow row = dto.PaymentMethodParameter.NewPaymentMethodParameterRow();
-            row.PaymentMethodId = paymentMethodId;
-            row.Parameter = name;
-            row.Value = value;
-            if (row.RowState == DataRowState.Detached)
-            {
-                dto.PaymentMethodParameter.Rows.Add(row);
-            }
-        }
-
-
-        #region IGatewayControl Members
-
-        /// <summary>
-        /// Loads the PaymentMethodDto object
-        /// </summary>
-        /// <param name="dto">The PaymentMethodDto object</param>
+        /// <param name="dto">The PaymentMethodDto object.</param>
         public void LoadObject(object dto)
         {
-            this._paymentMethodDto = dto as PaymentMethodDto;
+            _paymentMethodDto = dto as PaymentMethodDto;
         }
 
         /// <summary>
@@ -150,156 +46,148 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
         /// <param name="dto">The dto.</param>
         public void SaveChanges(object dto)
         {
-            if (this.Visible)
+            if (!Visible)
             {
-                this._paymentMethodDto = dto as PaymentMethodDto;
-                if ((this._paymentMethodDto != null) && (this._paymentMethodDto.PaymentMethodParameter != null))
-                {
-                    Guid paymentMethodId = Guid.Empty;
-                    if (this._paymentMethodDto.PaymentMethod.Count > 0)
-                    {
-                        paymentMethodId = this._paymentMethodDto.PaymentMethod[0].PaymentMethodId;
-                    }
-
-                    PaymentMethodDto.PaymentMethodParameterRow parameterByName = null;
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.UserParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.APIUser.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.UserParameter, this.APIUser.Text, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.BusinessEmailParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.BusinessEmail.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.BusinessEmailParameter, this.BusinessEmail.Text, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.PALParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.PAL.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.PALParameter, this.PAL.Text, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.PasswordParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.Password.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.PasswordParameter, this.Password.Text, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.APISisnatureParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.Signature.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.APISisnatureParameter, this.Signature.Text, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.ExpChkoutURLParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.ExpChkoutURL.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.ExpChkoutURLParameter, this.ExpChkoutURL.Text, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.SandBoxParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = (this.CheckBoxTest.Checked ? "1" : "0");
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.SandBoxParameter, (this.CheckBoxTest.Checked ? "1" : "0"), paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.AllowChangeAddressParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = (this.CheckBoxAllowChangeAddress.Checked ? "1" : "0");
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.AllowChangeAddressParameter, (this.CheckBoxAllowChangeAddress.Checked ? "1" : "0"), paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.SkipConfirmPageParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = (this.CheckBoxSkipConfirmPage.Checked ? "1" : "0");
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.SkipConfirmPageParameter, (this.CheckBoxSkipConfirmPage.Checked ? "1" : "0"), paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.AllowGuestParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = (this.CheckBoxGuestCheckout.Checked ? "1" : "0");
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.AllowGuestParameter, (this.CheckBoxGuestCheckout.Checked ? "1" : "0"), paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.PaymentActionParameter);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.DropDownListPaymentAction.SelectedValue;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.PaymentActionParameter, this.DropDownListPaymentAction.SelectedValue, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.SuccessUrl);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.SuccessUrl.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.SuccessUrl, this.SuccessUrl.Text, paymentMethodId);
-                    }
-                    parameterByName = this.GetParameterByName(PayPalConstants.Configuration.CancelUrl);
-                    if (parameterByName != null)
-                    {
-                        parameterByName.Value = this.CancelUrl.Text;
-                    }
-                    else
-                    {
-                        this.CreateParameter(this._paymentMethodDto, PayPalConstants.Configuration.CancelUrl, this.CancelUrl.Text, paymentMethodId);
-                    }
-                }
+                return;
             }
 
+            _paymentMethodDto = dto as PaymentMethodDto;
+            if (_paymentMethodDto != null && _paymentMethodDto.PaymentMethodParameter != null)
+            {
+                var paymentMethodId = Guid.Empty;
+                if (_paymentMethodDto.PaymentMethod.Count > 0)
+                {
+                    paymentMethodId = _paymentMethodDto.PaymentMethod[0].PaymentMethodId;
+                }
+
+                UpdateOrCreateParameter(PayPalConfiguration.UserParameter, APIUser, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.BusinessEmailParameter, BusinessEmail, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.PALParameter, PAL, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.PasswordParameter, Password, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.APISignatureParameter, Signature, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.ExpChkoutURLParameter, ExpChkoutURL, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.SandBoxParameter, CheckBoxTest, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.AllowChangeAddressParameter, CheckBoxAllowChangeAddress, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.SkipConfirmPageParameter, CheckBoxSkipConfirmPage, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.AllowGuestParameter, CheckBoxGuestCheckout, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.PaymentActionParameter, DropDownListPaymentAction, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.SuccessUrlParameter, SuccessUrl, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.CancelUrlParameter, CancelUrl, paymentMethodId);
+            }
         }
 
         /// <summary>
-        /// Gets or sets the validation group.
+        /// Binds the data.
         /// </summary>
-        /// <value>The validation group.</value>
-        public string ValidationGroup
+        private void BindData()
         {
-            get
+            if (_paymentMethodDto != null && _paymentMethodDto.PaymentMethodParameter != null)
             {
-                return _validationGroup;
+                BindParamterData(PayPalConfiguration.UserParameter, APIUser);
+                BindParamterData(PayPalConfiguration.PALParameter, PAL);
+                BindParamterData(PayPalConfiguration.PasswordParameter, Password);
+                BindParamterData(PayPalConfiguration.APISignatureParameter, Signature);
+                BindParamterData(PayPalConfiguration.SandBoxParameter, CheckBoxTest);
+                BindParamterData(PayPalConfiguration.ExpChkoutURLParameter, ExpChkoutURL);
+                BindParamterData(PayPalConfiguration.BusinessEmailParameter, BusinessEmail);
+                BindParamterData(PayPalConfiguration.AllowChangeAddressParameter, CheckBoxAllowChangeAddress);
+                BindParamterData(PayPalConfiguration.SkipConfirmPageParameter, CheckBoxSkipConfirmPage);
+                BindParamterData(PayPalConfiguration.AllowGuestParameter, CheckBoxGuestCheckout);
+                BindParamterData(PayPalConfiguration.PaymentActionParameter, DropDownListPaymentAction);
+                BindParamterData(PayPalConfiguration.SuccessUrlParameter, SuccessUrl);
+                BindParamterData(PayPalConfiguration.CancelUrlParameter, CancelUrl);
+
+
             }
-            set
+            else
             {
-                _validationGroup = value;
+                Visible = false;
             }
         }
 
-        #endregion
+        private void UpdateOrCreateParameter(string parameterName, TextBox parameterControl, Guid paymentMethodId)
+        {
+            var parameter = GetParameterByName(parameterName);
+            if (parameter != null)
+            {
+                parameter.Value = parameterControl.Text;
+            }
+            else
+            {
+                var row = _paymentMethodDto.PaymentMethodParameter.NewPaymentMethodParameterRow();
+                row.PaymentMethodId = paymentMethodId;
+                row.Parameter = parameterName;
+                row.Value = parameterControl.Text;
+                _paymentMethodDto.PaymentMethodParameter.Rows.Add(row);
+            }
+        }
+
+        private void UpdateOrCreateParameter(string parameterName, CheckBox parameterControl, Guid paymentMethodId)
+        {
+            var parameter = GetParameterByName(parameterName);
+            var value = parameterControl.Checked ? "1" : "0";
+            if (parameter != null)
+            {
+                parameter.Value = value;
+            }
+            else
+            {
+                var row = _paymentMethodDto.PaymentMethodParameter.NewPaymentMethodParameterRow();
+                row.PaymentMethodId = paymentMethodId;
+                row.Parameter = parameterName;
+                row.Value = value;
+                _paymentMethodDto.PaymentMethodParameter.Rows.Add(row);
+            }
+        }
+
+        private void UpdateOrCreateParameter(string parameterName, DropDownList parameterControl, Guid paymentMethodId)
+        {
+            var parameter = GetParameterByName(parameterName);
+            var value = parameterControl.SelectedValue;
+            if (parameter != null)
+            {
+                parameter.Value = value;
+            }
+            else
+            {
+                var row = _paymentMethodDto.PaymentMethodParameter.NewPaymentMethodParameterRow();
+                row.PaymentMethodId = paymentMethodId;
+                row.Parameter = parameterName;
+                row.Value = value;
+                _paymentMethodDto.PaymentMethodParameter.Rows.Add(row);
+            }
+        }
+
+        private void BindParamterData(string parameterName, TextBox parameterControl)
+        {
+            var parameterByName = GetParameterByName(parameterName);
+            if (parameterByName != null)
+            {
+                parameterControl.Text = parameterByName.Value;
+            }
+        }
+
+        private void BindParamterData(string parameterName, CheckBox parameterControl)
+        {
+            var parameterByName = GetParameterByName(parameterName);
+            if (parameterByName != null)
+            {
+                parameterControl.Checked = parameterByName.Value == "1";
+            }
+        }
+
+        private void BindParamterData(string parameterName, DropDownList parameterControl)
+        {
+            var parameterByName = GetParameterByName(parameterName);
+            if (parameterByName != null)
+            {
+                parameterControl.SelectedValue = parameterByName.Value;
+            }
+        }
+
+        private PaymentMethodDto.PaymentMethodParameterRow GetParameterByName(string name)
+        {
+            return PayPalConfiguration.GetParameterByName(_paymentMethodDto, name);
+        }
     }
 }

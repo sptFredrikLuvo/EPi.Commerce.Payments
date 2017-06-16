@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using EPiServer.Core;
 using EPiServer.Framework.Localization;
 using Mediachase.Search;
 using EPiServer.Reference.Commerce.Site.Features.Search.Services;
 using EPiServer.Reference.Commerce.Site.Features.Search.ViewModels;
+using EPiServer.Recommendations.Commerce.Tracking;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Search.ViewModelFactories
 {
@@ -28,7 +30,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.ViewModelFactories
                     CurrentContent = currentContent,
                     FilterOption = viewModel,
                     HasError = true,
-                    ErrorMessage = _localizationService.GetString("/Search/BadFirstCharacter")
+                    ErrorMessage = _localizationService.GetString("/Search/BadFirstCharacter"),
+                    Recommendations = new List<Recommendation>()
                 };
             }
 
@@ -49,7 +52,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.ViewModelFactories
                 CurrentContent = currentContent,
                 ProductViewModels = customSearchResult.ProductViewModels,
                 Facets = customSearchResult.SearchResult != null ? customSearchResult.SearchResult.FacetGroups : new ISearchFacetGroup[0],
-                FilterOption = viewModel
+                FilterOption = viewModel,
+                Recommendations = new List<Recommendation>()
             };
         }
 

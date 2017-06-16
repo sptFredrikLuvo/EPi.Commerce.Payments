@@ -1266,4 +1266,7 @@
   <data name="Warehouse_Pickup_Fulfillment" xml:space="preserve">
     <value>Klant ophalen bij {0}</value>
   </data>
+  <data name="Shipment_Id" xml:space="preserve">
+    <value>Verzending-Id</value>
+  </data>
 </root>
