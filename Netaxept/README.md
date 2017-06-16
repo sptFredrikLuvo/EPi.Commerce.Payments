@@ -50,7 +50,7 @@ For the Commerce Manager site run the following package:
 Login into Commerce Manager and open **Administration -> Order System -> Payments**. Then click **New** and in **Overview** tab fill:
 
 - **Name**
-- **System Keyword** - use some Keyword which you can use later to find this payment method in your code
+- **System Keyword** - **netaxept**
 - **Language**
 - **Class Name** - choose **Geta.EPi.Commerce.Payments.Netaxept.Checkout.NetaxeptCheckoutPaymentGateway**
 - **Payment Class** - choose **Mediachase.Commerce.Orders.OtherPayment**
