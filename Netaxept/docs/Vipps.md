@@ -22,5 +22,5 @@ The controller should pick up the transaction id from json body and
  - Use order search (and payment meta fields) to find any carts that has not been processed
  - If match: process cart (create order) and send email confirmation
  
- Code sample coming soon
+ Example: https://github.com/Geta/sport1/blob/9fd1e1bb199b62802c3cb98225766e0ecd1e4e08/src/Sport1.Web/Controllers/API/NetsCallbackHandler.cs
 
