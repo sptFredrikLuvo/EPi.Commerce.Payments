@@ -1,3 +1,6 @@
+12/9/2017 - Version 1.1.7.9000
+Added Episerver 11 support
+
 8/11/2016 - Version 1.1.6.9000
 Bug fix #13
 

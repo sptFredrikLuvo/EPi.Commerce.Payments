@@ -6,7 +6,7 @@ if not "%1"=="" (
 )
 
 
-nuget pack Geta.EPi.Payments.Klarna.CommerceManager\Geta.EPi.Payments.Klarna.CommerceManager.csproj -IncludeReferencedProjects
-nuget pack Geta.EPi.Commerce.Payments.Klarna.Checkout\Geta.EPi.Commerce.Payments.Klarna.Checkout.csproj -IncludeReferencedProjects
+nuget pack Geta.EPi.Payments.Klarna.CommerceManager\Geta.EPi.Payments.Klarna.CommerceManager.csproj -IncludeReferencedProjects -Prop Configuration=Release
+nuget pack Geta.EPi.Commerce.Payments.Klarna.Checkout\Geta.EPi.Commerce.Payments.Klarna.Checkout.csproj -IncludeReferencedProjects -Prop Configuration=Release
 
 @echo on
