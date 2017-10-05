@@ -11,6 +11,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Extensions and constants</description>
     <copyright>Copyright 2017 Geta</copyright>
-    <tags>EPiServer Commerce 10</tags>
+    <tags>EPiServer Commerce 11</tags>
   </metadata>
 </package>
