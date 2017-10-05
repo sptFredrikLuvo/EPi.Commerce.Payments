@@ -5,7 +5,6 @@ using EPiServer.Core;
 using EPiServer.Logging;
 using EPiServer.Reference.Commerce.Site.Features.Product.Models;
 using EPiServer.Reference.Commerce.Site.Features.Shared.Services;
-using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.ServiceLocation;
 using Mediachase.Commerce.Catalog;
 using Mediachase.Commerce.Catalog.Dto;
@@ -32,7 +31,6 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
         private readonly ReferenceConverter _referenceConverter;
         private readonly AssetUrlResolver _assetUrlResolver;
         private readonly IRelationRepository _relationRepository;
-        private readonly AppContextFacade _appContext;
         private readonly ILogger _log;
 
         public CatalogIndexer()
@@ -43,7 +41,6 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
             _referenceConverter = ServiceLocator.Current.GetInstance<ReferenceConverter>();
             _assetUrlResolver = ServiceLocator.Current.GetInstance<AssetUrlResolver>();
             _relationRepository = ServiceLocator.Current.GetInstance<IRelationRepository>();
-            _appContext = ServiceLocator.Current.GetInstance<AppContextFacade>();
             _log = LogManager.GetLogger(typeof(CatalogIndexer));
         }
 
@@ -56,7 +53,6 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
             ReferenceConverter referenceConverter,
             AssetUrlResolver assetUrlResolver,
             IRelationRepository relationRepository,
-            AppContextFacade appContext,
             ILogger logger)
             : base(catalogSystem, priceService, inventoryService, metaDataContext)
         {
@@ -66,7 +62,6 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
             _referenceConverter = referenceConverter;
             _assetUrlResolver = assetUrlResolver;
             _relationRepository = relationRepository;
-            _appContext = appContext;
             _log = logger;
         }
 
@@ -188,7 +183,7 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
 
         private void AddPrices(ISearchDocument document, IEnumerable<EntryContentBase> skuEntries)
         {
-            var prices = _priceService.GetCatalogEntryPrices(skuEntries.Select(x => new CatalogKey(_appContext.ApplicationId, x.Code))).ToList();
+            var prices = _priceService.GetCatalogEntryPrices(skuEntries.Select(x => new CatalogKey(x.Code))).ToList();
             var validPrices = prices.Where(x => x.ValidFrom <= DateTime.Now && (x.ValidUntil == null || x.ValidUntil >= DateTime.Now));
 
             foreach (var marketPrices in validPrices.GroupBy(x => x.MarketId))

@@ -8,7 +8,6 @@ using EPiServer.Reference.Commerce.Site.Features.Product.Models;
 using EPiServer.Reference.Commerce.Site.Features.Product.ViewModels;
 using EPiServer.Reference.Commerce.Site.Features.Shared.Extensions;
 using EPiServer.Reference.Commerce.Site.Features.Shared.Services;
-using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.ServiceLocation;
 using EPiServer.Web.Routing;
 using Mediachase.Commerce;
@@ -27,25 +26,21 @@ namespace EPiServer.Reference.Commerce.Site.Features.Product.Services
         private readonly IPromotionService _promotionService;
         private readonly IPricingService _pricingService;
         private readonly UrlResolver _urlResolver;
-        private readonly LinksRepository _linksRepository;
         private readonly IRelationRepository _relationRepository;
         private readonly CultureInfo _preferredCulture;
         private readonly ICurrentMarket _currentMarketService;
         private readonly ICurrencyService _currencyService;
-        private readonly AppContextFacade _appContext;
         private readonly ReferenceConverter _referenceConverter;
         private readonly LanguageService _languageService;
-        private readonly FilterPublished _filterPublished;        
+        private readonly FilterPublished _filterPublished;
 
         public ProductService(IContentLoader contentLoader,
             IPromotionService promotionService,
             IPricingService pricingService,
             UrlResolver urlResolver,
-            LinksRepository linksRepository,
             IRelationRepository relationRepository,
             ICurrentMarket currentMarketService,
             ICurrencyService currencyService,
-            AppContextFacade appContext,
             ReferenceConverter referenceConverter,
             LanguageService languageService,
             FilterPublished filterPublished)
@@ -54,12 +49,10 @@ namespace EPiServer.Reference.Commerce.Site.Features.Product.Services
             _promotionService = promotionService;
             _pricingService = pricingService;
             _urlResolver = urlResolver;
-            _linksRepository = linksRepository;
             _relationRepository = relationRepository;
             _preferredCulture = ContentLanguage.PreferredCulture;
             _currentMarketService = currentMarketService;
             _currencyService = currencyService;
-            _appContext = appContext;
             _referenceConverter = referenceConverter;
             _languageService = languageService;
             _filterPublished = filterPublished;
@@ -67,15 +60,15 @@ namespace EPiServer.Reference.Commerce.Site.Features.Product.Services
 
         public IEnumerable<FashionVariant> GetVariants(FashionProduct currentContent)
         {
-            return GetAvailableVariants(currentContent.GetVariants(_relationRepository));                
+            return GetAvailableVariants(currentContent.GetVariants(_relationRepository));
         }
 
         public string GetSiblingVariantCodeBySize(string siblingCode, string size)
         {
             ContentReference variationReference = _referenceConverter.GetContentLink(siblingCode);
-            IEnumerable<Relation> productRelations = _linksRepository.GetRelationsByTarget(variationReference).ToList();
-            IEnumerable<ProductVariation> siblingsRelations = _relationRepository.GetRelationsBySource<ProductVariation>(productRelations.First().Source);
-            IEnumerable<ContentReference> siblingsReferences = siblingsRelations.Select(x => x.Target);
+            IEnumerable<Relation> productRelations = _relationRepository.GetParents<Relation>(variationReference).ToList();
+            IEnumerable<ProductVariation> siblingsRelations = _relationRepository.GetChildren<ProductVariation>(productRelations.First().Parent);
+            IEnumerable<ContentReference> siblingsReferences = siblingsRelations.Select(x => x.Child);
             IEnumerable<FashionVariant> siblingVariants = GetAvailableVariants(siblingsReferences);
 
             var siblingVariant = siblingVariants.First(x => x.Code == siblingCode);
@@ -172,7 +165,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Product.Services
 
         private Money GetDiscountPrice(EntryContentBase entry, IMarket market, Currency currency, Money originalPrice)
         {
-            var discountedPrice = _promotionService.GetDiscountPrice(new CatalogKey(_appContext.ApplicationId, entry.Code), market.MarketId, currency);
+            var discountedPrice = _promotionService.GetDiscountPrice(new CatalogKey(entry.Code), market.MarketId, currency);
             if (discountedPrice != null)
             {
                 return discountedPrice.UnitPrice;

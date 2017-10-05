@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Mediachase.Commerce.Catalog.Managers;
 using Mediachase.Commerce.Catalog.Dto;
-using Mediachase.Commerce.Core;
 
 namespace EPiServer.Reference.Commerce.Site.Infrastructure
 {
@@ -57,7 +56,7 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure
             {
                 if (GetCurrency(dto, conversion.Currency) == null)
                 {
-                    dto.Currency.AddCurrencyRow(conversion.Currency, conversion.Name, DateTime.Now, AppContext.Current.ApplicationId);
+                    dto.Currency.AddCurrencyRow(conversion.Currency, conversion.Name, DateTime.Now);
                     isDirty = true;
                 }
             }
