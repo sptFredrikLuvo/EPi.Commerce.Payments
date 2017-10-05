@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -401,7 +402,11 @@ namespace Geta.Commerce.Payments.PayPal
             // Update last order date time for CurrentContact
             UpdateLastOrderTimestampOfCurrentContact(CustomerContext.Current.CurrentContact, purchaseOrder.Created);
 
+            AddCartNotesToPurchaseOrder(purchaseOrder, cart);
+
             AddNoteToPurchaseOrder(string.Empty, $"New order placed by {PrincipalInfo.CurrentPrincipal.Identity.Name} in Public site", Guid.Empty, purchaseOrder);
+
+            AddCartPropertiesToPurchaseOrder(purchaseOrder, cart);
 
             // Remove old cart
             _orderRepository.Delete(cart.OrderLink);
@@ -413,6 +418,31 @@ namespace Geta.Commerce.Payments.PayPal
             _orderRepository.Save(purchaseOrder);
 
             return purchaseOrder;
+        }
+
+        private void AddCartPropertiesToPurchaseOrder(IPurchaseOrder purchaseOrder, ICart cart)
+        {
+            foreach (DictionaryEntry property in cart.Properties)
+            {
+                if (purchaseOrder.Properties.ContainsKey(property.Key))
+                {
+                    purchaseOrder.Properties[property.Key] = property.Value;
+                }
+            }
+        }
+
+        private static void AddCartNotesToPurchaseOrder(IOrderGroup purchaseOrder, ICart cart)
+        {
+            foreach (var cartNote in cart.Notes)
+            {
+                var poNote = purchaseOrder.CreateOrderNote();
+                poNote.Title = cartNote.Title;
+                poNote.Detail = $"{cartNote.Created} {cartNote.Title}: {cartNote.Detail}";
+                poNote.Type = cartNote.Type;
+                poNote.CustomerId = cartNote.CustomerId;
+                poNote.LineItemId = cartNote.LineItemId;
+                purchaseOrder.Notes.Add(poNote);
+            }
         }
 
         private string CreateRedirectionUrl(IPurchaseOrder purchaseOrder, string acceptUrl, string email)
