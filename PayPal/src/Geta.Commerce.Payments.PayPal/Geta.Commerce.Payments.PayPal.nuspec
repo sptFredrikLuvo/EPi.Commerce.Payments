@@ -11,9 +11,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Paypal payment provider for Episerver Commerce</description>
     <copyright>Copyright 2017 Geta</copyright>
-    <tags>EPiServer Commerce 10</tags>
+    <tags>EPiServer Commerce 11</tags>
     <dependencies>
-      <dependency id="Geta.PayPal" version="0.9.0.0" />
+      <dependency id="Geta.PayPal" version="1.0.0.0" />
     </dependencies>
   </metadata>
 </package>
