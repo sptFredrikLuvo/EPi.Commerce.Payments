@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -11,9 +10,7 @@ using EPiServer.Security;
 using EPiServer.ServiceLocation;
 using Geta.Commerce.Payments.PayPal.Helpers;
 using Geta.PayPal;
-using Mediachase.Commerce.Core.Features;
 using Mediachase.Commerce.Customers;
-using Mediachase.Commerce.Extensions;
 using Mediachase.Commerce.Orders;
 using Mediachase.Commerce.Orders.Managers;
 using Mediachase.Commerce.Plugins.Payment;
@@ -31,7 +28,6 @@ namespace Geta.Commerce.Payments.PayPal
         public const string PayPalExpTokenPropertyName = "PayPalExpToken";
 
         private readonly IOrderRepository _orderRepository;
-        private readonly IFeatureSwitch _featureSwitch;
         private readonly IInventoryProcessor _inventoryProcessor;
         private readonly IOrderNumberGenerator _orderNumberGenerator;
         private readonly ITaxCalculator _taxCalculator;
@@ -44,7 +40,7 @@ namespace Geta.Commerce.Payments.PayPal
         private SecurityProtocolType _currentProtocol;
 
         public PayPalPaymentGateway()
-            : this(ServiceLocator.Current.GetInstance<IFeatureSwitch>(),
+            : this(
                   ServiceLocator.Current.GetInstance<IInventoryProcessor>(),
                   ServiceLocator.Current.GetInstance<IOrderNumberGenerator>(),
                   ServiceLocator.Current.GetInstance<IOrderRepository>(),
@@ -54,14 +50,12 @@ namespace Geta.Commerce.Payments.PayPal
         }
 
         public PayPalPaymentGateway(
-            IFeatureSwitch featureSwitch,
             IInventoryProcessor inventoryProcessor,
             IOrderNumberGenerator orderNumberGenerator,
             IOrderRepository orderRepository,
             ITaxCalculator taxCalculator,
             PayPalApiHelper paypalApiHelper)
         {
-            _featureSwitch = featureSwitch;
             _inventoryProcessor = inventoryProcessor;
             _orderNumberGenerator = orderNumberGenerator;
             _orderRepository = orderRepository;
