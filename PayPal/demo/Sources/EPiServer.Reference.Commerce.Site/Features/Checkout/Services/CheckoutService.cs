@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
@@ -116,7 +117,17 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
         {
             try
             {
-                cart.ProcessPayments(_paymentProcessor, _orderGroupCalculator);
+                var result = cart.ProcessPayments(_paymentProcessor, _orderGroupCalculator);
+                var redirectUrl = result
+                    .Where(x => x.IsSuccessful && !string.IsNullOrEmpty(x.RedirectUrl))
+                    .Select(x => x.RedirectUrl)
+                    .FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(redirectUrl))
+                {
+                    HttpContext.Current.Response.Redirect(redirectUrl);
+                    return null;
+                }
 
                 // prevent further execution, is request being redirected doesnt work.
                 if (checkoutViewModel.Payment.SystemKeyword == "PayPal")
