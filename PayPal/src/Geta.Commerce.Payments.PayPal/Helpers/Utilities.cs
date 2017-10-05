@@ -12,7 +12,7 @@ using Mediachase.Commerce.Catalog;
 
 namespace Geta.Commerce.Payments.PayPal.Helpers
 {
-    public static class PayPalUtilities
+    public static class Utilities
     {
         private static string _hashKey;
 
@@ -22,7 +22,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         private static Injected<ReferenceConverter> _referenceConverter = default(Injected<ReferenceConverter>);
 
         /// <summary>
-        /// Gets the PayPalHashKey from AppSettings.
+        /// Gets the PayPalHashKey from AppSettings. 
         /// If property is set, hashkey will be use to hash the share token (between our site and PayPal.com, use when call API to PayPal.com)
         /// </summary>
         /// <value>The hash key.</value>
@@ -114,7 +114,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             {
                 return string.Empty;
             }
-
+                
             if (source.Length <= maxLength)
             {
                 return source;
@@ -123,7 +123,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             source = source.Substring(0, maxLength);
             // The maximum number of characters to cut from the end of the string.
             var maxCharCut = (source.Length > 15 ? 15 : source.Length - 1);
-            var previousWord = source.LastIndexOfAny(new char[] { ' ', '.', ',', '!', '?' }, source.Length - 1, maxCharCut);
+            var previousWord = source.LastIndexOfAny(new[] { ' ', '.', ',', '!', '?' }, source.Length - 1, maxCharCut);
             if (previousWord >= 0)
             {
                 source = source.Substring(0, previousWord);
@@ -170,7 +170,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             }
             return sb.ToString();
         }
-
+                
         /// <summary>
         /// Gets display name of line item in current language
         /// </summary>

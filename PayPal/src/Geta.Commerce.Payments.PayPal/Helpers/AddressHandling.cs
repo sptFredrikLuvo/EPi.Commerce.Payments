@@ -3,7 +3,6 @@ using System.Linq;
 using System.Web;
 using EPiServer.Commerce.Order;
 using EPiServer.Security;
-using Mediachase.Commerce.Core;
 using Mediachase.Commerce.Customers;
 using Mediachase.Commerce.Customers.Profile;
 using Mediachase.Commerce.Orders;
@@ -24,15 +23,19 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         /// <value>The PayPal address type model.</value>
         public static AddressType ToAddressType(IOrderAddress orderAddress)
         {
-            var addressType = new AddressType();
-            addressType.CityName = orderAddress.City;
-            addressType.Country = CountriesAndStates.GetAlpha2CountryCode(orderAddress.CountryCode);
-            addressType.CountryName = orderAddress.CountryName;
-            addressType.Street1 = orderAddress.Line1;
-            addressType.Street2 = orderAddress.Line2;
-            addressType.PostalCode = orderAddress.PostalCode;
-            addressType.Phone = (string.IsNullOrEmpty(orderAddress.DaytimePhoneNumber) ? orderAddress.EveningPhoneNumber : orderAddress.DaytimePhoneNumber);
-            addressType.Name = orderAddress.FirstName + " " + orderAddress.LastName;
+            var addressType = new AddressType
+            {
+                CityName = orderAddress.City,
+                Country = CountriesAndStates.GetAlpha2CountryCode(orderAddress.CountryCode),
+                CountryName = orderAddress.CountryName,
+                Street1 = orderAddress.Line1,
+                Street2 = orderAddress.Line2,
+                PostalCode = orderAddress.PostalCode,
+                Phone = string.IsNullOrEmpty(orderAddress.DaytimePhoneNumber)
+                    ? orderAddress.EveningPhoneNumber
+                    : orderAddress.DaytimePhoneNumber,
+                Name = orderAddress.FirstName + " " + orderAddress.LastName
+            };
 
             var stateName = orderAddress.RegionName;
             var address = orderAddress as OrderAddress;
@@ -54,7 +57,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         /// <param name="payerEmail">The PayPal payer email.</param>
         public static void UpdateOrderAddress(IOrderAddress orderAddress, CustomerAddressTypeEnum customerAddressType, AddressType addressType, string payerEmail)
         {
-            var name = PayPalUtilities.StripPreviewText(addressType.Name.Trim(), 46);
+            var name = Utilities.StripPreviewText(addressType.Name.Trim(), 46);
 
             orderAddress.Id = name;
             orderAddress.City = addressType.CityName;
@@ -70,8 +73,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             orderAddress.LastName = index >= 0 ? name.Substring(index + 1) : string.Empty;
             orderAddress.RegionCode = addressType.StateOrProvince;
             orderAddress.RegionName = CountriesAndStates.GetStateName(addressType.StateOrProvince);
-            var address = orderAddress as OrderAddress;
-            if (address != null)
+            if (orderAddress is OrderAddress address)
             {
                 address.State = orderAddress.RegionName;
             }
@@ -119,7 +121,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             var customerContact = PrincipalInfo.CurrentPrincipal.GetCustomerContact();
             if (customerContact != null)
             {
-                var customerAddress = CustomerAddress.CreateForApplication(AppContext.Current.ApplicationId);
+                var customerAddress = CustomerAddress.CreateForApplication();
                 customerAddress.Name = orderAddress.Id;
                 customerAddress.AddressType = customerAddressType;
                 customerAddress.City = orderAddress.City;
@@ -138,10 +140,10 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
 
                 if (customerContact.ContactAddresses == null || !StoreHelper.IsAddressInCollection(customerContact.ContactAddresses, customerAddress))
                 {
-                    // If there is an address has the same name with new address,
+                    // If there is an address has the same name with new address, 
                     // rename new address by appending the index to the name.
-                    var addressCount = customerContact.ContactAddresses.Where(a => a.Name == customerAddress.Name).Count();
-                    customerAddress.Name = $"{customerAddress.Name}{(addressCount == 0 ? string.Empty : "-" + addressCount.ToString())}";
+                    var addressCount = customerContact.ContactAddresses?.Count(a => a.Name == customerAddress.Name) ?? 0;
+                    customerAddress.Name = $"{customerAddress.Name}{(addressCount == 0 ? string.Empty : "-" + addressCount)}";
 
                     customerContact.AddContactAddress(customerAddress);
                     customerContact.SaveChanges();

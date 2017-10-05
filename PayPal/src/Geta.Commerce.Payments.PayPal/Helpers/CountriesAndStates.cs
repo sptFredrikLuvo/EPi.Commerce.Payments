@@ -12,21 +12,21 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
     /// </summary>
     public static class CountriesAndStates
     {
-        class Country
+        public class Country
         {
-            public string ISO2 { get; }
-            public string ISO3 { get; }
+            public string Iso2 { get; }
+            public string Iso3 { get; }
             public string Name { get; }
 
             public Country(string iso2, string iso3, string name)
             {
-                ISO2 = iso2;
-                ISO3 = iso3;
+                Iso2 = iso2;
+                Iso3 = iso3;
                 Name = name;
             }
         }
 
-        class State
+        public class State
         {
             public string Code { get; }
             public string Name { get; }
@@ -38,14 +38,14 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             }
         }
 
-        private static IEnumerable<Country> _countries;
+        private static readonly IEnumerable<Country> Countries;
 
-        private static IEnumerable<State> _canadianUSStates;
+        private static readonly IEnumerable<State> CanadianUsStates;
 
         static CountriesAndStates()
         {
-            _countries = GetCountryCodes();
-            _canadianUSStates = GetStates();
+            Countries = GetCountryCodes();
+            CanadianUsStates = GetStates();
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         /// <returns>The Alpha 3 name.</returns>
         public static string GetAlpha3CountryCode(string countryAlpha2Code)
         {
-            var country = _countries.FirstOrDefault(c => c.ISO2.Equals(countryAlpha2Code, StringComparison.OrdinalIgnoreCase));
-            return country != null ? country.ISO3 : string.Empty;
+            var country = Countries.FirstOrDefault(c => c.Iso2.Equals(countryAlpha2Code, StringComparison.OrdinalIgnoreCase));
+            return country != null ? country.Iso3 : string.Empty;
         }
 
         /// <summary>
@@ -66,16 +66,15 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         /// <returns>The <see cref="CountryCodeType"/>.</returns>
         public static CountryCodeType GetAlpha2CountryCode(string countryAlpha3Code)
         {
-            var country = _countries.FirstOrDefault(c => c.ISO3.Equals(countryAlpha3Code, StringComparison.OrdinalIgnoreCase));
-            var code = country != null ? country.ISO2 : string.Empty;
+            var country = Countries.FirstOrDefault(c => c.Iso3.Equals(countryAlpha3Code, StringComparison.OrdinalIgnoreCase));
+            var code = country != null ? country.Iso2 : string.Empty;
 
             if (string.IsNullOrEmpty(code))
             {
                 return CountryCodeType.CUSTOMCODE;
             }
 
-            CountryCodeType result;
-            if (Enum.TryParse<CountryCodeType>(code, out result))
+            if (Enum.TryParse<CountryCodeType>(code, out var result))
             {
                 return result;
             }
@@ -95,7 +94,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
                 return string.Empty;
             }
 
-            var state = _canadianUSStates.FirstOrDefault(s => s.Code.Equals(stateCode, StringComparison.OrdinalIgnoreCase));
+            var state = CanadianUsStates.FirstOrDefault(s => s.Code.Equals(stateCode, StringComparison.OrdinalIgnoreCase));
             return state != null ? state.Name : stateCode;
         }
 
@@ -111,7 +110,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
                 return string.Empty;
             }
 
-            var state = _canadianUSStates.FirstOrDefault(s => s.Name.Equals(stateName, StringComparison.OrdinalIgnoreCase));
+            var state = CanadianUsStates.FirstOrDefault(s => s.Name.Equals(stateName, StringComparison.OrdinalIgnoreCase));
             return state != null ? state.Code : stateName;
         }
 
@@ -137,7 +136,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
 
             foreach (var line in countryCodeLines)
             {
-                var values = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var values = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 var alpha3 = values[0];
                 var alpha2 = values[1];
                 var name = string.Empty;
@@ -154,7 +153,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         private static string[] GetAllLines(string resourceFileName)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var result = string.Empty;
+            string result;
 
             using (var stream = assembly.GetManifestResourceStream(resourceFileName))
             {

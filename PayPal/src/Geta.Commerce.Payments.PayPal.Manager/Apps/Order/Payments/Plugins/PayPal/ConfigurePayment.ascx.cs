@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Web.UI.WebControls;
 using Geta.PayPal;
 using Mediachase.Commerce.Orders.Dto;
@@ -11,14 +10,16 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
     {
         private PaymentMethodDto _paymentMethodDto;
 
+        /// <inheritdoc />
         /// <summary>
         /// Gets or sets the validation group.
         /// </summary>
         /// <value>The validation group.</value>
         public string ValidationGroup { get; set; }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigurePayment"/> class.
+        /// Initializes a new instance of the <see cref="T:Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayPal.ConfigurePayment" /> class.
         /// </summary>
         public ConfigurePayment()
         {
@@ -31,6 +32,7 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
             BindData();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Loads the PaymentMethodDto object.
         /// </summary>
@@ -40,6 +42,7 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
             _paymentMethodDto = dto as PaymentMethodDto;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Saves the changes.
         /// </summary>
@@ -52,7 +55,7 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
             }
 
             _paymentMethodDto = dto as PaymentMethodDto;
-            if (_paymentMethodDto != null && _paymentMethodDto.PaymentMethodParameter != null)
+            if (_paymentMethodDto?.PaymentMethodParameter != null)
             {
                 var paymentMethodId = Guid.Empty;
                 if (_paymentMethodDto.PaymentMethod.Count > 0)
@@ -62,10 +65,10 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
 
                 UpdateOrCreateParameter(PayPalConfiguration.UserParameter, APIUser, paymentMethodId);
                 UpdateOrCreateParameter(PayPalConfiguration.BusinessEmailParameter, BusinessEmail, paymentMethodId);
-                UpdateOrCreateParameter(PayPalConfiguration.PALParameter, PAL, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.PalParameter, PAL, paymentMethodId);
                 UpdateOrCreateParameter(PayPalConfiguration.PasswordParameter, Password, paymentMethodId);
-                UpdateOrCreateParameter(PayPalConfiguration.APISignatureParameter, Signature, paymentMethodId);
-                UpdateOrCreateParameter(PayPalConfiguration.ExpChkoutURLParameter, ExpChkoutURL, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.ApiSignatureParameter, Signature, paymentMethodId);
+                UpdateOrCreateParameter(PayPalConfiguration.ExpChkoutUrlParameter, ExpChkoutURL, paymentMethodId);
                 UpdateOrCreateParameter(PayPalConfiguration.SandBoxParameter, CheckBoxTest, paymentMethodId);
                 UpdateOrCreateParameter(PayPalConfiguration.AllowChangeAddressParameter, CheckBoxAllowChangeAddress, paymentMethodId);
                 UpdateOrCreateParameter(PayPalConfiguration.SkipConfirmPageParameter, CheckBoxSkipConfirmPage, paymentMethodId);
@@ -81,14 +84,14 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
         /// </summary>
         private void BindData()
         {
-            if (_paymentMethodDto != null && _paymentMethodDto.PaymentMethodParameter != null)
+            if (_paymentMethodDto?.PaymentMethodParameter != null)
             {
                 BindParamterData(PayPalConfiguration.UserParameter, APIUser);
-                BindParamterData(PayPalConfiguration.PALParameter, PAL);
+                BindParamterData(PayPalConfiguration.PalParameter, PAL);
                 BindParamterData(PayPalConfiguration.PasswordParameter, Password);
-                BindParamterData(PayPalConfiguration.APISignatureParameter, Signature);
+                BindParamterData(PayPalConfiguration.ApiSignatureParameter, Signature);
                 BindParamterData(PayPalConfiguration.SandBoxParameter, CheckBoxTest);
-                BindParamterData(PayPalConfiguration.ExpChkoutURLParameter, ExpChkoutURL);
+                BindParamterData(PayPalConfiguration.ExpChkoutUrlParameter, ExpChkoutURL);
                 BindParamterData(PayPalConfiguration.BusinessEmailParameter, BusinessEmail);
                 BindParamterData(PayPalConfiguration.AllowChangeAddressParameter, CheckBoxAllowChangeAddress);
                 BindParamterData(PayPalConfiguration.SkipConfirmPageParameter, CheckBoxSkipConfirmPage);
@@ -96,8 +99,6 @@ namespace Geta.Commerce.Payments.PayPal.Manager.Apps.Order.Payments.Plugins.PayP
                 BindParamterData(PayPalConfiguration.PaymentActionParameter, DropDownListPaymentAction);
                 BindParamterData(PayPalConfiguration.SuccessUrlParameter, SuccessUrl);
                 BindParamterData(PayPalConfiguration.CancelUrlParameter, CancelUrl);
-
-
             }
             else
             {
