@@ -4,7 +4,7 @@ PayPal payment provider for EPiServer Commerce
 
 ## What is Geta.EPi.Commerce.Payments.PayPal?
 
-Geta.EPi.Commerce.Payments.PayPal is based on Episervers own payment provider for PayPal which is downloadable for older versions of Episerver Commerce. This implementation is upgraded to 10.2.0 and the gateway is converted to IPaymentPlugin and using abstractions. 
+Geta.EPi.Commerce.Payments.PayPal is based on Episerver's own payment provider for PayPal which is downloadable for older versions of Episerver Commerce. This implementation is upgraded to 11.2.2. 
 
 It consits of:
 
@@ -15,9 +15,13 @@ It consits of:
 
 ## Setup
 
-### Solution specific
-See demo implementation for example.
+### Installation
 
+- Install _Geta.Commerce.Payments.PayPal.Manager_ into _Commerce Manager_ project.
+- Install _Geta.Commerce.Payments.PayPal_ into your Web project.
+- Add a payment option and payment specific views (see [demo](./demo) project - PayPalPaymentOption, _PayPalConfirmation.cshtml, _PayPalPaymentMethod.cshtml).
+- Add redirect if the payment result requires it (see [demo](./demo) project - CheckoutService.PlaceOrder
+- Add callback actions to the checkout controller (see [demo](./demo) project - CheckoutController.ProcessPayPalPayment and CheckoutController.FinishPaypalTransaction.
 
 ### Commerce Manager
 
