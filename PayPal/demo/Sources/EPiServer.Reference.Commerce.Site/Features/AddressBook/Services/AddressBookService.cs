@@ -120,7 +120,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.AddressBook.Services
 
         public IOrderAddress ConvertToAddress(AddressModel model, IOrderGroup orderGroup)
         {
-            var address = orderGroup.CreateOrderAddress(_orderGroupFactory);
+            var address = orderGroup.CreateOrderAddress(_orderGroupFactory, model.Name);
             address.Id = model.Name;
             MapToAddress(model, address);
 

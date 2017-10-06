@@ -5,7 +5,6 @@ using Mediachase.Commerce.Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.Reference.Commerce.Site.Features.Market.Services;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Shared.Services
@@ -16,17 +15,14 @@ namespace EPiServer.Reference.Commerce.Site.Features.Shared.Services
         private readonly IPriceService _priceService;
         private readonly ICurrentMarket _currentMarket;
         private readonly ICurrencyService _currencyService;
-        private readonly AppContextFacade _appContext;
 
         public PricingService(IPriceService priceService,
             ICurrentMarket currentMarket, 
-            ICurrencyService currencyService,
-            AppContextFacade appContext)
+            ICurrencyService currencyService)
         {
             _priceService = priceService;
             _currentMarket = currentMarket;
             _currencyService = currencyService;
-            _appContext = appContext;
         }
 
         public IList<IPriceValue> GetPriceList(string code, MarketId marketId, PriceFilter priceFilter)
@@ -36,7 +32,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Shared.Services
                 throw new ArgumentNullException("code");
             }
 
-            var catalogKey = new CatalogKey(_appContext.ApplicationId, code);
+            var catalogKey = new CatalogKey(code);
 
             return _priceService.GetPrices(marketId, DateTime.Now, catalogKey, priceFilter)
                 .OrderBy(x => x.UnitPrice.Amount)

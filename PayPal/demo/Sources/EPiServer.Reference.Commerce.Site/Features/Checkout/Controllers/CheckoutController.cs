@@ -1,7 +1,5 @@
 ﻿using EPiServer.Commerce.Order;
 using EPiServer.Core;
-using EPiServer.Recommendations.Commerce.Tracking;
-using EPiServer.Recommendations.Tracking;
 using EPiServer.Reference.Commerce.Site.Features.Cart.Services;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Pages;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Services;
@@ -17,16 +15,11 @@ using EPiServer.Web.Routing;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using EPiServer.Reference.Commerce.Site.Infrastructure;
 using EPiServer.Security;
 using Geta.Commerce.Payments.PayPal;
 using Geta.PayPal;
 using Mediachase.Commerce.Orders.Exceptions;
 using Mediachase.Commerce.Security;
-using EPiServer.Editor;
-using EPiServer.ServiceLocation;
-using Mediachase.Commerce.Orders;
-using System;
 using Geta.Commerce.Payments.PayPal.Helpers;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
@@ -290,21 +283,21 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             var currentCart = _orderRepository.LoadCart<ICart>(PrincipalInfo.CurrentPrincipal.GetContactId(), _cartService.DefaultCartName);
             if (!currentCart.Forms.Any() || !currentCart.GetFirstForm().Payments.Any())
             {
-                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", PayPalUtilities.Translate("GenericError"));
+                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", Utilities.Translate("GenericError"));
             }
 
             var paymentConfiguration = new PayPalConfiguration();
             var payment = currentCart.Forms.SelectMany(f => f.Payments).FirstOrDefault(c => c.PaymentMethodId.Equals(paymentConfiguration.PaymentMethodId));
             if (payment == null)
             {
-                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", PayPalUtilities.Translate("PaymentNotSpecified"));
+                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", Utilities.Translate("PaymentNotSpecified"));
             }
 
 
             var orderNumber = payment.Properties[PayPalPaymentGateway.PayPalOrderNumberPropertyName] as string;
             if (string.IsNullOrEmpty(orderNumber))
             {
-                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", PayPalUtilities.Translate("PaymentNotSpecified"));
+                throw new PaymentException(PaymentException.ErrorType.ProviderError, "", Utilities.Translate("PaymentNotSpecified"));
             }
 
 
@@ -318,7 +311,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 
             var gateway = new PayPalPaymentGateway();
             var redirectUrl = cancelUrl;
-            if (string.Equals(Request.QueryString["accept"], "true") && PayPalUtilities.GetAcceptUrlHashValue(orderNumber) == Request.QueryString["hash"])
+            if (string.Equals(Request.QueryString["accept"], "true") && Utilities.GetAcceptUrlHashValue(orderNumber) == Request.QueryString["hash"])
             {
 
                 // Try to load purchase order and return redirect based on viewmodel and purchaseorder.
@@ -326,10 +319,10 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                 var acceptUrl = currentPageUrl + "/FinishPaypalTransaction";
                 redirectUrl = gateway.ProcessSuccessfulTransaction(currentCart, payment, acceptUrl, cancelUrl);
             }
-            else if (string.Equals(Request.QueryString["accept"], "false") && PayPalUtilities.GetCancelUrlHashValue(orderNumber) == Request.QueryString["hash"])
+            else if (string.Equals(Request.QueryString["accept"], "false") && Utilities.GetCancelUrlHashValue(orderNumber) == Request.QueryString["hash"])
             {
-                TempData["Message"] = PayPalUtilities.Translate("CancelMessage");
-                redirectUrl = gateway.ProcessUnsuccessfulTransaction(cancelUrl, PayPalUtilities.Translate("CancelMessage"));
+                TempData["Message"] = Utilities.Translate("CancelMessage");
+                redirectUrl = gateway.ProcessUnsuccessfulTransaction(cancelUrl, Utilities.Translate("CancelMessage"));
             }
 
             return Redirect(redirectUrl);
