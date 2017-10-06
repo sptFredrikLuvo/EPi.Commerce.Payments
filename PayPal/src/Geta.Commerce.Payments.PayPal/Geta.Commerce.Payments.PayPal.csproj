@@ -281,9 +281,13 @@
     <Compile Include="Extensions\IOrderGroupBuilderExtensions.cs" />
     <Compile Include="Extensions\IOrderGroupFactoryExtensions.cs" />
     <Compile Include="Helpers\AddressHandling.cs" />
+    <Compile Include="Helpers\Countries.cs" />
     <Compile Include="Helpers\CountriesAndStates.cs" />
+    <Compile Include="Helpers\Country.cs" />
     <Compile Include="Helpers\PayPalApiHelper.cs" />
     <Compile Include="Helpers\PayPalCurrencies.cs" />
+    <Compile Include="Helpers\State.cs" />
+    <Compile Include="Helpers\CanadianUsStates.cs" />
     <Compile Include="Helpers\Utilities.cs" />
     <Compile Include="MetadataConstants.cs" />
     <Compile Include="MetaDataInitialization.cs" />
