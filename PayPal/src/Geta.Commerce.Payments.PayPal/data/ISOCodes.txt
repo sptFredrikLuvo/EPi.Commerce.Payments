@@ -1,4 +1,4 @@
-ABW    AW    Aruba
+﻿ABW    AW    Aruba
 AFG    AF    Afghanistan
 AGO    AO    Angola
 AIA    AI    Anguilla
