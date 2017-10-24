@@ -59,7 +59,6 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         {
             var name = Utilities.StripPreviewText(addressType.Name.Trim(), 46);
 
-            orderAddress.Id = name;
             orderAddress.City = addressType.CityName;
             orderAddress.CountryCode = CountriesAndStates.GetAlpha3CountryCode(addressType.Country.ToString().ToUpperInvariant());
             orderAddress.DaytimePhoneNumber = addressType.Phone;
