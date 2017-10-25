@@ -29,32 +29,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
 
         public bool ProcessPayment(IPayment payment, ref string message)
         {
-            try
-            {
-                Logger.Debug("Netaxept checkout gateway. Processing Payment ....");
-
-                if (_orderForm == null)
-                {
-                    _orderForm = OrderGroup.Forms.FirstOrDefault(form => form.Payments.Contains(payment));
-                }
-
-                var registerPaymentStep = new RegisterPaymentStep(payment);
-                var capturePaymentStep = new CapturePaymentStep(payment);
-                var creditPaymentStep = new CreditPaymentStep(payment);
-                var annulPaymentStep = new AnnulPaymentStep(payment);
-
-                registerPaymentStep.SetSuccessor(capturePaymentStep);
-                capturePaymentStep.SetSuccessor(creditPaymentStep);
-                creditPaymentStep.SetSuccessor(annulPaymentStep);
-
-                return registerPaymentStep.Process(payment, _orderForm, OrderGroup, ref message);
-            }
-            catch (Exception exception)
-            {
-                Logger.Error("Process payment failed with error: " + exception.Message, exception);
-                message = exception.Message;
-                throw;
-            }
+            return ProcessPayment(OrderGroup, payment).IsSuccessful;
         }
 
         /// <summary>
@@ -106,7 +81,8 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
 
                 OrderGroup = payment.Parent.Parent;
                 _orderForm = payment.Parent;
-                return ProcessPayment(payment as IPayment, ref message);
+                var result = ProcessPayment(OrderGroup, payment);
+                return result.IsSuccessful;
             }
             catch (Exception exception)
             {
@@ -114,6 +90,46 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                 message = exception.Message;
                 throw;
             }
+        }
+
+        public virtual PaymentProcessingResult ProcessPayment(IOrderGroup orderGroup, IPayment payment)
+        {
+            string message = string.Empty;
+            bool successful;
+
+            try
+            {
+                Logger.Debug("Netaxept checkout gateway. Processing Payment ....");
+
+                if (_orderForm == null)
+                {
+                    _orderForm = orderGroup.Forms.FirstOrDefault(form => form.Payments.Contains(payment));
+                }
+
+                var registerPaymentStep = new RegisterPaymentStep(payment);
+                var capturePaymentStep = new CapturePaymentStep(payment);
+                var creditPaymentStep = new CreditPaymentStep(payment);
+                var annulPaymentStep = new AnnulPaymentStep(payment);
+
+                registerPaymentStep.SetSuccessor(capturePaymentStep);
+                capturePaymentStep.SetSuccessor(creditPaymentStep);
+                creditPaymentStep.SetSuccessor(annulPaymentStep);
+
+                successful = registerPaymentStep.Process(payment, _orderForm, orderGroup, ref message);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error("Process payment failed with error: " + exception.Message, exception);
+                message = exception.Message;
+                successful = false;
+            }
+
+            if (successful)
+            {
+                return PaymentProcessingResult.CreateSuccessfulResult(message);
+            }
+
+            return PaymentProcessingResult.CreateUnsuccessfulResult(message);
         }
     }
 }
