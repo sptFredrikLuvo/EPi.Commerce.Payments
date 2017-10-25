@@ -33,6 +33,8 @@ https://shop.nets.eu/web/partners/home
 
 ## How to get started?
 
+:grey_exclamation: **From version 0.1.18 the module is using the new Episerver order api with a dependecy to Episerver.Commerce.Core v10.2.3**
+
 Start by installing NuGet packages (use [NuGet](http://nuget.episerver.com/)):
 
     Install-Package Geta.EPi.Commerce.Payments.Netaxept.Checkout
@@ -48,7 +50,7 @@ For the Commerce Manager site run the following package:
 Login into Commerce Manager and open **Administration -> Order System -> Payments**. Then click **New** and in **Overview** tab fill:
 
 - **Name**
-- **System Keyword** - use some Keyword which you can use later to find this payment method in your code
+- **System Keyword** - **netaxept**
 - **Language**
 - **Class Name** - choose **Geta.EPi.Commerce.Payments.Netaxept.Checkout.NetaxeptCheckoutPaymentGateway**
 - **Payment Class** - choose **Mediachase.Commerce.Orders.OtherPayment**
@@ -66,48 +68,33 @@ The merchant id and token are necessary for establishing a connection to the ser
 
 In the **Markets** tab select a market for which this payment will be available.
 
-### Callback
+### Creating the payment object
 
-The user will be redirected back to the website after filling out the card information in the terminal. The URL needs to be set on the PaymentGateway before running the checkout workflow (OrderGroupWorkflowManager.CartCheckOutWorkflowName).
+The user will be redirected back to the website after filling out the card information in the terminal. The URL needs to be set on the PaymentGateway before processing payment (no more workflows).
 Below an example. 
 
 ```
-var netaxept = checkoutViewModel.Payment as NetaxeptViewModel;
-if (netaxept != null)
-{
-    var netaxeptPaymentMethod = checkoutViewModel.Payment.PaymentMethod as NetaxeptCheckoutPaymentGateway;
-    if (netaxeptPaymentMethod != null)
-    {
-        netaxeptPaymentMethod.CallbackUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("Index", "PaymentCallback");
-    }
-}
+  var urlHelper = new UrlHelper(System.Web.HttpContext.Current.Request.RequestContext);
+  var netaxeptPaymentCallbackUrl = "http://" + System.Web.HttpContext.Current.Request.Url.DnsSafeHost +
+                                             urlHelper.Action("Index", "PaymentCallback");
+            
+  var currency = _currencyService.GetCurrentCurrency();
+  var amount = orderForm.GetTotal(_currentMarket.GetCurrentMarket(), currency).Amount;
+  // creating the payment object
+  var payment = paymentViewModel.PaymentMethod.CreatePayment(amount, cart);
+  payment.Properties[NetaxeptConstants.CallbackUrl] = netaxeptPaymentCallbackUrl;
 
-```
+  orderForm.Payments.Clear();
+  orderForm.Payments.Add(payment);
+  // billing address is now part of payment object          
+  var address = _orderAddressService.CreateOrUpdateBillingAddressFromModel(cart, payment, checkoutPageView.BillingAddress);
+  payment.BillingAddress = address;
 
-Make sure that the PreProcess method is called on the NetaxeptCheckoutPaymentGateway before running the checkout workflow. Check the Quicksilver demo in the repository for an implementation example. 
+  _orderRepository.Save(cart);
+  
+   //Process payments for the cart
+   cart.ProcessPayments(_paymentProcessor, _orderGroupCalculator);
 
-```
-public void ProcessPayment(IPaymentOption method)
-{
-    var cart = _cartHelper(Mediachase.Commerce.Orders.Cart.DefaultName).Cart;
-
-    if (!cart.OrderForms.Any())
-    {
-        cart.OrderForms.AddNew();
-    }
-
-    var payment = method.PreProcess(cart.OrderForms[0]);
-
-    if (payment == null)
-    {
-        throw new PreProcessException();
-    }
-
-    cart.OrderForms[0].Payments.Add(payment);
-    cart.AcceptChanges();
-
-    method.PostProcess(cart.OrderForms[0]);
-}
 ```
 
 The transaction id is passed as parameter to the Index method. On the NetaxeptCheckoutPaymentGateway the ProcessAuthorization method should be called. This method will complete the payment. The return value indicates if the payment is successfully otherwise
@@ -117,43 +104,115 @@ would like a complete history of the payment process.
 ![Order notes](/Netaxept/docs/screenshots/notes.PNG?raw=true "Order notes")
 
 ```
-public class PaymentCallbackController : Controller
-{
-    private ICheckoutService _checkoutService;
-    private CustomerContextFacade _customerContext;
-
+public PaymentCallbackController(IOrderGroupCalculator orderGroupCalculator,
+            IOrderRepository orderRepository,
+            IOrderGroupFactory orderGroupFactory,
+            IContentRepository icontentRepository, 
+            CustomerContextFacade customerContext, 
+            IContentRepository contentRepository, 
+            ICartService cartService, 
+            IOrderService orderService)
+        {
+            _orderGroupCalculator = orderGroupCalculator;
+            _orderRepository = orderRepository;
+            _orderGroupFactory = orderGroupFactory;
+            _customerContext = customerContext;
+            _contentRepository = contentRepository;
+            _cartService = cartService;
+        }
+        
+        
     public RedirectResult Index(string transactionId)
     {
-        _checkoutService = ServiceLocator.Current.GetInstance<ICheckoutService>();
-        _customerContext = ServiceLocator.Current.GetInstance<CustomerContextFacade>();
+       var checkoutPage = _contentRepository.GetFirstChild<CheckoutPage>(ContentReference.StartPage);
+       var responseCode = Request.QueryString["responseCode"] as string;
 
-        PurchaseOrder purchaseOrder = null;
+       if (responseCode == "Cancel")
+       {
+        _log.Log(Level.Debug, "Payment cancelled by user. Redirecting back to checkout.");
+         return RedirectBackToCheckout(checkoutPage, _paymentRedirect.GetCancelReasonCode());
+       }
 
-        Mediachase.Commerce.Orders.Cart cart = new CartHelper(Mediachase.Commerce.Orders.Cart.DefaultName).Cart;
-        
-        var payment = GetPayment(cart);
+       IPurchaseOrder purchaseOrder = null;
 
-        var netaxeptCheckoutPaymentGateway = new NetaxeptCheckoutPaymentGateway();
+       var cart = _cartService.LoadCart(_cartService.DefaultCartName);
+       if (cart != null)
+       // order already processed or something failed - show friendly error
+       {
+            var payment = GetPaymentByStatus(cart, PaymentStatus.Pending, TransactionType.Authorization);
 
-        var result = netaxeptCheckoutPaymentGateway.ProcessAuthorization(payment, transactionId);
-        if (result.Result == PaymentResponseCode.Success)
-        {
-            purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
+            var orderTotal = cart.GetTotal(_orderGroupCalculator).Amount;
 
-            // this will copy all notes from the Cart to the PurchaseOrder
-            CopyNotesFromCartToPurchaseOrder(purchaseOrder, cart); 
-
-            _checkoutService.DeleteCart();
-
-            var queryCollection = new NameValueCollection
+            // Security check: Compare cart value with payment to be processed. Check against tempering with shopping cart
+            if (payment.Amount != orderTotal)
             {
-                {"contactId", _customerContext.CurrentContactId.ToString()},
-                {"orderNumber", purchaseOrder.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
-            };
+               // payment failed - log error
+               var message =
+                        $"Wrong amount! First OrderForm.Total={orderTotal}. Payment amount is {payment.Amount}";
+                _log.Log(Level.Warning, message);
+                 return RedirectBackToCheckout(checkoutPage, _paymentRedirect.GetInvalidAmountCode());
+            }
 
-            return new RedirectResult(new UrlBuilder("/checkout/order-confirmation/") { QueryCollection = queryCollection }.ToString());
-        }
-        return new RedirectResult(new UrlBuilder("/error-pages/payment-failed/").ToString());
+           var netaxeptCheckoutPaymentGateway = new NetaxeptCheckoutPaymentGateway();
+           var result = netaxeptCheckoutPaymentGateway.ProcessAuthorization(
+                    payment,
+                    cart.GetFirstForm(), 
+                    cart, 
+                    transactionId);
+                if (result.Result == PaymentResponseCode.Success)
+                {
+                    payment.Status = PaymentStatus.Processed.ToString();
+                    var orderReference = _orderRepository.SaveAsPurchaseOrder(cart);
+                    purchaseOrder = _orderRepository.Load(orderReference) as IPurchaseOrder;
+
+                    // Make sure ordernumber is same as generated with NETS
+                    string orderNumber = cart.Properties[NetaxeptConstants.CartOrderNumberTempField] as string;
+                    if (!string.IsNullOrEmpty(orderNumber))
+                        purchaseOrder.OrderNumber = orderNumber;
+
+                    // this will copy all notes from the Cart to the PurchaseOrder
+                    CopyNotesFromCartToPurchaseOrder(purchaseOrder, cart);
+
+                    string currentContactId = string.Empty;
+                    //if not a logged in user, we see if there is a contact with email address, else we create one
+                    if (!User.Identity.IsAuthenticated)
+                    {
+                        currentContactId = _orderService.SetOrCreateCustomerToOrder(purchaseOrder, payment, string.Empty,
+                            false);
+                    }
+                    else
+                    {
+                        currentContactId = _customerContext.CurrentContactId.ToString();
+                    }
+
+                    if(CustomerContext.Current.CurrentContact != null)
+                        ((PurchaseOrder)purchaseOrder).CustomerName = CustomerContext.Current.CurrentContact.FullName;
+                    
+                    _orderRepository.Save(purchaseOrder);
+                    _orderRepository.Delete(cart.OrderLink);
+
+                    var queryCollection = new NameValueCollection
+                    {
+                        {"contactId", currentContactId},
+                        {"orderNumber", purchaseOrder.OrderNumber.ToString(CultureInfo.InvariantCulture)}
+                    };
+                    
+                    
+                    var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(checkoutPage.ContentLink);
+                    var orderConfirmationLink = new UrlBuilder(confirmationPage.ContentLink.GetFriendlyUrl(true)) { QueryCollection = queryCollection }.ToString();
+
+                    return Redirect(orderConfirmationLink);
+                }
+                else
+                {
+                    // payment failed - log error
+                    _log.Log(Level.Debug, $"Payment failed with message: {result.ErrorMessage}");
+                    return RedirectBackToCheckout(checkoutPage, _paymentRedirect.GetErrorReasonCode());
+
+                }
+         }
+         
+          return new RedirectResult(new UrlBuilder("/error-pages/payment-failed/").ToString());
     }
 
     /// <summary>
@@ -161,43 +220,45 @@ public class PaymentCallbackController : Controller
     /// </summary>
     /// <param name="purchaseOrder"></param>
     /// <param name="cart"></param>
-    private void CopyNotesFromCartToPurchaseOrder(PurchaseOrder purchaseOrder, Mediachase.Commerce.Orders.Cart cart)
-    {
-        foreach (var note in cart.OrderNotes.OrderByDescending(n => n.Created))
+    private void CopyNotesFromCartToPurchaseOrder(IPurchaseOrder purchaseOrder, ICart cart)
         {
-            OrderNote on = purchaseOrder.OrderNotes.AddNew();
-            on.Detail = note.Detail;
-            on.Title = note.Title;
-            on.Type = OrderNoteTypes.System.ToString();
-            on.Created = note.Created;
-            on.CustomerId = note.CustomerId;
+            if (cart.Notes.Any())
+            {
+                foreach (var note in cart.Notes.OrderByDescending(n => n.Created))
+                {
+                    var on = _orderGroupFactory.CreateOrderNote(purchaseOrder);
+                    on.Detail = note.Detail;
+                    on.Title = note.Title;
+                    on.Type = OrderNoteTypes.System.ToString();
+                    on.Created = note.Created;
+                    on.CustomerId = note.CustomerId;
+                    purchaseOrder.Notes.Add(on);
+                }
+
+                // save changes
+                _orderRepository.Save(purchaseOrder);
+            }
         }
-        purchaseOrder.AcceptChanges();
-    }
 
-    /// <summary>
-    /// Get payment
-    /// </summary>
-    /// <param name="cart"></param>
-    /// <returns></returns>
-    private Mediachase.Commerce.Orders.Payment GetPayment(Mediachase.Commerce.Orders.Cart cart)
-    {
-        if (cart.OrderForms == null || cart.OrderForms.Count == 0 || cart.OrderForms[0].Payments == null || cart.OrderForms[0].Payments.Count == 0)
-            return null;
+    private IPayment GetPaymentByStatus(ICart cart, PaymentStatus paymentStatus, TransactionType transactionType)
+        {
+            var orderForm = cart.GetFirstForm();
+            var lineItems = cart.GetAllLineItems().ToList();
 
-        List<Mediachase.Commerce.Orders.Payment> payments = cart.OrderForms[0].Payments.Where(p => p.Status != PaymentStatus.Failed.ToString()).ToList();
-        payments = PaymentTransactionTypeManager.GetResultingPaymentsByTransactionType(payments, TransactionType.Authorization).ToList();
+            if (orderForm == null || lineItems.Count == 0 || orderForm.Payments.Count == 0)
+                return null;
 
-        if (payments.Any())
-            return payments.First();
-        return null;
-    }
+            List<Payment> payments = orderForm.Payments.Where(p => p.Status == paymentStatus.ToString()).Cast<Payment>().ToList();
+            payments = PaymentTransactionTypeManager.GetResultingPaymentsByTransactionType(payments, transactionType).ToList();
+
+            return payments.FirstOrDefault();
+        }
 }
 ```
 
 ### Payment information
 
-The card information of the payment is saved on payment object. This information can be displayed on the order confirmation page.
+The card information of the payment is saved on payment object and the customer contact. 
 
 ```
 <p>
@@ -207,6 +268,18 @@ The card information of the payment is saved on payment object. This information
     Card information issuer: <strong>@Model.GetString(NetaxeptConstants.CardInformationIssuerField)</strong> <br />
     Card information issuer country: <strong>@Model.GetString(NetaxeptConstants.CardInformationIssuerCountryField)</strong> <br />
     Card information masked pan: <strong>@Model.GetString(NetaxeptConstants.CardInformationMaskedPanField)</strong> <br />
+</p>
+```
+
+
+```
+<p>
+    Card information payment method: <strong>@customerContact[NetaxeptConstants.CustomerCardPaymentMethodFieldName]</strong> <br/>
+    Card information expiry date: <strong>@customerContact[NetaxeptConstants.CustomerCardExpirationDateFieldName]</strong> <br />
+    Card information issuer id: <strong>@customerContact[NetaxeptConstants.CustomerCardIssuerIdFieldName]</strong> <br />
+    Card information issuer: <strong>@customerContact[NetaxeptConstants.CustomerCardIssuerFieldName]</strong> <br />
+    Card information issuer country: <strong>@customerContact[NetaxeptConstants.CustomerCardIssuerCountryFieldName]</strong> <br />
+    Card information masked pan: <strong>@customerContact[NetaxeptConstants.CustomerCardMaskedFieldName]</strong> <br />
 </p>
 ```
 

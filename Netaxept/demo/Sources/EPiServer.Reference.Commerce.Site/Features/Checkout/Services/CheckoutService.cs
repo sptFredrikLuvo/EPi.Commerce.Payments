@@ -1,187 +1,183 @@
-﻿using EPiServer.Reference.Commerce.Site.Features.Payment.Models;
-using EPiServer.ServiceLocation;
-using Mediachase.Commerce;
-using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Orders.Dto;
-using Mediachase.Commerce.Orders.Managers;
-using Mediachase.Commerce.Website;
-using Mediachase.Commerce.Website.Helpers;
-using Mediachase.MetaDataPlus;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
-using System.Web;
+using System.Web.Mvc;
+using EPiServer.Commerce.Marketing;
+using EPiServer.Commerce.Order;
+using EPiServer.Core;
+using EPiServer.Framework.Localization;
+using EPiServer.Logging;
+using EPiServer.Reference.Commerce.Shared.Services;
+using EPiServer.Reference.Commerce.Site.Features.AddressBook.Services;
+using EPiServer.Reference.Commerce.Site.Features.Cart.ViewModels;
+using EPiServer.Reference.Commerce.Site.Features.Checkout.Pages;
+using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModels;
+using EPiServer.Reference.Commerce.Site.Features.Shared.Extensions;
+using EPiServer.Reference.Commerce.Site.Features.Start.Pages;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
-using EPiServer.Reference.Commerce.Site.Features.Market.Services;
-using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business;
+using Mediachase.Commerce.Orders;
+using Mediachase.Commerce.Orders.Exceptions;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
 {
-    [ServiceConfiguration(typeof(ICheckoutService), Lifecycle = ServiceInstanceScope.Transient)]
-    public class CheckoutService : ICheckoutService
+    public class CheckoutService
     {
-        private readonly Func<string, CartHelper> _cartHelper;
-        private readonly ICurrentMarket _currentMarket;
-        private readonly LanguageService _languageService;
-        private readonly CountryManagerFacade _countryManager;
+        private readonly IAddressBookService _addressBookService;
+        private readonly IOrderGroupCalculator _orderGroupCalculator;
+        private readonly IOrderGroupFactory _orderGroupFactory;
+        private readonly IPaymentProcessor _paymentProcessor;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IContentRepository _contentRepository;
+        private readonly CustomerContextFacade _customerContext;
+        private readonly LocalizationService _localizationService;
+        private readonly IMailService _mailService;
+        private readonly IPromotionEngine _promotionEngine;
+        private readonly ILogger _log = LogManager.GetLogger(typeof(CheckoutService));
+
+        public AuthenticatedPurchaseValidation AuthenticatedPurchaseValidation { get; private set; }
+        public AnonymousPurchaseValidation AnonymousPurchaseValidation { get; private set; }
+        public CheckoutAddressHandling CheckoutAddressHandling { get; private set; }
 
         public CheckoutService(
-            Func<string, CartHelper> cartHelper, 
-            ICurrentMarket currentMarket, 
-            LanguageService languageService, 
-            CountryManagerFacade countryManager)
+            IAddressBookService addressBookService,
+            IOrderGroupFactory orderGroupFactory,
+            IOrderGroupCalculator orderGroupCalculator,
+            IPaymentProcessor paymentProcessor,
+            IOrderRepository orderRepository,
+            IContentRepository contentRepository,
+            CustomerContextFacade customerContext,
+            LocalizationService localizationService,
+            IMailService mailService, 
+            IPromotionEngine promotionEngine)
         {
-            _cartHelper = cartHelper;
-            _currentMarket = currentMarket;
-            _languageService = languageService;
-            _countryManager = countryManager;
+            _addressBookService = addressBookService;
+            _orderGroupFactory = orderGroupFactory;
+            _orderGroupCalculator = orderGroupCalculator;
+            _paymentProcessor = paymentProcessor;
+            _orderRepository = orderRepository;
+            _contentRepository = contentRepository;
+            _customerContext = customerContext;
+            _localizationService = localizationService;
+            _mailService = mailService;
+            _promotionEngine = promotionEngine;
+
+            AuthenticatedPurchaseValidation = new AuthenticatedPurchaseValidation(_localizationService);
+            AnonymousPurchaseValidation = new AnonymousPurchaseValidation(_localizationService);
+            CheckoutAddressHandling = new CheckoutAddressHandling(_addressBookService);
         }
 
-        public Shipment CreateShipment()
+        public virtual void UpdateShippingMethods(ICart cart, IList<ShipmentViewModel> shipmentViewModels)
         {
-            if (CartHelper.Cart.ObjectState == MetaObjectState.Added)
+            var index = 0;
+            foreach (var shipment in cart.GetFirstForm().Shipments)
             {
-                CartHelper.Cart.AcceptChanges();
+                shipment.ShippingMethodId = shipmentViewModels[index++].ShippingMethodId;
             }
-
-            var orderForms = CartHelper.Cart.OrderForms;
-            if (orderForms.Count == 0)
+        }
+        
+        public virtual void UpdateShippingAddresses(ICart cart, CheckoutViewModel viewModel)
+        {
+            if (viewModel.UseBillingAddressForShipment)
             {
-                orderForms.AddNew();
-                orderForms.Single().Name = CartHelper.Cart.Name;
+                cart.GetFirstShipment().ShippingAddress = _addressBookService.ConvertToAddress(viewModel.BillingAddress, cart);
             }
-
-            var orderForm = orderForms.First();
-
-            var shipments = orderForm.Shipments;
-            if (shipments.Count != 0)
+            else
             {
-                shipments.Clear();
-            }
-
-            var shipment = shipments.AddNew();
-            for (var i = 0; i < orderForm.LineItems.Count; i++)
-            {
-                var item = orderForm.LineItems[i];
-                shipment.AddLineItemIndex(i, item.Quantity);
-            }
-
-            orderForm.AcceptChanges();
-
-            return shipment;
-        }
-
-        public void UpdateShipment(Shipment shipment, ShippingRate shippingCost)
-        {
-            shipment.ShippingMethodId = shippingCost.Id;
-            shipment.ShippingMethodName = shippingCost.Name;
-            shipment.SubTotal = shippingCost.Money.Amount;
-            shipment.ShippingSubTotal = shippingCost.Money.Amount;
-            shipment.AcceptChanges();
-        }
-
-        public ShippingRate GetShippingRate(Shipment shipment, Guid shippingMethodId)
-        {
-            var method = ShippingManager.GetShippingMethod(shippingMethodId).ShippingMethod.Single();
-            return GetRate(shipment, method);
-        }
-
-        private ShippingRate GetRate(Shipment shipment, ShippingMethodDto.ShippingMethodRow shippingMethodRow)
-        {
-            var type = Type.GetType(shippingMethodRow.ShippingOptionRow.ClassName);
-            var shippingGateway = (IShippingGateway)Activator.CreateInstance(type, _currentMarket.GetCurrentMarket());
-            string message = null;
-            return shippingGateway.GetRate(shippingMethodRow.ShippingMethodId, shipment, ref message);
-        }
-
-        public IEnumerable<ShippingRate> GetShippingRates(Shipment shipment)
-        {
-            var methods = ShippingManager.GetShippingMethodsByMarket(CurrentMarketId.Value, false).ShippingMethod;
-            var currentLanguage = CurrentLanguageIsoCode;
-            var currencyId = CartHelper.Cart.BillingCurrency;
-            return methods.
-                Where(shippingMethodRow =>
-                    currentLanguage.Equals(shippingMethodRow.LanguageId, StringComparison.OrdinalIgnoreCase) &&
-                    String.Equals(currencyId, shippingMethodRow.Currency, StringComparison.OrdinalIgnoreCase)).
-                OrderBy(shippingMethodRow => shippingMethodRow.Ordering).
-                Select(shippingMethodRow => GetRate(shipment, shippingMethodRow));
-        }
-
-        public IEnumerable<PaymentMethodViewModel<IPaymentOption>> GetPaymentMethods()
-        {
-            var methods = PaymentManager.GetPaymentMethodsByMarket(CurrentMarketId.Value).PaymentMethod.Where(c => c.IsActive);
-            var currentLanguage = CurrentLanguageIsoCode;
-            return methods.
-                Where(paymentRow => currentLanguage.Equals(paymentRow.LanguageId, StringComparison.OrdinalIgnoreCase)).
-                OrderBy(paymentRow => paymentRow.Ordering).
-                Select(paymentRow => new PaymentMethodViewModel<IPaymentOption>
+                var shipments = cart.GetFirstForm().Shipments;
+                for (var index = 0; index < shipments.Count; index++)
                 {
-                    Id = paymentRow.PaymentMethodId,
-                    SystemName = paymentRow.SystemKeyword,
-                    FriendlyName = paymentRow.Name,
-                    MarketId = CurrentMarketId,
-                    Ordering = paymentRow.Ordering,
-                    IsDefault = paymentRow.IsDefault,
-                    Description = paymentRow.Description,
-                }).ToList();
-        }
-
-        public void DeleteCart()
-        {
-            var cart = CartHelper.Cart;
-            foreach (OrderForm orderForm in cart.OrderForms)
-            {
-                foreach (Shipment shipment in orderForm.Shipments)
-                {
-                    shipment.Delete();
+                    shipments.ElementAt(index).ShippingAddress = _addressBookService.ConvertToAddress(viewModel.Shipments[index].Address, cart);
                 }
-                orderForm.Delete();
             }
-            foreach (OrderAddress address in cart.OrderAddresses)
+        }
+
+        public virtual void ApplyDiscounts(ICart cart)
+        {
+            cart.ApplyDiscounts(_promotionEngine, new PromotionEngineSettings());
+        }
+
+        public virtual void CreateAndAddPaymentToCart(ICart cart, CheckoutViewModel viewModel)
+        {
+            var total = cart.GetTotal(_orderGroupCalculator);
+            var payment = viewModel.Payment.PaymentMethod.CreatePayment(total.Amount, cart);
+            cart.AddPayment(payment, _orderGroupFactory);
+            payment.BillingAddress = _addressBookService.ConvertToAddress(viewModel.BillingAddress, cart);
+        }
+
+        public virtual IPurchaseOrder PlaceOrder(ICart cart, ModelStateDictionary modelState, CheckoutViewModel checkoutViewModel)
+        {
+            try
             {
-                address.Delete();
+                cart.ProcessPayments(_paymentProcessor, _orderGroupCalculator);
+                if (cart.GetFirstForm().Payments.FirstOrDefault().PaymentMethodName != "netaxept")
+                {
+                    var totalProcessedAmount =
+                        cart.GetFirstForm()
+                            .Payments.Where(x => x.Status.Equals(PaymentStatus.Processed.ToString()))
+                            .Sum(x => x.Amount);
+                    if (totalProcessedAmount != cart.GetTotal(_orderGroupCalculator).Amount)
+                    {
+                        throw new InvalidOperationException("Wrong amount");
+                    }
+
+                    var payment = cart.GetFirstForm().Payments.First();
+                    checkoutViewModel.Payment.PaymentMethod.PostProcess(payment);
+
+                    var orderReference = _orderRepository.SaveAsPurchaseOrder(cart);
+                    var purchaseOrder = _orderRepository.Load<IPurchaseOrder>(orderReference.OrderGroupId);
+                    _orderRepository.Delete(cart.OrderLink);
+
+                    return purchaseOrder;
+                }
             }
-            
-            CartHelper.Delete();
-
-            cart.AcceptChanges();
+            catch (PaymentException)
+            {
+                modelState.AddModelError("", _localizationService.GetString("/Checkout/Payment/Errors/ProcessingPaymentFailure"));
+            }
+            return null;
         }
 
-        private CartHelper CartHelper
+        public virtual bool SendConfirmation(CheckoutViewModel viewModel, IPurchaseOrder purchaseOrder)
         {
-            get { return _cartHelper(Mediachase.Commerce.Orders.Cart.DefaultName); }
+            var queryCollection = new NameValueCollection
+            {
+                {"contactId", _customerContext.CurrentContactId.ToString()},
+                {"orderNumber", purchaseOrder.OrderLink.OrderGroupId.ToString(CultureInfo.CurrentCulture)}
+            };
+
+            var startpage = _contentRepository.Get<StartPage>(ContentReference.StartPage);
+            var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(viewModel.CurrentPage.ContentLink);
+
+            try
+            {
+                _mailService.Send(startpage.OrderConfirmationMail, queryCollection, viewModel.BillingAddress.Email, confirmationPage.Language.Name);
+            }
+            catch (Exception e)
+            {
+                _log.Warning(string.Format("Unable to send purchase receipt to '{0}'.", viewModel.BillingAddress.Email), e);
+                return false;
+            }
+            return true;
         }
 
-        private MarketId CurrentMarketId
+        public virtual string BuildRedirectionUrl(CheckoutViewModel checkoutViewModel, IPurchaseOrder purchaseOrder, bool confirmationSentSuccessfully)
         {
-            get { return _currentMarket.GetCurrentMarket().MarketId; }
-        }
+            var queryCollection = new NameValueCollection
+            {
+                {"contactId", _customerContext.CurrentContactId.ToString()},
+                {"orderNumber", purchaseOrder.OrderLink.OrderGroupId.ToString(CultureInfo.CurrentCulture)}
+            };
 
-        private string CurrentLanguageIsoCode
-        {
-            get { return _languageService.GetCurrentLanguage().TwoLetterISOLanguageName; }
-        }
+            if (!confirmationSentSuccessfully)
+            {
+                queryCollection.Add("notificationMessage", string.Format(_localizationService.GetString("/OrderConfirmationMail/ErrorMessages/SmtpFailure"), checkoutViewModel.BillingAddress.Email));
+            }
 
-        public OrderAddress AddNewOrderAddress()
-        {
-            return  CartHelper.Cart.OrderAddresses.AddNew();
-        }
+            var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(checkoutViewModel.CurrentPage.ContentLink);
 
-        public void UpdateBillingAddressId(string addressId)
-        {
-            CartHelper.Cart.OrderForms[0].BillingAddressId = addressId;
-            CartHelper.Cart.OrderForms[0].AcceptChanges();
-        }
-
-        public void ClearOrderAddresses()
-        {
-            CartHelper.Cart.OrderAddresses.Clear();
-        }
-
-        public PurchaseOrder SaveCartAsPurchaseOrder()
-        {
-            CartHelper.Cart.OrderNumberMethod = CartOrderNumber.GenerateOrderNumber;
-            return CartHelper.Cart.SaveAsPurchaseOrder();
+            return new UrlBuilder(confirmationPage.LinkURL) {QueryCollection = queryCollection}.ToString();
         }
     }
 }

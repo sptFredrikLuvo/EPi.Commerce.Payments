@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Linq;
+using EPiServer.Commerce.Order;
 using EPiServer.Logging;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps;
+using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Models;
 using Geta.Netaxept.Checkout;
+using Geta.Netaxept.Checkout.Models;
 using Mediachase.Commerce.Orders;
+using Mediachase.Commerce.Orders.Managers;
 using Mediachase.Commerce.Plugins.Payment;
 using Mediachase.Commerce.Website;
 
@@ -12,12 +17,80 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
     /// <summary>
     /// Netaxept payment gateway
     /// </summary>
-    public class NetaxeptCheckoutPaymentGateway : AbstractPaymentGateway, IPaymentOption
+    public class NetaxeptCheckoutPaymentGateway : AbstractPaymentGateway, IPaymentPlugin
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(NetaxeptCheckoutPaymentGateway));
 
         public Guid PaymentMethodId { get; set; }
         public string CallbackUrl { get; set; }
+
+        public IOrderGroup OrderGroup { get; set; }
+        private IOrderForm _orderForm;
+
+        public bool ProcessPayment(IPayment payment, ref string message)
+        {
+            try
+            {
+                Logger.Debug("Netaxept checkout gateway. Processing Payment ....");
+
+                if (_orderForm == null)
+                {
+                    _orderForm = OrderGroup.Forms.FirstOrDefault(form => form.Payments.Contains(payment));
+                }
+
+                var registerPaymentStep = new RegisterPaymentStep(payment);
+                var capturePaymentStep = new CapturePaymentStep(payment);
+                var creditPaymentStep = new CreditPaymentStep(payment);
+                var annulPaymentStep = new AnnulPaymentStep(payment);
+
+                registerPaymentStep.SetSuccessor(capturePaymentStep);
+                capturePaymentStep.SetSuccessor(creditPaymentStep);
+                creditPaymentStep.SetSuccessor(annulPaymentStep);
+
+                return registerPaymentStep.Process(payment, _orderForm, OrderGroup, ref message);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error("Process payment failed with error: " + exception.Message, exception);
+                message = exception.Message;
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="payment"></param>
+        /// <param name="transactionId"></param>
+        /// <returns></returns>
+        public PaymentAuthorizationResult ProcessAuthorization(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, string transactionId)
+        {
+            var authorizePaymentStep = new AuthorizationPaymentStep(payment);
+
+            return authorizePaymentStep.Process(payment, orderGroup, transactionId);
+        }
+
+        public PaymentResult QueryTransaction(Guid paymentMethodId, string transactionId)
+        {
+            try
+            {
+                var paymentMethodDto = PaymentManager.GetPaymentMethod(paymentMethodId);
+                var merchantId = paymentMethodDto.GetParameter(NetaxeptConstants.MerchantIdField, string.Empty);
+                var token = paymentMethodDto.GetParameter(NetaxeptConstants.TokenField, string.Empty);
+                var isProduction = bool.Parse(paymentMethodDto.GetParameter(NetaxeptConstants.IsProductionField, "false"));
+
+                var connection = new ClientConnection(merchantId, token, isProduction);
+                var client = new NetaxeptServiceClient(connection);
+                return client.Query(transactionId);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message);
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Process payment method 
@@ -31,14 +104,9 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
             {
                 Logger.Debug("Netaxept checkout gateway. Processing Payment ....");
 
-                var registerPaymentStep = new RegisterPaymentStep(payment);
-                var capturePaymentStep = new CapturePaymentStep(payment);
-                var creditPaymentStep = new CreditPaymentStep(payment);
-
-                registerPaymentStep.SetSuccessor(capturePaymentStep);
-                capturePaymentStep.SetSuccessor(creditPaymentStep);
-
-                return registerPaymentStep.Process(payment, ref message);
+                OrderGroup = payment.Parent.Parent;
+                _orderForm = payment.Parent;
+                return ProcessPayment(payment as IPayment, ref message);
             }
             catch (Exception exception)
             {
@@ -46,59 +114,6 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                 message = exception.Message;
                 throw;
             }
-        }
-
-        public bool ValidateData()
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// Pre process method. Set all fields for the payment
-        /// </summary>
-        /// <param name="orderForm"></param>
-        /// <returns></returns>
-        public Payment PreProcess(OrderForm orderForm)
-        {
-            if (orderForm == null) throw new ArgumentNullException(nameof(orderForm));
-
-            var payment = new OtherPayment()
-            {
-                PaymentMethodId = PaymentMethodId,
-                PaymentMethodName = "Netaxept",
-                OrderFormId = orderForm.OrderFormId,
-                OrderGroupId = orderForm.OrderGroupId,
-                Amount = orderForm.Total,
-                Status = PaymentStatus.Pending.ToString(),
-                TransactionType = TransactionType.Authorization.ToString()
-            };
-
-            payment.SetMetaField(NetaxeptConstants.CallbackUrl, CallbackUrl, false);
-
-            return payment;
-        }
-
-        /// <summary>
-        /// Will always return true
-        /// </summary>
-        /// <param name="orderForm"></param>
-        /// <returns></returns>
-        public bool PostProcess(OrderForm orderForm)
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="payment"></param>
-        /// <param name="transactionId"></param>
-        /// <returns></returns>
-        public PaymentAuthorizationResult ProcessAuthorization(Payment payment, string transactionId)
-        {
-            var authorizePaymentStep = new AuthorizationPaymentStep(payment);
-
-            return authorizePaymentStep.Process(payment, transactionId);
         }
     }
 }

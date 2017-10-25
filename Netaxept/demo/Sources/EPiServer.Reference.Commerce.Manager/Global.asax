@@ -3,12 +3,14 @@
 <%@ Import Namespace="System.Web.Routing" %>
 <%@ Import Namespace="EPiServer.Security" %>
 <%@ Import Namespace="Mediachase.Commerce.Core.Dto" %>
+<%@ Import Namespace="EPiServer.Data" %>
 <%@ Import Namespace="EPiServer.Logging" %>
 <%@ Import Namespace="Mediachase.Commerce.Security" %>
 
 <script RunAt="server">
 
     private static AuthenticationMode _authenticationMode;
+    private static DatabaseMode _databaseMode;
 
     void Application_Start(object sender, EventArgs e)
     {
@@ -35,6 +37,7 @@
         var configuration = WebConfigurationManager.OpenWebConfiguration("/");
         var authenticationSection = (AuthenticationSection)configuration.GetSection("system.web/authentication");
         _authenticationMode = authenticationSection.Mode;
+        _databaseMode = EPiServer.ServiceLocation.ServiceLocator.Current.GetInstance<IDatabaseMode>().DatabaseMode;
     }
 
     void Application_End(object sender, EventArgs e)
@@ -88,9 +91,13 @@
 
     protected void Application_BeginRequest(object sender, EventArgs e)
     {
+        if (_databaseMode == DatabaseMode.ReadOnly)
+        {
+            Response.Redirect("~/Apps/Shell/Pages/Readonly.html");
+        }
         // Bug fix for MS SSRS Blank.gif 500 server error missing parameter IterationId
-        if (HttpContext.Current.Request.Url.PathAndQuery.StartsWith("/Reserved.ReportViewerWebControl.axd") &&
-         !String.IsNullOrEmpty(HttpContext.Current.Request.QueryString["ResourceStreamID"]) &&
+        else if (HttpContext.Current.Request.Url.PathAndQuery.StartsWith("/Reserved.ReportViewerWebControl.axd") &&
+            !String.IsNullOrEmpty(HttpContext.Current.Request.QueryString["ResourceStreamID"]) &&
             HttpContext.Current.Request.QueryString["ResourceStreamID"].ToLower().Equals("blank.gif"))
         {
             Context.RewritePath(String.Concat(HttpContext.Current.Request.Url.PathAndQuery, "&IterationId=0"));
@@ -104,90 +111,80 @@
 
     protected void Application_AuthorizeRequest(object sender, EventArgs e)
     {
-        HttpApplication httpApplication = (HttpApplication)sender;
+        var httpApplication = sender as HttpApplication;
 
-        if (this.Request.IsAuthenticated)
+        if (!Request.IsAuthenticated || Request.Url.AbsoluteUri.IndexOf("logout", StringComparison.OrdinalIgnoreCase) >= 0 || Request.Url.AbsoluteUri.IndexOf("login", StringComparison.OrdinalIgnoreCase) >= 0 )
         {
-            // Check current 
-            string fullName = User.Identity.Name;
-            string appName = String.Empty;
+            return;
+        }
 
-            if (_authenticationMode == AuthenticationMode.Forms)
+        // Check current 
+        var fullName = User.Identity.Name;
+        var appName = string.Empty;
+
+        if (_authenticationMode == AuthenticationMode.Forms)
+        {
+            // If user authenticated, recreate the authentication cookie with a new value
+            HttpCookie cookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
+            if (cookie != null)
             {
-                // If user authenticated, recreate the authentication cookie with a new value
-                HttpCookie cookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
-                if (cookie != null)
-                {
-                    FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(cookie.Value);
-                    appName = ticket.UserData;
-                }
-
-                if (appName.Length == 0)
-                {
-                    FormsAuthentication.SignOut();
-                    FormsAuthentication.RedirectToLoginPage();
-                    httpApplication.CompleteRequest();
-                }
-
-                AppDto dto = Mediachase.Commerce.Core.AppContext.Current.GetApplicationDto(appName);
-
-                // If application does not exists or is not active, prevent login
-                if (dto == null || dto.Application.Count == 0 || !dto.Application[0].IsActive)
-                {
-                    FormsAuthentication.SignOut();
-                    FormsAuthentication.RedirectToLoginPage();
-                    httpApplication.CompleteRequest();
-                }
-                else
-                {
-                    Membership.Provider.ApplicationName = appName;
-                    Roles.Provider.ApplicationName = appName;
-                    ProfileManager.ApplicationName = appName;
-                    Mediachase.Commerce.Core.AppContext.Current.ApplicationId = dto.Application[0].ApplicationId;
-                    Mediachase.Commerce.Core.AppContext.Current.ApplicationName = dto.Application[0].Name;
-                }
+                FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(cookie.Value);
+                appName = ticket.UserData;
             }
-            // Check permissions
-            // Check permissions
-            if (Mediachase.Commerce.Security.SecurityContext.Current.IsPermissionCheckEnable)
+
+            if (appName.Length == 0)
             {
-                if (!PrincipalInfo.Current.IsPermitted(x => x.Core.Login))
-                {
-                    FormsAuthentication.SignOut();
-                    this.Response.Redirect("~/Apps/Shell/Pages/Unauthorized.html");
-                    httpApplication.CompleteRequest();
-                }
+                SignOutAndRedirect(httpApplication, true);
+            }
 
-                Mediachase.Commerce.Security.SecurityContext context = Mediachase.Commerce.Security.SecurityContext.Current;
+            AppDto dto = Mediachase.Commerce.Core.AppContext.Current.GetApplicationDto(appName);
 
-                try
+            // If application does not exists or is not active, prevent login
+            if (dto == null || dto.Application.Count == 0 || !dto.Application[0].IsActive)
+            {
+                SignOutAndRedirect(httpApplication, true);
+            }
+            else
+            {
+                Membership.Provider.ApplicationName = appName;
+                Roles.Provider.ApplicationName = appName;
+                ProfileManager.ApplicationName = appName;
+                Mediachase.Commerce.Core.AppContext.Current.ApplicationId = dto.Application[0].ApplicationId;
+                Mediachase.Commerce.Core.AppContext.Current.ApplicationName = dto.Application[0].Name;
+            }
+        }
+
+        // Check permissions
+        if (Mediachase.Commerce.Security.SecurityContext.Current.IsPermissionCheckEnable)
+        {
+            if (!PrincipalInfo.Current.IsPermitted(x => x.Core.Login))
+            {
+                SignOutAndRedirect(httpApplication, false);
+            }
+
+            Mediachase.Commerce.Security.SecurityContext context = Mediachase.Commerce.Security.SecurityContext.Current;
+
+            try
+            {
+                if (context != null && _authenticationMode == AuthenticationMode.Forms)
                 {
-                    if (context != null && _authenticationMode == AuthenticationMode.Forms)
+                    Mediachase.Commerce.Customers.Profile.CustomerProfileWrapper profile = context.CurrentUserProfile as Mediachase.Commerce.Customers.Profile.CustomerProfileWrapper;
+
+                    if (profile != null && profile.State != 2)
                     {
-                        Mediachase.Commerce.Customers.Profile.CustomerProfileWrapper profile = context.CurrentUserProfile as Mediachase.Commerce.Customers.Profile.CustomerProfileWrapper;
-
-                        if (profile != null && profile.State != 2)
-                        {
-                            FormsAuthentication.SignOut();
-                            this.Response.Redirect("~/Apps/Shell/Pages/Unauthorized.html");
-                            httpApplication.CompleteRequest();
-                        }
+                        SignOutAndRedirect(httpApplication, false);
                     }
                 }
-                catch (System.Data.SqlClient.SqlException)
-                {
-                    FormsAuthentication.SignOut();
-                    FormsAuthentication.RedirectToLoginPage();
-                    httpApplication.CompleteRequest();
-                }
             }
-            else if (!Mediachase.Commerce.Security.SecurityContext.Current.CheckCurrentUserInAnyGlobalRoles(
-                new string[] { Mediachase.Commerce.Core.AppRoles.AdminRole, Mediachase.Commerce.Core.AppRoles.ManagerUserRole }))
+            catch (System.Data.SqlClient.SqlException)
             {
-                FormsAuthentication.SignOut();
-                this.Response.Redirect("~/Apps/Shell/Pages/Unauthorized.html");
-                httpApplication.CompleteRequest();
+                SignOutAndRedirect(httpApplication, true);
             }
+        }
+        else if(PrincipalInfo.CurrentPrincipal.IsInRole(Mediachase.Commerce.Core.AppRoles.AdminRole) ||
+                PrincipalInfo.CurrentPrincipal.IsInRole(Mediachase.Commerce.Core.AppRoles.ManagerUserRole))
+        {
+            SignOutAndRedirect(httpApplication, false);
         }
     }
 
@@ -215,5 +212,24 @@
         // Initialize the CurrentUICulture property
         // with the CurrentCulture property.
         System.Threading.Thread.CurrentThread.CurrentUICulture = System.Threading.Thread.CurrentThread.CurrentCulture;
+    }
+
+    /// <summary>
+    /// Sign out then redirect page.
+    /// True if redirect to login, false will redirect to access denied page.
+    /// </summary>
+    private void SignOutAndRedirect(HttpApplication httpApplication, bool redirectToLogin)
+    {
+        FormsAuthentication.SignOut();
+        if (redirectToLogin)
+        {
+            FormsAuthentication.RedirectToLoginPage();
+        }
+        else
+        {
+            Response.Redirect("~/Apps/Shell/Pages/Unauthorized.html");
+        }
+
+        httpApplication.CompleteRequest();
     }
 </script>

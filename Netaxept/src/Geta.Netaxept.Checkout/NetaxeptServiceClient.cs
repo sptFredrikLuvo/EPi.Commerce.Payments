@@ -160,6 +160,20 @@ namespace Geta.Netaxept.Checkout
             return Create(response);
         }
 
+        public ProcessResult Annul(string transactionId)
+        {
+            if (string.IsNullOrEmpty(transactionId))
+            {
+                throw new ArgumentNullException(nameof(transactionId));
+            }
+            var response = _client.Process(_connection.MerchantId, _connection.Token, new ProcessRequest
+            {
+                Operation = "ANNUL",
+                TransactionId = transactionId
+            });
+            return Create(response);
+        }
+
         /// <summary>
         /// Execute authorize method
         /// </summary>
@@ -220,7 +234,8 @@ namespace Geta.Netaxept.Checkout
                 CardInformationPaymentMethod = info.CardInformation.PaymentMethod,
 
                 AmountCaptured = int.Parse(info.Summary.AmountCaptured),
-
+                Authorized = info.Summary.Authorized,
+                
                 Cancelled = (info.Error != null ? info.Error.ResponseCode.Equals("17") : false),
                 ErrorOccurred = (info.Error != null),
                 ErrorCode = (info.Error != null ? info.Error.ResponseCode : string.Empty),

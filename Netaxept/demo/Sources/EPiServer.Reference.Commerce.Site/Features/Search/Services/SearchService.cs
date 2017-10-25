@@ -1,9 +1,10 @@
-﻿using EPiServer.Commerce.Catalog.ContentTypes;
+using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Framework.Localization;
 using EPiServer.Reference.Commerce.Site.Features.Market.Services;
-using EPiServer.Reference.Commerce.Site.Features.Product.Models;
+using EPiServer.Reference.Commerce.Site.Features.Product.ViewModels;
 using EPiServer.Reference.Commerce.Site.Features.Search.Models;
+using EPiServer.Reference.Commerce.Site.Features.Search.ViewModels;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Indexing;
 using EPiServer.ServiceLocation;
@@ -20,6 +21,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Web.Helpers;
+using EPiServer.Globalization;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
 {
@@ -30,7 +32,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
         private readonly ICurrentMarket _currentMarket;
         private readonly ICurrencyService _currencyService;
         private readonly UrlResolver _urlResolver;
-        private readonly CultureInfo _preferredCulture;
+        private readonly LanguageResolver _languageResolver;
         private readonly IContentLoader _contentLoader;
         private readonly LocalizationService _localizationService;
 
@@ -38,11 +40,11 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
         // so we want a default page size to be divisible with all three.
         private static readonly int _defaultPageSize = 18;
 
-        public SearchService(ICurrentMarket currentMarket, 
-            ICurrencyService currencyService, 
-            UrlResolver urlResolver, 
+        public SearchService(ICurrentMarket currentMarket,
+            ICurrencyService currencyService,
+            UrlResolver urlResolver,
             SearchFacade search,
-            Func<CultureInfo> preferredCulture,
+            LanguageResolver languageResolver,
             IContentLoader contentLoader,
             LocalizationService localizationService)
         {
@@ -50,26 +52,26 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
             _currentMarket = currentMarket;
             _currencyService = currencyService;
             _urlResolver = urlResolver;
-            _preferredCulture = preferredCulture();
+            _languageResolver = languageResolver;
             _contentLoader = contentLoader;
             _localizationService = localizationService;
         }
 
-        public CustomSearchResult Search(IContent currentContent, FilterOptionFormModel filterOptions)
+        public CustomSearchResult Search(IContent currentContent, FilterOptionViewModel filterOptions)
         {
             if (filterOptions == null)
             {
                 return CreateEmptyResult();
             }
 
-            var criteria = CreateCriteria(currentContent, filterOptions);
+            var criteria = CreateFullSearchCriteria(currentContent, filterOptions);
             AddFacets(filterOptions.FacetGroups, criteria, currentContent);
             return Search(criteria, currentContent);
         }
 
-        public IEnumerable<ProductViewModel> QuickSearch(string query)
+        public IEnumerable<ProductTileViewModel> QuickSearch(string query)
         {
-            var filterOptions = new FilterOptionFormModel
+            var filterOptions = new FilterOptionViewModel
             {
                 Q = query,
                 PageSize = 5,
@@ -78,14 +80,14 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
             return QuickSearch(filterOptions);
         }
 
-        public IEnumerable<ProductViewModel> QuickSearch(FilterOptionFormModel filterOptions)
+        public IEnumerable<ProductTileViewModel> QuickSearch(FilterOptionViewModel filterOptions)
         {
             if (String.IsNullOrEmpty(filterOptions.Q))
             {
-                return Enumerable.Empty<ProductViewModel>();
+                return Enumerable.Empty<ProductTileViewModel>();
             }
 
-            var criteria = CreateCriteriaForQuickSearch(filterOptions);
+            var criteria = CreateDefaultCriteria(filterOptions);
 
             try
             {
@@ -94,7 +96,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
             }
             catch (ParseException)
             {
-                return new ProductViewModel[0];
+                return new ProductTileViewModel[0];
             }
         }
 
@@ -111,46 +113,36 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
             };
         }
 
-        private CatalogEntrySearchCriteria CreateCriteriaForQuickSearch(FilterOptionFormModel filterOptions)
-        {
-            var sortOrder = GetSortOrder().FirstOrDefault(x => x.Name.ToString() == filterOptions.Sort) ?? GetSortOrder().First();
-            var market = _currentMarket.GetCurrentMarket();
-
-            var criteria = new CatalogEntrySearchCriteria
-            {
-                ClassTypes = new StringCollection { "product" },
-                Locale = _preferredCulture.Name,
-                MarketId = market.MarketId,
-                StartingRecord = 0,
-                RecordsToRetrieve = filterOptions.PageSize,
-                Sort = new SearchSort(new SearchSortField(sortOrder.Key, sortOrder.SortDirection == SortDirection.Descending)),
-                SearchPhrase = GetEscapedSearchPhrase(filterOptions.Q)
-            };
-
-            return criteria;
-        }
-
-        private CatalogEntrySearchCriteria CreateCriteria(IContent currentContent, FilterOptionFormModel filterOptions)
+        private CatalogEntrySearchCriteria CreateFullSearchCriteria(IContent currentContent, FilterOptionViewModel filterOptions)
         {
             var pageSize = filterOptions.PageSize > 0 ? filterOptions.PageSize : _defaultPageSize;
-            var sortOrder = GetSortOrder().FirstOrDefault(x => x.Name.ToString() == filterOptions.Sort) ?? GetSortOrder().First();
-            var market = _currentMarket.GetCurrentMarket();
+            var criteria = CreateDefaultCriteria(filterOptions);
+            criteria.StartingRecord = pageSize * (filterOptions.Page - 1);
 
-            var criteria = new CatalogEntrySearchCriteria
-            {
-                ClassTypes = new StringCollection { "product" },
-                Locale = _preferredCulture.Name,
-                MarketId = market.MarketId,
-                StartingRecord = pageSize * (filterOptions.Page - 1),
-                RecordsToRetrieve = pageSize,
-                Sort = new SearchSort(new SearchSortField(sortOrder.Key, sortOrder.SortDirection == SortDirection.Descending))
-            };
-            
             var nodeContent = currentContent as NodeContent;
             if (nodeContent != null)
             {
                 criteria.Outlines = _search.GetOutlinesForNode(nodeContent.Code);
             }
+
+            return criteria;
+        }
+
+        private CatalogEntrySearchCriteria CreateDefaultCriteria(FilterOptionViewModel filterOptions)
+        {
+            var sortOrder = GetSortOrder().FirstOrDefault(x => x.Name.ToString() == filterOptions.Sort) ?? GetSortOrder().First();
+            var market = _currentMarket.GetCurrentMarket();
+
+            var criteria = new CatalogEntrySearchCriteria
+            {
+                ClassTypes = new StringCollection { "product", "package", "bundle" },
+                Locale = _languageResolver.GetPreferredCulture().Name,
+                MarketId = market.MarketId,
+                StartingRecord = 0,
+                RecordsToRetrieve = filterOptions.PageSize > 0 ? filterOptions.PageSize : _defaultPageSize,
+                Sort = new SearchSort(new SearchSortField(sortOrder.Key, sortOrder.SortDirection == SortDirection.Descending))
+            };
+
             if (!string.IsNullOrEmpty(filterOptions.Q))
             {
                 criteria.SearchPhrase = GetEscapedSearchPhrase(filterOptions.Q);
@@ -178,7 +170,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
                     }
                     searchFilter = GetSearchFilterForNode(nodeContent);
                 }
-                
+
                 var facetValues = searchFilter.Values.SimpleValue
                     .Where(x => facetGroupOption.Facets.FirstOrDefault(y => y.Selected && y.Key.ToLower() == x.key.ToLower()) != null);
 
@@ -190,7 +182,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
         {
             return new CustomSearchResult
             {
-                ProductViewModels = Enumerable.Empty<ProductViewModel>(),
+                ProductViewModels = Enumerable.Empty<ProductTileViewModel>(),
                 FacetGroups = Enumerable.Empty<FacetGroupOption>(),
                 SearchResult = new SearchResults(null, null)
                 {
@@ -207,7 +199,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
                 criteria.Add(GetSearchFilterForNode(nodeContent));
             }
             _search.SearchFilters.ToList().ForEach(criteria.Add);
-            
+
             ISearchResults searchResult;
 
             try
@@ -215,11 +207,11 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
                 searchResult = _search.Search(criteria);
             }
             catch (ParseException)
-                {
+            {
                 return new CustomSearchResult
                 {
                     FacetGroups = new List<FacetGroupOption>(),
-                    ProductViewModels = new List<ProductViewModel>()
+                    ProductViewModels = new List<ProductTileViewModel>()
                 };
             }
 
@@ -240,7 +232,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
                         Name = y.Name,
                         Selected = y.IsSelected,
                         Count = y.Count,
-                        Key = y.Key 
+                        Key = y.Key
                     }).ToList()
                 });
             }
@@ -253,24 +245,24 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
             };
         }
 
-        private IEnumerable<ProductViewModel> CreateProductViewModels(ISearchResults searchResult)
+        private IEnumerable<ProductTileViewModel> CreateProductViewModels(ISearchResults searchResult)
         {
             var market = _currentMarket.GetCurrentMarket();
             var currency = _currencyService.GetCurrentCurrency();
 
-            return searchResult.Documents.Select(document => new ProductViewModel
+            return searchResult.Documents.Select(document => new ProductTileViewModel
             {
                 Brand = GetString(document, "brand"),
                 Code = GetString(document, "code"),
                 DisplayName = GetString(document, "displayname"),
                 PlacedPrice = new Money(GetDecimal(document, IndexingHelper.GetOriginalPriceField(market.MarketId, currency)), currency),
-                ExtendedPrice = new Money(GetDecimal(document, IndexingHelper.GetPriceField(market.MarketId, currency)), currency),
+                DiscountedPrice = new Money(GetDecimal(document, IndexingHelper.GetPriceField(market.MarketId, currency)), currency),
                 ImageUrl = GetString(document, "image_url"),
                 Url = _urlResolver.GetUrl(ContentReference.Parse(GetString(document, "content_link"))),
-                IsAvailable = GetDecimal(document, IndexingHelper.GetOriginalPriceField(market.MarketId, currency)) > 0                
+                IsAvailable = GetDecimal(document, IndexingHelper.GetOriginalPriceField(market.MarketId, currency)) > 0 || GetString(document, "_classtype") == "bundle"
             });
         }
-        
+
         private static string GetString(ISearchDocument document, string name)
         {
             return document[name] != null ? document[name].Value.ToString() : "";
@@ -339,7 +331,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
                 field = BaseCatalogIndexBuilder.FieldConstants.Node,
                 Descriptions = new Descriptions
                 {
-                    defaultLocale = _preferredCulture.Name
+                    defaultLocale = _languageResolver.GetPreferredCulture().Name
                 },
                 Values = new SearchFilterValues()
             };
@@ -349,7 +341,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
                 locale = "en",
                 Value = _localizationService.GetString("/Facet/Category")
             };
-            configFilter.Descriptions.Description = new[] { desc };  
+            configFilter.Descriptions.Description = new[] { desc };
 
             var nodes = _contentLoader.GetChildren<NodeContent>(nodeContent.ContentLink).ToList();
             var nodeValues = new SimpleValue[nodes.Count];
@@ -362,12 +354,12 @@ namespace EPiServer.Reference.Commerce.Site.Features.Search.Services
                     value = node.Code,
                     Descriptions = new Descriptions
                     {
-                        defaultLocale = _preferredCulture.Name
+                        defaultLocale = _languageResolver.GetPreferredCulture().Name
                     }
                 };
                 var desc2 = new Description
                 {
-                    locale = _preferredCulture.Name,
+                    locale = _languageResolver.GetPreferredCulture().Name,
                     Value = node.DisplayName
                 };
                 val.Descriptions.Description = new[] { desc2 };

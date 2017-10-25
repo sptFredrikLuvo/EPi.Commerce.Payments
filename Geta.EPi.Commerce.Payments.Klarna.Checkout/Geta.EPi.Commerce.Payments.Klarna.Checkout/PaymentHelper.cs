@@ -25,7 +25,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
         public static PaymentMethodDto GetKlarnaPaymentMethod(ICurrentMarket currentMarket, string currentTwoLetterIsoLanguageName)
         {
             var klarnaGatewayClass = typeof(KlarnaCheckoutPaymentGateway).FullName + ", " + typeof(KlarnaCheckoutPaymentGateway).Assembly.GetName().Name;
-            var marketId = currentMarket.GetCurrentMarket().MarketId;
+            var marketId = currentMarket.GetCurrentMarket().MarketId.Value;
             var methods = PaymentManager.GetPaymentMethodsByMarket(marketId).PaymentMethod.Where(c => c.IsActive);
 
             var klarnaRow = methods.

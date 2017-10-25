@@ -60,11 +60,18 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
 
             // Create PanHash field on the customer contact. We need this for using EasyPayments
             var customContactMetaClass = DataContext.Current.MetaModel.MetaClasses["Contact"];
-            if (customContactMetaClass != null && customContactMetaClass.Fields[NetaxeptConstants.CustomerPanHashFieldName] == null)
+            if (customContactMetaClass != null)
             {
                 using (MetaFieldBuilder builder = new MetaFieldBuilder(customContactMetaClass))
                 {
-                    builder.CreateText(NetaxeptConstants.CustomerPanHashFieldName, NetaxeptConstants.CustomerPanHashFieldName, true, 100, false);
+                    AddCustomerField(builder, customContactMetaClass, NetaxeptConstants.CustomerPanHashFieldName);
+                    AddCustomerField(builder, customContactMetaClass, NetaxeptConstants.CustomerCardMaskedFieldName);
+                    AddCustomerField(builder, customContactMetaClass, NetaxeptConstants.CustomerCardExpirationDateFieldName);
+                    AddCustomerField(builder, customContactMetaClass, NetaxeptConstants.CustomerCardPaymentMethodFieldName);
+                    AddCustomerField(builder, customContactMetaClass, NetaxeptConstants.CustomerCardIssuerCountryFieldName);
+                    AddCustomerField(builder, customContactMetaClass, NetaxeptConstants.CustomerCardIssuerIdFieldName);
+                    AddCustomerField(builder, customContactMetaClass, NetaxeptConstants.CustomerCardIssuerFieldName);
+
                     builder.SaveChanges();
                 }
             }
@@ -123,5 +130,13 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout
         {
             return cls != null && !cls.MetaFields.Contains(field);
         }
+
+        private static void AddCustomerField(MetaFieldBuilder builder, Mediachase.BusinessFoundation.Data.Meta.Management.MetaClass customContactMetaClass, string field)
+        {
+            if (customContactMetaClass.Fields[field] == null)
+            {
+                builder.CreateText(field, field, true, 100, false);
+            }
+        } 
     }
 }

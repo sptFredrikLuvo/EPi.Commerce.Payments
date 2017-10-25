@@ -1,66 +1,42 @@
-﻿using EPiServer.Framework.Localization;
+﻿using EPiServer.Commerce.Order;
+using EPiServer.Framework.Localization;
+using EPiServer.ServiceLocation;
 using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Website;
-using System;
-using System.Linq;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods
 {
-    public class CashOnDeliveryPaymentMethod : PaymentMethodBase, IPaymentOption
+    public class CashOnDeliveryPaymentMethod : PaymentMethodBase
     {
         public CashOnDeliveryPaymentMethod()
-            : this(LocalizationService.Current)
+            : this(LocalizationService.Current, ServiceLocator.Current.GetInstance<IOrderGroupFactory>())
         {
         }
 
-        public CashOnDeliveryPaymentMethod(LocalizationService localizationService)
-            : base(localizationService)
-        {   
+        public CashOnDeliveryPaymentMethod(LocalizationService localizationService, IOrderGroupFactory orderGroupFactory)
+            : base(localizationService, orderGroupFactory)
+        {
         }
 
-        public bool ValidateData()
+        public override bool ValidateData()
         {
             return true;
         }
-
-        public Mediachase.Commerce.Orders.Payment PreProcess(OrderForm form)
+        
+        public override IPayment CreatePayment(decimal amount, IOrderGroup orderGroup)
         {
-            if (form == null)
-            {
-                throw new ArgumentNullException("form");
-            }
-
-            var payment = new OtherPayment
-            {
-                PaymentMethodId = PaymentMethodId,
-                PaymentMethodName = "CashOnDelivery",
-                OrderFormId = form.OrderFormId,
-                OrderGroupId = form.OrderGroupId,
-                Amount = form.Total,
-                Status = PaymentStatus.Pending.ToString(),
-                TransactionType = TransactionType.Authorization.ToString()
-            };
-
+            var payment = orderGroup.CreatePayment(_orderGroupFactory);
+            payment.PaymentType = PaymentType.Other;
+            payment.PaymentMethodId = PaymentMethodId;
+            payment.PaymentMethodName = "CashOnDelivery";
+            payment.Amount = amount;
+            payment.Status = PaymentStatus.Pending.ToString();
+            payment.TransactionType = TransactionType.Authorization.ToString();
             return payment;
         }
 
-        public bool PostProcess(OrderForm form)
+        public override void PostProcess(IPayment payment)
         {
-            if (form == null)
-            {
-                throw new ArgumentNullException("form");
-            }
-
-            var payment = form.Payments.ToArray().FirstOrDefault(x => x.PaymentMethodId == this.PaymentMethodId);
-            if (payment == null)
-            { 
-                return false;
-            }
-
             payment.Status = PaymentStatus.Processed.ToString();
-            payment.AcceptChanges();
-
-            return true;
         }
     }
 }

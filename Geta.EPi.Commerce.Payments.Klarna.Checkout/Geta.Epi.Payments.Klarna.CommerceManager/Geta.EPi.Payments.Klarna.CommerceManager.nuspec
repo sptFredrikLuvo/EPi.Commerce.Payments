@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package >
   <metadata>
     <id>$id$</id>
@@ -10,8 +10,8 @@
     <projectUrl>https://github.com/Geta/EPi.Commerce.Payments/tree/master/Geta.EPi.Commerce.Payments.Klarna.Checkout</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <copyright>Copyright © 2016 Geta</copyright>
-    <tags>EPiServer Commerce 9</tags>
+    <copyright>Copyright © 2017 Geta</copyright>
+    <tags>Episerver Commerce 11</tags>
   </metadata>
 </package>
   

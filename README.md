@@ -6,7 +6,7 @@ A collection of payment libraries to integrate with EPiServer Commerce.
 For more information see Klarna Checkout [README](https://github.com/Geta/EPi.Commerce.Payments/tree/master/Geta.EPi.Commerce.Payments.Klarna.Checkout).
 
 ## Resurs Bank
-For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/blob/master/ResursBank/README.md).
+For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/blob/master/ResursBank).
 
 ## Netaxept (EasyPayments)
-For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/blob/master/Netaxept/README.md).
+For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/blob/master/Netaxept).

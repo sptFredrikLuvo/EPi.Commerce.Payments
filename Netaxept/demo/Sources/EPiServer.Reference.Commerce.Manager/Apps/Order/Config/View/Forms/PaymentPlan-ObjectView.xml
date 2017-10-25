@@ -120,8 +120,9 @@
               <Template id="LineItemDiscountTemplate" controlUrl="GridTemplates/LineItemDiscountTemplate.ascx"></Template>
             </Column>
             <Column width="180" visible="true" allowSorting="false" dataField="CustomDiscountDescr" headingText="{SharedStrings:Discount_Descr}"></Column>
-            <Column width="70" visible="true" allowSorting="false" dataField="ExtendedPrice" columnType="Currency" currencyCodeField="Parent.Parent.BillingCurrency" headingText="{SharedStrings:Total}"></Column>
-            <Column width="180" visible="true" allowSorting="true" dataField="Warehouse" headingText="{OrderStrings:Fulfillment_Warehouse}"></Column>
+            <Column width="70" visible="true" allowSorting="false" dataField="LineItemId" headingText="{SharedStrings:Total}" columnType="CustomTemplate">
+              <Template id="TotalNamesTemplate" controlUrl="GridTemplates/LineItemTotalTemplate.ascx"></Template>
+            </Column>
           </Columns>
         </Grid>
         <Grid placeName="OrderPayment-List">
@@ -148,10 +149,10 @@
             </Column>
             <Column visible="false" allowSorting="false" dataField="OrderNoteId" headingText="{SharedStrings:Id}"></Column>
             <Column visible="false" allowSorting="false" dataField="CustomerId" headingText="{SharedStrings:Id}"></Column>
-            <Column width="100" visible="true" allowSorting="false" dataField="UserName" headingText="Originated By"></Column>
-            <Column width="165" visible="true" allowSorting="false" dataField="Created" headingText="Date/Time" columnType="DateTime"></Column>
+            <Column width="100" visible="true" allowSorting="false" dataField="UserName" headingText="{SharedStrings:Originated_By}"></Column>
+            <Column width="165" visible="true" allowSorting="false" dataField="Created" headingText="{SharedStrings:Date_Slash_Time}" columnType="DateTime"></Column>
             <!--<Column width="200" visible="true" allowSorting="false" dataField="Title" headingText="{SharedStrings:Title}"></Column>-->
-            <Column width="920" visible="true" allowSorting="false" dataField="Detail" headingText="Note Text"></Column>
+            <Column width="920" visible="true" allowSorting="false" dataField="Detail" headingText="{SharedStrings:Note_Text}"></Column>
           </Columns>
         </Grid>
         <Grid placeName="OrderPromotion-List">

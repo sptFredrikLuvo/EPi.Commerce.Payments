@@ -3,6 +3,8 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
+using EPiServer.Commerce.Order;
+using EPiServer.Reference.Commerce.Site.Features.Cart.Services;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Services;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.Security;
@@ -18,39 +20,42 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
     public class PaymentCallbackController : Controller
     {
-        private ICheckoutService _checkoutService;
+        private CheckoutService _checkoutService;
         private CustomerContextFacade _customerContext;
+        private ICartService _cartService;
+        private IOrderRepository _orderRepository;
 
         public RedirectResult Index(string transactionId)
         {
-            _checkoutService = ServiceLocator.Current.GetInstance<ICheckoutService>();
+            _checkoutService = ServiceLocator.Current.GetInstance<CheckoutService>();
             _customerContext = ServiceLocator.Current.GetInstance<CustomerContextFacade>();
-
-            PurchaseOrder purchaseOrder = null;
-
-            Mediachase.Commerce.Orders.Cart cart = new CartHelper(Mediachase.Commerce.Orders.Cart.DefaultName).Cart;
+            _cartService = ServiceLocator.Current.GetInstance<ICartService>();
+            _orderRepository = ServiceLocator.Current.GetInstance<IOrderRepository>();
             
+            var cart = _cartService.LoadCart(_cartService.DefaultCartName);
+
             var payment = GetPayment(cart);
 
             var netaxeptCheckoutPaymentGateway = new NetaxeptCheckoutPaymentGateway();
 
-            var result = netaxeptCheckoutPaymentGateway.ProcessAuthorization(payment, transactionId);
+            var result = netaxeptCheckoutPaymentGateway.ProcessAuthorization(payment, cart.GetFirstForm(), cart, transactionId);
             if (result.Result == PaymentResponseCode.Success)
             {
-                purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
+                var orderLink = _orderRepository.SaveAsPurchaseOrder(cart);
+
+                var purchaseOrder = _orderRepository.Load<IPurchaseOrder>(orderLink.OrderGroupId);
 
                 // this will copy all notes from the Cart to the PurchaseOrder
-                CopyNotesFromCartToPurchaseOrder(purchaseOrder, cart); 
-
-                _checkoutService.DeleteCart();
+                //CopyNotesFromCartToPurchaseOrder(purchaseOrder, cart);
+                
+                _orderRepository.Delete(cart.OrderLink);
 
                 var queryCollection = new NameValueCollection
                 {
                     {"contactId", _customerContext.CurrentContactId.ToString()},
-                    {"orderNumber", purchaseOrder.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
+                    {"orderNumber", purchaseOrder.OrderLink.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
                 };
-
-                return new RedirectResult(new UrlBuilder("/checkout/order-confirmation/") { QueryCollection = queryCollection }.ToString());
+                return new RedirectResult(new UrlBuilder("en/checkout/order-confirmation/") { QueryCollection = queryCollection }.ToString());
             }
             return new RedirectResult(new UrlBuilder("/error-pages/payment-failed/").ToString());
         }
@@ -79,16 +84,15 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         /// </summary>
         /// <param name="cart"></param>
         /// <returns></returns>
-        private Mediachase.Commerce.Orders.Payment GetPayment(Mediachase.Commerce.Orders.Cart cart)
+        private IPayment GetPayment(ICart cart)
         {
-            if (cart.OrderForms == null || cart.OrderForms.Count == 0 || cart.OrderForms[0].Payments == null || cart.OrderForms[0].Payments.Count == 0)
+            if (cart.Forms == null || cart.Forms.Count == 0 || cart.GetFirstForm().Payments == null || cart.GetFirstForm().Payments.Count == 0)
                 return null;
 
-            List<Mediachase.Commerce.Orders.Payment> payments = cart.OrderForms[0].Payments.Where(p => p.Status != PaymentStatus.Failed.ToString()).ToList();
-            payments = PaymentTransactionTypeManager.GetResultingPaymentsByTransactionType(payments, TransactionType.Authorization).ToList();
+            var payments = cart.GetFirstForm().Payments.Where(p => p.Status != PaymentStatus.Failed.ToString()).ToList();
 
             if (payments.Any())
-                return payments.First();
+                return payments.FirstOrDefault(x => x.TransactionType.Equals(TransactionType.Authorization.ToString()));
             return null;
         }
     }

@@ -1,718 +1,214 @@
-﻿using EPiServer.Core;
-using EPiServer.Framework.Localization;
-using EPiServer.Reference.Commerce.Shared.Services;
-using EPiServer.Reference.Commerce.Site.Features.AddressBook.Services;
+﻿using EPiServer.Commerce.Order;
+using EPiServer.Core;
+using EPiServer.Recommendations.Commerce.Tracking;
+using EPiServer.Recommendations.Tracking;
 using EPiServer.Reference.Commerce.Site.Features.Cart.Services;
-using EPiServer.Reference.Commerce.Site.Features.Checkout.Models;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Pages;
-using EPiServer.Reference.Commerce.Site.Features.Checkout.Services;
+using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModelFactories;
+using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModels;
 using EPiServer.Reference.Commerce.Site.Features.Market.Services;
-using EPiServer.Reference.Commerce.Site.Features.Payment.Exceptions;
-using EPiServer.Reference.Commerce.Site.Features.Payment.Models;
 using EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods;
-using EPiServer.Reference.Commerce.Site.Features.Payment.Services;
-using EPiServer.Reference.Commerce.Site.Features.Shared.Extensions;
+using EPiServer.Reference.Commerce.Site.Features.Payment.ViewModels;
+using EPiServer.Reference.Commerce.Site.Features.Recommendations.Services;
 using EPiServer.Reference.Commerce.Site.Features.Shared.Services;
-using EPiServer.Reference.Commerce.Site.Features.Start.Pages;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Attributes;
-using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using EPiServer.Web.Mvc;
+using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
-using Mediachase.BusinessFoundation.Data.Business;
-using Mediachase.Commerce.Customers;
-using Mediachase.Commerce.Marketing;
-using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Orders.Managers;
-using Mediachase.Commerce.Website;
-using Mediachase.Commerce.Website.Helpers;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
-using EPiServer.Security;
-using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business;
-using Mediachase.Commerce.Security;
+using EPiServer.Reference.Commerce.Site.Features.Checkout.Services;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
     public class CheckoutController : PageController<CheckoutPage>
     {
-        private readonly ICartService _cartService;
-        private readonly IContentRepository _contentRepository;
-        private readonly UrlResolver _urlResolver;
-        private readonly IMailService _mailService;
-        private readonly ICheckoutService _checkoutService;
-        private readonly IPaymentService _paymentService;
-        private readonly IContentLoader _contentLoader;
-        private readonly LocalizationService _localizationService;
-        private readonly Func<string, CartHelper> _cartHelper;
-        private readonly CurrencyService _currencyService;
-        private readonly IAddressBookService _addressBookService;
-        private const string _billingAddressPrefix = "BillingAddress";
-        private const string _shippingAddressPrefix = "ShippingAddresses[{0}]";
+        private readonly ICurrencyService _currencyService;
         private readonly ControllerExceptionHandler _controllerExceptionHandler;
-        private readonly CustomerContextFacade _customerContext;
-        private const string CouponKey = "CouponCookieKey";
-        private readonly CookieService _cookieService;
+        private readonly CheckoutViewModelFactory _checkoutViewModelFactory;
+        private readonly OrderSummaryViewModelFactory _orderSummaryViewModelFactory;
+        private readonly IOrderRepository _orderRepository;
+        private readonly ICartService _cartService;
+        private readonly IRecommendationService _recommendationService;
+        private ICart _cart;
+        private readonly CheckoutService _checkoutService;
 
         public CheckoutController(
-                    ICartService cartService,
-                    IContentRepository contentRepository,
-                    UrlResolver urlResolver,
-                    IMailService mailService,
-                    ICheckoutService checkoutService,
-                    IContentLoader contentLoader,
-                    IPaymentService paymentService,
-                    LocalizationService localizationService,
-                    Func<string, CartHelper> cartHelper,
-                    CurrencyService currencyService,
-                    IAddressBookService addressBookService,
-                    ControllerExceptionHandler controllerExceptionHandler,
-                    CustomerContextFacade customerContextFacade,
-                    CookieService cookieService)
+            ICurrencyService currencyService,
+            ControllerExceptionHandler controllerExceptionHandler,
+            IOrderRepository orderRepository,
+            CheckoutViewModelFactory checkoutViewModelFactory,
+            ICartService cartService,
+            OrderSummaryViewModelFactory orderSummaryViewModelFactory,
+            IRecommendationService recommendationService,
+            CheckoutService checkoutService)
         {
-            _cartService = cartService;
-            _contentRepository = contentRepository;
-            _urlResolver = urlResolver;
-            _mailService = mailService;
-            _checkoutService = checkoutService;
-            _paymentService = paymentService;
-            _contentLoader = contentLoader;
-            _localizationService = localizationService;
-            _cartHelper = cartHelper;
             _currencyService = currencyService;
-            _addressBookService = addressBookService;
             _controllerExceptionHandler = controllerExceptionHandler;
-            _customerContext = customerContextFacade;
-            _cookieService = cookieService;
+            _orderRepository = orderRepository;
+            _checkoutViewModelFactory = checkoutViewModelFactory;
+            _cartService = cartService;
+            _orderSummaryViewModelFactory = orderSummaryViewModelFactory;
+            _recommendationService = recommendationService;
+            _checkoutService = checkoutService;
         }
 
         [HttpGet]
+        [OutputCache(Duration = 0, NoStore = true)]
+        [Tracking(TrackingType.Checkout)]
         public ActionResult Index(CheckoutPage currentPage)
         {
-            var currency = _currencyService.GetCurrentCurrency();
-            if (currency != _cartHelper(Mediachase.Commerce.Orders.Cart.DefaultName).Cart.BillingCurrency)
+            if (CartIsNullOrEmpty())
             {
-                _cartHelper(Mediachase.Commerce.Orders.Cart.DefaultName).Cart.BillingCurrency = currency;
-                _cartService.SaveCart();
+                return View("EmptyCart");
             }
 
-            ApplyCoupons();
+            var viewModel = CreateCheckoutViewModel(currentPage);
 
-            CheckoutViewModel viewModel = InitializeCheckoutViewModel(currentPage, null);
+            Cart.Currency = _currencyService.GetCurrentCurrency();
+            
+            if (User.Identity.IsAuthenticated)
+            {
+                _checkoutService.UpdateShippingAddresses(Cart, viewModel);
+            }
 
-            return View(viewModel);
+            _checkoutService.UpdateShippingMethods(Cart, viewModel.Shipments);
+            _checkoutService.ApplyDiscounts(Cart);
+            _orderRepository.Save(Cart);
+
+            return View(viewModel.ViewName, viewModel);
         }
 
-        /// <summary>
-        /// Creates and returns a new instance if a CheckoutViewModel.
-        /// </summary>
-        /// <param name="selectedPaymentMethod">The default payment method to be used for new purchases.</param>
-        /// <param name="shippingMethodId">The default shipping method id.</param>
-        /// <param name="customer">The currently logged on user. Will be null for anonymous quests.</param>
-        /// <returns>A new CheckoutViewModel.</returns>
-        private CheckoutViewModel CreateCheckoutViewModel(PaymentMethodViewModel<IPaymentOption> selectedPaymentMethod,
-                                                          Guid shippingMethodId,
-                                                          CustomerContact customer)
+        [HttpGet]
+        public ActionResult SingleShipment(CheckoutPage currentPage)
         {
-            CheckoutViewModel viewModel = new CheckoutViewModel();
-
-            ShippingAddress billingAddress = new ShippingAddress
+            if (!CartIsNullOrEmpty())
             {
-                AddressId = customer != null ? customer.PreferredBillingAddressId : null,
-                Name = _localizationService.GetString("/Shared/Address/NewAddress"),
-                ShippingMethodId = shippingMethodId,
-                HtmlFieldPrefix = _billingAddressPrefix
-            };
-
-            // If the customer uses the same address for billing and shipment then we prepare a new empty address as shipping address
-            // in case the customer chooses to not use the billing address after all.
-            ShippingAddress shippingAddress = new ShippingAddress
-            {
-                AddressId = (customer != null && customer.PreferredShippingAddressId != customer.PreferredBillingAddressId) ? customer.PreferredShippingAddressId : null,
-                Name = _localizationService.GetString("/Shared/Address/NewAddress"),
-                ShippingMethodId = billingAddress.ShippingMethodId,
-                HtmlFieldPrefix = _shippingAddressPrefix
-            };
-
-            _addressBookService.LoadAddress(billingAddress);
-            _addressBookService.LoadAddress(shippingAddress);
-
-            viewModel = new CheckoutViewModel
-            {
-                BillingAddress = billingAddress,
-                Payment = PaymentMethodViewModelResolver.Resolve(selectedPaymentMethod.SystemName),
-                UseBillingAddressForShipment = (customer == null || (customer != null && customer.PreferredShippingAddressId == customer.PreferredBillingAddressId)),
-                ShippingAddresses = new ShippingAddress[] { shippingAddress }
-            };
-
-            viewModel.Payment.Description = selectedPaymentMethod.Description;
-            viewModel.Payment.SystemName = selectedPaymentMethod.SystemName;
-            if (viewModel.Payment.PaymentMethod is NetaxeptCheckoutPaymentGateway)
-            {
-                ((NetaxeptCheckoutPaymentGateway)viewModel.Payment.PaymentMethod).PaymentMethodId = selectedPaymentMethod.Id;
-
-            }
-            else
-                ((PaymentMethodBase)viewModel.Payment.PaymentMethod).PaymentMethodId = selectedPaymentMethod.Id;
-
-
-            return viewModel;
-        }
-
-        private CheckoutViewModel InitializeCheckoutViewModel(CheckoutPage currentPage, CheckoutViewModel viewModel)
-        {
-            var shipment = _checkoutService.CreateShipment();
-            var shippingRates = _checkoutService.GetShippingRates(shipment);
-            var shippingMethods = GetShippingMethods(shippingRates);
-            var selectedShippingRate = shippingRates.FirstOrDefault();
-            var customer = _customerContext.CurrentContact.CurrentContact;
-            var paymentMethods = _checkoutService.GetPaymentMethods();
-
-            if (selectedShippingRate != null)
-            {
-                _checkoutService.UpdateShipment(shipment, selectedShippingRate);
-            }
-            else
-            {
-                ModelState.AddModelError("ShippingRate", _localizationService.GetString("/Checkout/Payment/Errors/NoShippingRate"));
+                _cartService.MergeShipments(Cart);
+                _orderRepository.Save(Cart);
             }
 
-            if (viewModel == null)
-            {
-                var shippingMethod = shippingMethods.FirstOrDefault();
-                viewModel = CreateCheckoutViewModel(paymentMethods.First(), shippingMethod == null ? Guid.Empty : shippingMethod.Id, customer);
-
-                // Run the workflow once to calculate all taxes, charges and get the correct total amounts.
-                _cartService.RunWorkflow(OrderGroupWorkflowManager.CartValidateWorkflowName);
-            }
-            else
-            {
-                // Countries and region lists are always lost during postbacks.
-                // Therefor get all countries and regions for the billing address.
-                _addressBookService.GetCountriesAndRegionsForAddress(viewModel.BillingAddress);
-
-                // And get the countries and the regions for all other addresses as well.
-                PopulateCountryAndRegions(viewModel, viewModel.BillingAddress);
-            }
-
-            viewModel.StartPage = _contentLoader.Get<StartPage>(ContentReference.StartPage);
-            viewModel.ReferrerUrl = GetReferrerUrl();
-            viewModel.CurrentPage = currentPage;
-            viewModel.PaymentMethodViewModels = paymentMethods;
-            viewModel.ShippingMethodViewModels = shippingMethods;
-            viewModel.AvailableAddresses = GetAvailableAddresses();
-            viewModel.AppliedCouponCodes = GetAppliedDiscountsWithCode().Select(d => d.DiscountCode).Distinct();
-
-            return viewModel;
-        }
-
-        private string GetReferrerUrl()
-        {
-            if (HttpContext.Request.Url != null)
-            {
-                if (HttpContext.Request.UrlReferrer != null &&
-                    HttpContext.Request.UrlReferrer.Host.Equals(HttpContext.Request.Url.Host, StringComparison.OrdinalIgnoreCase))
-                {
-                    return HttpContext.Request.UrlReferrer.ToString();
-                }
-            }
-            return _urlResolver.GetUrl(ContentReference.StartPage);
-        }
-
-        private IEnumerable<ShippingMethodViewModel> GetShippingMethods(IEnumerable<ShippingRate> shippingRates)
-        {
-            return shippingRates.Select(r => new ShippingMethodViewModel
-            {
-                Id = r.Id,
-                DisplayName = r.Name,
-                Price = r.Money,
-            });
-        }
-
-        private IList<ShippingAddress> GetAvailableAddresses()
-        {
-            var currentContact = _customerContext.CurrentContact.CurrentContact;
-            List<ShippingAddress> addresses = new List<ShippingAddress>();
-
-            if (currentContact != null)
-            {
-                addresses = currentContact.ContactAddresses.Select(x => new ShippingAddress()
-                {
-                    AddressId = x.AddressId,
-                    Name = !string.IsNullOrEmpty(x.Name) ? x.Name : _localizationService.GetString("/Shared/Address/DefaultAddressName")
-                }).ToList();
-            }
-
-            //add additional address, representing a new address
-            addresses.Add(new ShippingAddress
-            {
-                Name = _localizationService.GetString("/Shared/Address/NewAddress")
-            });
-
-            return addresses;
+            return RedirectToAction("Index", new { node = currentPage.ContentLink });
         }
 
         [HttpPost]
         [AllowDBWrite]
-        public ActionResult Update(CheckoutPage currentPage, CheckoutViewModel viewModel, IPaymentMethodViewModel<IPaymentOption> paymentViewModel)
+        public ActionResult Update(CheckoutPage currentPage, UpdateShippingMethodViewModel shipmentViewModel, IPaymentMethodViewModel<PaymentMethodBase> paymentViewModel)
         {
-            // Since the payment property is marked with an exclude binding attribute in the CheckoutViewModel
-            // it needs to be manually re-added again.
-            viewModel.Payment = paymentViewModel;
-
-            InitializeCheckoutViewModel(currentPage, viewModel);
-
-            IEnumerable<ShippingAddress> shippingAddresses = (viewModel.UseBillingAddressForShipment) ? new ShippingAddress[] { viewModel.BillingAddress } : viewModel.ShippingAddresses;
-
-            foreach (var shippingAddress in shippingAddresses)
-            {
-                var shipment = _checkoutService.CreateShipment();
-                var shippingMethods = _checkoutService.GetShippingRates(shipment);
-                var selectedShippingMethod = shippingMethods.FirstOrDefault(x => x.Id == shippingAddress.ShippingMethodId) ?? shippingMethods.First();
-
-                _checkoutService.UpdateShipment(shipment, selectedShippingMethod);
-            }
-
-            _cartService.RunWorkflow(OrderGroupWorkflowManager.CartValidateWorkflowName);
-            _cartService.SaveCart();
-
-            // Clearing the ModelState will remove any unwanted input validation errors in the new view.
             ModelState.Clear();
+
+            _checkoutService.UpdateShippingMethods(Cart, shipmentViewModel.Shipments);
+            _checkoutService.ApplyDiscounts(Cart);
+            _orderRepository.Save(Cart);
+
+            var viewModel = CreateCheckoutViewModel(currentPage, paymentViewModel);
 
             return PartialView("Partial", viewModel);
         }
 
-        /// <summary>
-        /// Changes an address in the checkout view to one of the existing customer addresses.
-        /// </summary>
-        /// <param name="currentPage">The checkout content page.</param>
-        /// <param name="viewModel">The view model representing the purchase order.</param>
-        /// <param name="shippingAddressIndex">The index of the shipping address to be changed. If it concerns the billing address and not a shipping address then this value will be -1.</param>
-        /// <returns>A refreshed view containing the billing address and all the shipping addresses.</returns>
         [HttpPost]
         [AllowDBWrite]
-        public ActionResult ChangeAddress(CheckoutPage currentPage, CheckoutViewModel viewModel, int shippingAddressIndex)
+        public ActionResult ChangeAddress(UpdateAddressViewModel addressViewModel)
         {
             ModelState.Clear();
+            var viewModel = CreateCheckoutViewModel(addressViewModel.CurrentPage);
+            _checkoutService.CheckoutAddressHandling.ChangeAddress(viewModel, addressViewModel);
 
-            bool shippingAddressUpdated = shippingAddressIndex > -1;
-            ShippingAddress updatedAddress = (shippingAddressUpdated) ? viewModel.ShippingAddresses[shippingAddressIndex] : viewModel.BillingAddress;
-
-            InitializeCheckoutViewModel(currentPage, viewModel);
-
-            if (updatedAddress.AddressId == null)
+            if (User.Identity.IsAuthenticated)
             {
-                // If the address id is an empty guid it means that a new empty address should be used. The only thing we
-                // keep is the id of currently selected shipping method.
-                updatedAddress = new ShippingAddress
-                {
-                    ShippingMethodId = updatedAddress.ShippingMethodId,
-                    Name = _localizationService.GetString("/Shared/Address/NewAddress") + " " + viewModel.AvailableAddresses.Count
-                };
+                _checkoutService.UpdateShippingAddresses(Cart, viewModel);
             }
+            
+            _orderRepository.Save(Cart);
 
-            _addressBookService.LoadAddress(updatedAddress);
+            var addressViewName = addressViewModel.ShippingAddressIndex > -1 ? "SingleShippingAddress" : "BillingAddress";
 
-            if (shippingAddressUpdated)
-            {
-                viewModel.ShippingAddresses[shippingAddressIndex] = updatedAddress;
-                updatedAddress.HtmlFieldPrefix = string.Format(_shippingAddressPrefix, shippingAddressIndex);
-            }
-            else
-            {
-                viewModel.BillingAddress = updatedAddress;
-                updatedAddress.HtmlFieldPrefix = _billingAddressPrefix;
-            }
-
-            PopulateCountryAndRegions(viewModel, updatedAddress);
-
-            return PartialView("Address", viewModel);
-        }
-
-        /// <summary>
-        /// Adds countries and regions to all addresses in a CheckoutViewModel.
-        /// </summary>
-        /// <param name="viewModel">The view model containing the addresses that needs the countries and regions.</param>
-        /// <param name="updatedAddress">The most recently updated address. This one should already hold a reference to all existing countries.</param>
-        /// <remarks>
-        /// Each country in the view model may´be a subject of being presented as a dropdown in the view. It's therefor important to make sure it
-        /// holds a reference to all countries along with any applicable regions. We can re-use the countries that has already been fetched for the
-        /// most recently updated address. It may also have all the regions we need. This method goes through all addresses and applies all the countries
-        /// and related regions. If the country of an address is different from the updated address then we only need to get a fresh set of regions
-        /// for that perticular address.
-        /// </remarks>
-        private void PopulateCountryAndRegions(CheckoutViewModel viewModel, ShippingAddress updatedAddress)
-        {
-            List<ShippingAddress> addressCollection = new List<ShippingAddress>(viewModel.ShippingAddresses);
-            addressCollection.Add(viewModel.BillingAddress);
-
-            // Go through all address that we know haven't been updated by checking if country collection still is null.
-            foreach (ShippingAddress unchangedAddress in addressCollection.Where(x => x.CountryOptions == null))
-            {
-                unchangedAddress.CountryOptions = updatedAddress.CountryOptions;
-
-                // By comparing countries, see if we can re-use the already existing regions or if we must fetch new ones.
-                if (unchangedAddress.CountryCode == updatedAddress.CountryCode)
-                {
-                    unchangedAddress.RegionOptions = updatedAddress.RegionOptions;
-                }
-                else
-                {
-                    unchangedAddress.RegionOptions = _addressBookService.GetRegionOptionsByCountryCode(unchangedAddress.CountryCode);
-                }
-            }
+            return PartialView(addressViewName, viewModel);
         }
 
         [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Post)]
         public ActionResult OrderSummary()
         {
-            var orderForm = _cartService.GetOrderForms();
-
-            OrderSummaryViewModel viewModel = new OrderSummaryViewModel
-            {
-                SubTotal = _cartService.GetSubTotal(),
-                CartTotal = _cartService.GetTotal(),
-                ShippingTotal = _cartService.GetShippingTotal(),
-                ShippingSubtotal = _cartService.GetShippingSubTotal(),
-                OrderDiscountTotal = _cartService.GetOrderDiscountTotal(),
-                ShippingDiscountTotal = _cartService.GetShippingDiscountTotal(),
-                ShippingTaxTotal = _cartService.GetShippingTaxTotal(),
-                TaxTotal = _cartService.GetTaxTotal(),
-                OrderDiscounts = orderForm.SelectMany(x => x.Discounts.Cast<OrderFormDiscount>()).Select(x => new OrderDiscountModel
-                {
-                    Discount = _cartService.ConvertToMoney(x.DiscountValue),
-                    Displayname = x.DisplayMessage
-                }),
-                ShippingDiscounts = orderForm.SelectMany(x => x.Shipments).SelectMany(x => x.Discounts.Cast<ShipmentDiscount>()).Select(x => new OrderDiscountModel
-                {
-                    Discount = _cartService.ConvertToMoney(x.DiscountValue),
-                    Displayname = x.DisplayMessage
-                })
-            };
-
+            var viewModel = _orderSummaryViewModelFactory.CreateOrderSummaryViewModel(Cart);
             return PartialView(viewModel);
-        }
-
-        private IEnumerable<Discount> GetDiscountsWithCode(Func<OrderForm, IEnumerable<Discount>> getDiscountsFunc)
-        {
-            return _cartService.GetOrderForms().SelectMany(form => getDiscountsFunc(form)).Where(d => !string.IsNullOrEmpty(d.DiscountCode));
-        }
-
-        /// <summary>
-        /// Gets a collection of applied discounts that have coupon code.
-        /// It includes order level discount, entry level discount and shipment level discount.
-        /// </summary>
-        /// <returns>A collection of applied discounts.</returns>
-        private IEnumerable<Discount> GetAppliedDiscountsWithCode()
-        {
-            var appliedDiscounts = new List<Discount>();
-
-            // Get order level discounts
-            appliedDiscounts.AddRange(GetDiscountsWithCode(form => form.Discounts.Cast<Discount>()));
-            // Get entry level discounts
-            appliedDiscounts.AddRange(GetDiscountsWithCode(form => form.LineItems.SelectMany(l => l.Discounts.Cast<Discount>())));
-            // Get shipment level discounts
-            appliedDiscounts.AddRange(GetDiscountsWithCode(form => form.Shipments.SelectMany(s => s.Discounts.Cast<Discount>())));
-
-            return appliedDiscounts;
         }
 
         [HttpPost]
         [AllowDBWrite]
         public ActionResult AddCouponCode(CheckoutPage currentPage, string couponCode)
         {
-            MarketingContext.Current.AddCouponToMarketingContext(couponCode);
-            _cartService.RunWorkflow(OrderGroupWorkflowManager.CartValidateWorkflowName);
-            _cartService.SaveCart();
-
-            if (!GetAppliedDiscountsWithCode().Where(d => couponCode.Equals(d.DiscountCode)).Any())
+            if (_cartService.AddCouponCode(Cart, couponCode))
             {
-                return new EmptyResult();
+                _orderRepository.Save(Cart);
             }
-            var cookie = _cookieService.Get(CouponKey);
-            var coupons = cookie != null ? JsonConvert.DeserializeObject<HashSet<string>>(cookie) : new HashSet<string>();
-            coupons.Add(couponCode);
-            _cookieService.Set(CouponKey, JsonConvert.SerializeObject(coupons));
-
-            CheckoutViewModel viewModel = InitializeCheckoutViewModel(currentPage, null);
-
-            return View("Index", viewModel);
+            var viewModel = CreateCheckoutViewModel(currentPage);
+            return View(viewModel.ViewName, viewModel);
         }
 
         [HttpPost]
         [AllowDBWrite]
         public ActionResult RemoveCouponCode(CheckoutPage currentPage, string couponCode)
         {
-            var removeDiscounts = GetAppliedDiscountsWithCode().Where(d => couponCode.Equals(d.DiscountCode));
-            foreach (var discount in removeDiscounts)
-            {
-                discount.Delete();
-            }
-
-            var cookie = _cookieService.Get(CouponKey);
-            if (cookie != null)
-            {
-                var coupons = JsonConvert.DeserializeObject<HashSet<string>>(cookie);
-                if (coupons != null && coupons.Contains(couponCode))
-                {
-                    coupons.Remove(couponCode);
-                    _cookieService.Set(CouponKey, JsonConvert.SerializeObject(coupons));
-                }
-            }
-            _cartService.RunWorkflow(OrderGroupWorkflowManager.CartValidateWorkflowName);
-            _cartService.SaveCart();
-
-            CheckoutViewModel viewModel = InitializeCheckoutViewModel(currentPage, null);
-
-            return View("Index", viewModel);
+            _cartService.RemoveCouponCode(Cart, couponCode);
+            _orderRepository.Save(Cart);
+            var viewModel = CreateCheckoutViewModel(currentPage);
+            return View(viewModel.ViewName, viewModel);
         }
-
+        
         [HttpPost]
         [AllowDBWrite]
-        public ActionResult Purchase(CheckoutPage currentPage, CheckoutViewModel checkoutViewModel, IPaymentMethodViewModel<IPaymentOption> paymentViewModel)
+        public ActionResult Purchase(CheckoutViewModel viewModel, IPaymentMethodViewModel<PaymentMethodBase> paymentViewModel)
         {
+            if (CartIsNullOrEmpty())
+            {
+                return Redirect(Url.ContentUrl(ContentReference.StartPage));
+            }
+
             // Since the payment property is marked with an exclude binding attribute in the CheckoutViewModel
             // it needs to be manually re-added again.
-            checkoutViewModel.Payment = paymentViewModel;
-
-            ApplyCoupons();
-
-            if (String.IsNullOrEmpty(checkoutViewModel.BillingAddress.Email))
+            viewModel.Payment = paymentViewModel;
+            
+            if (User.Identity.IsAuthenticated)
             {
-                ModelState.AddModelError("BillingAddress.Email", _localizationService.GetString("/Shared/Address/Form/Empty/Email"));
-            }
+                _checkoutService.CheckoutAddressHandling.UpdateAuthenticatedUserAddresses(viewModel);
 
-            if (checkoutViewModel.UseBillingAddressForShipment)
-            {
-                // If only the billing address is of interest we need to remove any existing error related to the
-                // other shipping addresses.
-                foreach (var state in ModelState.Where(x => x.Key.StartsWith("ShippingAddresses")).ToArray())
+                var validation = _checkoutService.AuthenticatedPurchaseValidation;
+
+                if (!validation.ValidateModel(ModelState, viewModel) ||
+                    !validation.ValidateOrderOperation(ModelState, _cartService.ValidateCart(Cart)) ||
+                    !validation.ValidateOrderOperation(ModelState, _cartService.RequestInventory(Cart)))
                 {
-                    ModelState.Remove(state);
+                    return View(viewModel);
+                }
+            }
+            else
+            {
+                _checkoutService.CheckoutAddressHandling.UpdateAnonymousUserAddresses(viewModel);
+
+                var validation = _checkoutService.AnonymousPurchaseValidation;
+              
+                if (!validation.ValidateModel(ModelState, viewModel) ||
+                    !validation.ValidateOrderOperation(ModelState, _cartService.ValidateCart(Cart)) ||
+                    !validation.ValidateOrderOperation(ModelState, _cartService.RequestInventory(Cart)))
+                {
+                    return View(viewModel);
                 }
             }
 
-            if (!ModelState.IsValid)
+            _checkoutService.UpdateShippingAddresses(Cart, viewModel);
+            _checkoutService.CreateAndAddPaymentToCart(Cart, viewModel);
+
+            var purchaseOrder = _checkoutService.PlaceOrder(Cart, ModelState, viewModel);
+            if (purchaseOrder == null)
             {
-                InitializeCheckoutViewModel(currentPage, checkoutViewModel);
-                return View("Index", checkoutViewModel);
+                return View(viewModel);
             }
+            
+            var confirmationSentSuccessfully = _checkoutService.SendConfirmation(viewModel, purchaseOrder);
+          
+            _recommendationService.SendOrderTracking(HttpContext, purchaseOrder);
 
-            _checkoutService.ClearOrderAddresses();
-
-            // If the shipping address should be the same as the billing address, replace all existing shipping addresses to
-            // be the same as the billing address instead.
-            if (checkoutViewModel.UseBillingAddressForShipment)
-            {
-                checkoutViewModel.ShippingAddresses = new ShippingAddress[] { checkoutViewModel.BillingAddress };
-            }
-
-            SaveBillingAddress(checkoutViewModel);
-
-            if (!SaveShippingAddresses(checkoutViewModel))
-            {
-                InitializeCheckoutViewModel(currentPage, checkoutViewModel);
-                return View("Index", checkoutViewModel);
-            }
-
-            _cartService.RunWorkflow(OrderGroupWorkflowManager.CartPrepareWorkflowName);
-            _cartService.SaveCart();
-
-            try
-            {
-                var netaxept = checkoutViewModel.Payment as NetaxeptViewModel;
-                if (netaxept != null)
-                {
-                    var netaxeptPaymentMethod = checkoutViewModel.Payment.PaymentMethod as NetaxeptCheckoutPaymentGateway;
-                    if (netaxeptPaymentMethod != null)
-                    {
-                        netaxeptPaymentMethod.CallbackUrl = "http://" + this.Request.Url.DnsSafeHost + Url.Action("Index", "PaymentCallback");
-                    }
-                }
-
-                _paymentService.ProcessPayment(checkoutViewModel.Payment.PaymentMethod);
-            }
-            catch (PreProcessException)
-            {
-                ModelState.AddModelError("PaymentMethod", _localizationService.GetString("/Checkout/Payment/Errors/PreProcessingFailure"));
-            }
-
-            if (!ModelState.IsValid)
-            {
-                InitializeCheckoutViewModel(currentPage, checkoutViewModel);
-                return View("Index", checkoutViewModel);
-            }
-
-            return Finish(currentPage);
-        }
-
-        /// <summary>
-        /// Converts the billing address into an order address and saves it. If any changes to the address should be saved for future usage
-        /// then the address will also be converted as a customer addresses and gets related to the current contact.
-        /// </summary>
-        /// <param name="checkoutViewModel">The view model representing the purchase order.</param>
-        private void SaveBillingAddress(CheckoutViewModel checkoutViewModel)
-        {
-            var orderAddress = _checkoutService.AddNewOrderAddress();
-
-            _addressBookService.MapModelToOrderAddress(checkoutViewModel.BillingAddress, orderAddress);
-            orderAddress.Name = Guid.NewGuid().ToString();
-            orderAddress.AcceptChanges();
-            _checkoutService.UpdateBillingAddressId(orderAddress.Name);
-
-            SaveToAddressBookIfNeccessary(checkoutViewModel.BillingAddress);
-        }
-
-        /// <summary>
-        /// Converts and saves all shipping addresses for a purchase into order addresses. If one or more addresses should be saved for future usage
-        /// then they are also stored as customer addresses and gets related to the current contact.
-        /// </summary>
-        /// <param name="checkoutViewModel">The view model representing the purchase order.</param>
-        /// <returns><c>true</c> if there save was successful, otherwise <c>false</c>.</returns>
-        private bool SaveShippingAddresses(CheckoutViewModel checkoutViewModel)
-        {
-            if (checkoutViewModel.ShippingAddresses == null ||
-                !checkoutViewModel.ShippingAddresses.Any(address => address.ShippingMethodId != Guid.Empty))
-            {
-                return false;
-            }
-
-            foreach (ShippingAddress shippingAddress in checkoutViewModel.ShippingAddresses)
-            {
-                var orderAddress = _checkoutService.AddNewOrderAddress();
-                _addressBookService.MapModelToOrderAddress(shippingAddress, orderAddress);
-                orderAddress.Name = Guid.NewGuid().ToString();
-                orderAddress.AcceptChanges();
-
-                var shipment = _checkoutService.CreateShipment();
-                shipment.ShippingAddressId = orderAddress.Name;
-                var shippingRate = _checkoutService.GetShippingRate(shipment, shippingAddress.ShippingMethodId);
-                _checkoutService.UpdateShipment(shipment, shippingRate);
-
-                SaveToAddressBookIfNeccessary(shippingAddress);
-            }
-
-            return true;
-        }
-
-        private void SaveToAddressBookIfNeccessary(ShippingAddress address)
-        {
-            if (address.SaveAddress && User.Identity.IsAuthenticated && _addressBookService.CanSave(address))
-            {
-                var currentContact = _customerContext.CurrentContact.CurrentContact;
-                var customerAddress = currentContact.ContactAddresses.FirstOrDefault(x => x.AddressId == address.AddressId) ?? CustomerAddress.CreateInstance();
-
-                _addressBookService.MapModelToCustomerAddress(address, customerAddress);
-
-                if (address.AddressId == null)
-                {
-                    currentContact.AddContactAddress(customerAddress);
-                }
-                else
-                {
-                    BusinessManager.Update(customerAddress);
-                }
-                currentContact.SaveChanges();
-            }
-        }
-
-        [HttpGet]
-        public ActionResult CompletePayment()
-        {
-            _cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
-            /*try
-            {
-                //_cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
-
-                var cart = new CartHelper(Mediachase.Commerce.Orders.Cart.DefaultName, PrincipalInfo.CurrentPrincipal.GetContactId());
-                var results = OrderGroupWorkflowManager.RunWorkflow(cart.Cart, OrderGroupWorkflowManager.CartCheckOutWorkflowName);
-                var list = OrderGroupWorkflowManager.GetWarningsFromWorkflowResult(results);
-            }
-            catch (Exception ex)
-            {
-                var s = ex.Message;
-            }*/
-           
-
-            PurchaseOrder purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
-            _checkoutService.DeleteCart();
-
-            var startpage = _contentRepository.Get<StartPage>(ContentReference.StartPage);
-            var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(startpage.CheckoutPage);
-            var queryCollection = new NameValueCollection
-            {
-                {"contactId", _customerContext.CurrentContactId.ToString()},
-                {"orderNumber", purchaseOrder.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
-            };
-
-            return Redirect(new UrlBuilder(confirmationPage.LinkURL) { QueryCollection = queryCollection }.ToString());
-        }
-
-        /// <summary>
-        /// Finalizes a purchase orders and send an e-mail confirmation to the customer.
-        /// </summary>
-        /// <param name="currentPage">The checkout content page.</param>
-        /// <returns>The confirmation view for the purchase order.</returns>
-        [HttpGet]
-        public ActionResult Finish(CheckoutPage currentPage)
-        {
-            if (!_cartService.GetCartItems().Any())
-            {
-                return RedirectToAction("Index");
-            }
-
-            var startpage = _contentRepository.Get<StartPage>(ContentReference.StartPage);
-            var confirmationPage = _contentRepository.GetFirstChild<OrderConfirmationPage>(currentPage.ContentLink);
-            //PurchaseOrder purchaseOrder = null;
-            //string emailAddress = null;
-            OrderForm orderForm = _cartService.GetOrderForms().First();
-            decimal totalProcessedAmount = orderForm.Payments.Where(x => x.Status.Equals(PaymentStatus.Processed.ToString())).Sum(x => x.Amount);
-
-            //if (totalProcessedAmount != orderForm.Total)
-            //{
-            //   throw new InvalidOperationException("Wrong amount");
-            //}
-
-            _cartService.RunWorkflow(OrderGroupWorkflowManager.CartCheckOutWorkflowName);
-            /*purchaseOrder = _checkoutService.SaveCartAsPurchaseOrder();
-
-            _checkoutService.DeleteCart();
-
-            emailAddress = purchaseOrder.OrderAddresses.First().Email;
-
-            var queryCollection = new NameValueCollection
-            {
-                {"contactId", _customerContext.CurrentContactId.ToString()},
-                {"orderNumber", purchaseOrder.OrderGroupId.ToString(CultureInfo.InvariantCulture)}
-            };
-
-            try
-            {
-                _mailService.Send(startpage.OrderConfirmationMail, queryCollection, emailAddress, currentPage.Language.Name);
-            }
-            catch (Exception)
-            {
-                // The purchase has been processed and the payment was successfully settled, but for some reason the e-mail
-                // receipt could not be sent to the customer. Rollback is not possible so simple make sure to inform the
-                // customer to print the confirmation page instead.
-                queryCollection.Add("notificationMessage", string.Format(_localizationService.GetString("/OrderConfirmationMail/ErrorMessages/SmtpFailure"), emailAddress));
-
-                // Todo: Log the error and raise an alert so that an administrator can look in to it.
-            }
-
-            _cookieService.Remove(CouponKey);
-
-            return Redirect(new UrlBuilder(confirmationPage.LinkURL) { QueryCollection = queryCollection }.ToString());*/
-            return RedirectToAction("Index");
-        }
-
-        protected override void OnException(ExceptionContext filterContext)
-        {
-            _controllerExceptionHandler.HandleRequestValidationException(filterContext, "purchase", OnPurchaseException);
+            return Redirect(_checkoutService.BuildRedirectionUrl(viewModel, purchaseOrder, confirmationSentSuccessfully));
         }
 
         public ActionResult OnPurchaseException(ExceptionContext filterContext)
@@ -723,27 +219,35 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
                 return new EmptyResult();
             }
 
-            CheckoutViewModel viewModel = InitializeCheckoutViewModel(currentPage, null);
+            var viewModel = CreateCheckoutViewModel(currentPage);
             ModelState.AddModelError("Purchase", filterContext.Exception.Message);
 
-            return View("index", viewModel);
+            return View(viewModel.ViewName, viewModel);
         }
 
-
-        private void ApplyCoupons()
+        protected override void OnException(ExceptionContext filterContext)
         {
-            var cookie = _cookieService.Get(CouponKey);
-            if (cookie != null)
-            {
-                var coupons = JsonConvert.DeserializeObject<HashSet<string>>(cookie);
-                if (coupons != null && coupons.Any())
-                {
-                    foreach (var coupon in coupons)
-                    {
-                        MarketingContext.Current.AddCouponToMarketingContext(coupon);
-                    }
-                }
-            }
+            _controllerExceptionHandler.HandleRequestValidationException(filterContext, "purchase", OnPurchaseException);
+        }
+
+        private ViewResult View(CheckoutViewModel checkoutViewModel)
+        {
+            return View(checkoutViewModel.ViewName, CreateCheckoutViewModel(checkoutViewModel.CurrentPage, checkoutViewModel.Payment));
+        }
+
+        private CheckoutViewModel CreateCheckoutViewModel(CheckoutPage currentPage, IPaymentMethodViewModel<PaymentMethodBase> paymentViewModel = null)
+        {
+            return _checkoutViewModelFactory.CreateCheckoutViewModel(Cart, currentPage, paymentViewModel);
+        }
+
+        private ICart Cart
+        {
+            get { return _cart ?? (_cart = _cartService.LoadCart(_cartService.DefaultCartName)); }
+        }
+
+        private bool CartIsNullOrEmpty()
+        {
+            return Cart == null || !Cart.GetAllLineItems().Any();
         }
     }
 }

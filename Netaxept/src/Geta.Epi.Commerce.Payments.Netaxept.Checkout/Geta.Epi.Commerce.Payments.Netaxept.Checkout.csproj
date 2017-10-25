@@ -198,6 +198,7 @@
     <Compile Include="Business\CartOrderNumberHelper.cs" />
     <Compile Include="Business\CartOrderNumber.cs" />
     <Compile Include="Business\PaymentSteps\AuthorizationPaymentStep.cs" />
+    <Compile Include="Business\PaymentSteps\AnnulPaymentStep.cs" />
     <Compile Include="Business\PaymentSteps\CreditPaymentStep.cs" />
     <Compile Include="Business\PaymentSteps\CapturePaymentStep.cs" />
     <Compile Include="Business\PaymentSteps\PaymentStep.cs" />

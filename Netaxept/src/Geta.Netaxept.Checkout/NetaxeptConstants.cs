@@ -36,5 +36,11 @@
 
         /* Customer fields */
         public const string CustomerPanHashFieldName = "PanHash";
+        public const string CustomerCardMaskedFieldName = "CardMasked";
+        public const string CustomerCardExpirationDateFieldName = "CardExpirationDate";
+        public const string CustomerCardPaymentMethodFieldName = "CardPaymentMethod";
+        public const string CustomerCardIssuerCountryFieldName = "CardIssuerCountry";
+        public const string CustomerCardIssuerIdFieldName = "CardIssuerId";
+        public const string CustomerCardIssuerFieldName = "CardIssuer";
     }
 }

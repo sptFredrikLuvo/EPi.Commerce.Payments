@@ -4,7 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using EPiServer.Commerce.Order;
 using EPiServer.Logging;
+using EPiServer.ServiceLocation;
 using Geta.Epi.Commerce.Payments.Netaxept.Checkout.Extensions;
 using Geta.Netaxept.Checkout;
 using Geta.Netaxept.Checkout.Models;
@@ -20,38 +22,42 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
     /// </summary>
     public class RegisterPaymentStep : PaymentStep
     {
+        private readonly Injected<IOrderGroupTotalsCalculator> _orderGroupTotalsCalculator;
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(RegisterPaymentStep));
 
-        public RegisterPaymentStep(Payment payment) : base(payment)
-        { }
+        public RegisterPaymentStep(IPayment payment) : base(payment)
+        {
+        }
 
         /// <summary>
         /// Process register payment step
         /// </summary>
         /// <param name="payment"></param>
+        /// <param name="orderForm"></param>
+        /// <param name="orderGroup"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public override bool Process(Payment payment, ref string message)
+        public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
         {
             var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
 
             if (payment.TransactionType == "Authorization")
             {
-                var orderForm = payment.Parent;
                 var transactionId = "";
                 try
                 {
-                    transactionId = this.Client.Register(CreatePaymentRequest(paymentMethodDto, payment, orderForm));
+                    transactionId = this.Client.Register(CreatePaymentRequest(paymentMethodDto, payment, orderForm, orderGroup));
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex.Message);
                     message = ex.Message;
-                    AddNote(payment.Parent, "Payment Registered - Error", "Payment Registered - Error: " + ex.Message, true);
+                    AddNoteAndSaveChanges(orderGroup, "Payment Registered - Error", "Payment Registered - Error: " + ex.Message);
                     return false;
                 }
 
-                AddNote(orderForm, "Payment - Registered", "Payment - Registered");
+                AddNoteAndSaveChanges(orderGroup, "Payment - Registered", $"Payment - Registered with transactionId {transactionId}");
+
 
                 var url = new UriBuilder(GetTerminalUrl(paymentMethodDto));
                 var nvc = new NameValueCollection
@@ -62,13 +68,17 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
 
                 url.Query = string.Join("&", nvc.AllKeys.Select(key => string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(nvc[key]))));
 
-                HttpContext.Current.Response.Redirect(url.ToString());
+
+                if (!HttpContext.Current.Response.IsRequestBeingRedirected)
+                {
+                    HttpContext.Current.Response.Redirect(url.ToString(), true);
+                }
 
                 return true;
             }
             else if (Successor != null)
             {
-                return Successor.Process(payment, ref message);
+                return Successor.Process(payment, orderForm, orderGroup, ref message);
             }
             return true;
         }
@@ -91,34 +101,36 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <param name="paymentMethodDto"></param>
         /// <param name="payment"></param>
         /// <param name="orderForm"></param>
+        /// <param name="orderGroup"></param>
         /// <returns></returns>
-        private PaymentRequest CreatePaymentRequest(PaymentMethodDto paymentMethodDto, Payment payment, OrderForm orderForm)
+        private PaymentRequest CreatePaymentRequest(PaymentMethodDto paymentMethodDto, IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup)
         {
-            var request = new PaymentRequest();
-            request.EnableEasyPayments = true;
+            var request = new PaymentRequest {EnableEasyPayments = true};
 
-            if (orderForm.Parent.CustomerId != Guid.Empty)
+            if (orderGroup.CustomerId != Guid.Empty)
             {
-                var customerContact = CustomerContext.Current.GetContactById(orderForm.Parent.CustomerId);
+                var customerContact = CustomerContext.Current.GetContactById(orderGroup.CustomerId);
                 if (customerContact != null)
                 {
                     request.PanHash = customerContact[NetaxeptConstants.CustomerPanHashFieldName]?.ToString();
                 }
             }
-            
-            request.Amount = PaymentStepHelper.GetAmount(orderForm.Total);
-            request.TaxTotal = PaymentStepHelper.GetAmount(orderForm.TaxTotal);
-            request.CurrencyCode = orderForm.Parent.BillingCurrency;
+
+            var calculatedTotals = _orderGroupTotalsCalculator.Service.GetTotals(orderGroup);
+
+            request.Amount = PaymentStepHelper.GetAmount(payment.Amount);
+            request.TaxTotal = PaymentStepHelper.GetAmount(calculatedTotals.TaxTotal.Amount);
+            request.CurrencyCode = orderGroup.Currency.CurrencyCode;
             request.OrderDescription = "Netaxept order";
-            request.OrderNumber = CartOrderNumberHelper.GenerateOrderNumber(orderForm.Parent);
+            request.OrderNumber = CartOrderNumberHelper.GenerateOrderNumber(orderGroup);
             
             request.Language = paymentMethodDto.GetParameter(NetaxeptConstants.TerminalLanguageField);
 
-            request.SuccessUrl = payment.GetStringValue(NetaxeptConstants.CallbackUrl, string.Empty);
+            request.SuccessUrl = payment.Properties.GetStringValue(NetaxeptConstants.CallbackUrl, string.Empty);
 
-            request.CustomerNumber = (orderForm.Parent.CustomerId != Guid.Empty ? orderForm.Parent.CustomerId.ToString() : string.Empty);
+            request.CustomerNumber = (orderGroup.CustomerId != Guid.Empty ? orderGroup.CustomerId.ToString() : string.Empty);
 
-            var billingAddress = orderForm.Parent.OrderAddresses.FirstOrDefault(a => a.Name == orderForm.BillingAddressId);
+            var billingAddress = payment.BillingAddress;
             if (billingAddress != null)
             {
                 request.CustomerFirstname = billingAddress.FirstName;
