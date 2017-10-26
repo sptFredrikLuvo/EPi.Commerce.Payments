@@ -21,7 +21,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <param name="payment"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
+        public override PaymentStepResult Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup)
         {
             if (payment.TransactionType == "Credit")
             {
@@ -32,30 +32,29 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     var result = this.Client.Credit(payment.TransactionID, amount);
                     if (result.ErrorOccurred)
                     {
-                        message = result.ErrorMessage;
                         payment.Status = "Failed";
                         AddNoteAndSaveChanges(orderGroup, "Payment Credit - Error", "Payment Credit - Error: " + result.ErrorMessage);
-                        return false;
+                        return Fail(result.ErrorMessage);
                     }
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex.Message);
-                    message = ex.Message;
                     payment.Status = "Failed";
                     AddNoteAndSaveChanges(orderGroup, "Payment Credit - Error", "Payment Credit - Error: " + ex.Message);
-                    return false;
+                    return Fail(ex.Message);
                 }
 
                 AddNoteAndSaveChanges(orderGroup, "Payment - Credited", "Payment - Credited");
 
-                return true;
+                return Success();
             }
             else if (Successor != null)
             {
-                return Successor.Process(payment, orderForm, orderGroup, ref message);
+                return Successor.Process(payment, orderForm, orderGroup);
             }
-            return false;
+
+            return Fail(null);
         }
 
         

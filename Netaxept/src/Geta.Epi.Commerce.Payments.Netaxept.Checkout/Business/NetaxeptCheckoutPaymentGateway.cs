@@ -75,27 +75,14 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
         /// <returns></returns>
         public override bool ProcessPayment(Payment payment, ref string message)
         {
-            try
-            {
-                Logger.Debug("Netaxept checkout gateway. Processing Payment ....");
-
-                OrderGroup = payment.Parent.Parent;
-                _orderForm = payment.Parent;
-                var result = ProcessPayment(OrderGroup, payment);
-                return result.IsSuccessful;
-            }
-            catch (Exception exception)
-            {
-                Logger.Error("Process payment failed with error: " + exception.Message, exception);
-                message = exception.Message;
-                throw;
-            }
+            OrderGroup = payment.Parent.Parent;
+            _orderForm = payment.Parent;
+            return ProcessPayment(OrderGroup, payment).IsSuccessful;
         }
 
         public virtual PaymentProcessingResult ProcessPayment(IOrderGroup orderGroup, IPayment payment)
         {
-            string message = string.Empty;
-            bool successful;
+            PaymentStepResult stepResult;
 
             try
             {
@@ -115,21 +102,20 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business
                 capturePaymentStep.SetSuccessor(creditPaymentStep);
                 creditPaymentStep.SetSuccessor(annulPaymentStep);
 
-                successful = registerPaymentStep.Process(payment, _orderForm, orderGroup, ref message);
+                stepResult = registerPaymentStep.Process(payment, _orderForm, orderGroup);
             }
             catch (Exception exception)
             {
                 Logger.Error("Process payment failed with error: " + exception.Message, exception);
-                message = exception.Message;
-                successful = false;
+                stepResult = new PaymentStepResult { IsSuccessful = false, Message = exception.Message };
             }
 
-            if (successful)
+            if (stepResult.IsSuccessful)
             {
-                return PaymentProcessingResult.CreateSuccessfulResult(message);
+                return PaymentProcessingResult.CreateSuccessfulResult(stepResult.Message, stepResult.RedirectUrl);
             }
 
-            return PaymentProcessingResult.CreateUnsuccessfulResult(message);
+            return PaymentProcessingResult.CreateUnsuccessfulResult(stepResult.Message);
         }
     }
 }

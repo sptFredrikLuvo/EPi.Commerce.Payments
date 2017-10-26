@@ -50,8 +50,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <param name="orderGroup"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public abstract bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message);
-
+        public abstract PaymentStepResult Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup);
         
         protected void AddNoteAndSaveChanges(IOrderGroup orderGroup, string noteTitle, string noteMessage)
         {
@@ -62,9 +61,30 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
             note.Detail = noteMessage;
             note.Created = DateTime.UtcNow;
             orderGroup.Notes.Add(note);
-
             _orderRepository.Service.Save(orderGroup);
         }
 
+        protected PaymentStepResult Success(string redirectUrl)
+        {
+            return new PaymentStepResult
+            {
+                IsSuccessful = true,
+                RedirectUrl = redirectUrl
+            };
+        }
+
+        protected PaymentStepResult Success()
+        {
+            return Success(null);
+        }
+
+        protected PaymentStepResult Fail(string message)
+        {
+            return new PaymentStepResult
+            {
+                IsSuccessful = false,
+                Message = message
+            };
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
        /// <param name="orderGroup"></param>
        /// <param name="message"></param>
        /// <returns></returns>
-        public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
+        public override PaymentStepResult Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup)
         {
             throw new NotImplementedException();
         }
@@ -43,6 +43,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         public PaymentAuthorizationResult Process(IPayment payment, IOrderGroup orderGroup, string transactionId)
         {
             var result = new PaymentAuthorizationResult();
+
             if (payment.TransactionType == "Authorization" && !string.IsNullOrEmpty(transactionId))
             {
                 PaymentResult paymentResult = null;
@@ -53,7 +54,6 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 catch (Exception ex)
                 {
                     Logger.Error(ex.Message);
-
                     AddNoteAndSaveChanges(orderGroup, "Payment Query - Error", "Payment Query - Error: " + ex.Message);
                     return result;
                 }

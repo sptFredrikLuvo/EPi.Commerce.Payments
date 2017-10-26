@@ -205,6 +205,7 @@
     <Compile Include="Business\NetaxeptCheckoutPaymentGateway.cs" />
     <Compile Include="Business\NetaxeptPayment.cs" />
     <Compile Include="Business\PaymentSteps\PaymentStepHelper.cs" />
+    <Compile Include="Business\PaymentSteps\PaymentStepResult.cs" />
     <Compile Include="Business\PaymentSteps\RegisterPaymentStep.cs" />
     <Compile Include="Extensions\MetaStorargeExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
