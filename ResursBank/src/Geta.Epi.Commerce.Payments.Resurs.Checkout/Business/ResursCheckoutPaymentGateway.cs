@@ -112,9 +112,11 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                         // Booking succesfull
                         switch (bookPaymentResult.bookPaymentStatus)
                         {
+                            case bookPaymentStatus.FROZEN:
+                                payment.SetMetaField(ResursConstants.PaymentFreezeStatus, true);
+                                return true;
                             case bookPaymentStatus.BOOKED:
                             case bookPaymentStatus.FINALIZED:
-                            case bookPaymentStatus.FROZEN:
                                 return true;
                             case bookPaymentStatus.SIGNING:
                                 // Save payment to Cookie for re-process.
@@ -147,7 +149,6 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
 				        }
 			        }
                 }
-
             }
             catch (FaultException<ECommerceError> exception)
 	        {
@@ -330,6 +331,29 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
 
         public bool PostProcess(OrderForm orderForm)
         {
+            var resursPayment =
+                orderForm.Payments.FirstOrDefault(x => x.PaymentMethodName.Equals("ResursBankCheckout"));
+
+            // Check if payment frozen, if so set payment pending
+            if (resursPayment == null)
+            {
+                return true;
+            }
+
+            var freezeStatus = false;
+            try
+            {
+                freezeStatus = resursPayment.GetBool(ResursConstants.PaymentFreezeStatus);
+            }
+            catch (Exception)
+            {
+                Logger.Debug($"{ResursConstants.PaymentFreezeStatus} not set");
+            }
+            if (freezeStatus)
+            {
+                resursPayment.Status = PaymentStatus.Pending.ToString();
+            }
+
             return true;
         }
 
