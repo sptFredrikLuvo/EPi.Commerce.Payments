@@ -117,6 +117,7 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                                 return true;
                             case bookPaymentStatus.BOOKED:
                             case bookPaymentStatus.FINALIZED:
+                                payment.SetMetaField(ResursConstants.PaymentFreezeStatus, false);
                                 return true;
                             case bookPaymentStatus.SIGNING:
                                 // Save payment to Cookie for re-process.
@@ -140,8 +141,14 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
 				        if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.BOOKED ||
 				            bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FINALIZED)
 				        {
-					        return true;
+				            payment.SetMetaField(ResursConstants.PaymentFreezeStatus, false);
+                            return true;
 				        }
+                        else if (bookPaymentResult.bookPaymentStatus == bookPaymentStatus.FROZEN)
+				        {
+				            payment.SetMetaField(ResursConstants.PaymentFreezeStatus, true);
+				            return true;
+                        }
 				        else
 				        {
 					        SaveObjectToCookie(null, ResursConstants.PaymentResultCookieName, new TimeSpan(0, 1, 0, 0));
