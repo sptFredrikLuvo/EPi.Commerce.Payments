@@ -72,11 +72,12 @@ Project contains _pack.bat_ file for easier packaging. It calls _nuget.exe_ (ass
 
 ### Resurs Checkout Simplified Basic Shop Flow
 
-https://test.resurs.com/docs/display/ecom/Step+By+Step%3A+Simplified+Basic+Shop+Flow
-
 ### Resurs Bank Checkout documentation
 
-https://test.resurs.com/docs/display/ecom/Full+manual
+[Full documentation](https://test.resurs.com/docs/display/ecom/The+Resurs+Bank+E-Commerce+Platform)
+[Basic shop flow documentation](https://test.resurs.com/docs/display/ecom/Simplified+Flow+API)
+[Callbacks](https://test.resurs.com/docs/display/ecom/Callbacks)
+[Information for testing (e.g. test accounts)](https://test.resurs.com/docs/display/ecom/Testing)
 
 ## Demo
 
