@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalizationConstants.cs" />
     <Compile Include="IResursBankServiceClient.cs" />
     <Compile Include="Model\BookPaymentObject.cs" />
     <Compile Include="Model\Card.cs" />
