@@ -4,6 +4,7 @@
     {
         public static readonly string UserName = "UserName";
         public static readonly string Password = "Password";
+        public static readonly string IncludeShippingCost = "IncludeShippingCost";
 
         public const string OrderNamespace = "Mediachase.Commerce.Orders";
         public const string ResursBankPaymentMethod = "ResursBankPaymentMethod";
@@ -27,19 +28,5 @@
         public const string LineItemExClass = "LineItemEx";
         public const string InvoiceDeliveryType = "InvoiceDeliveryType";
 
-    }
-    public static class ResursPaymentMethodType
-    {
-        public const string CARD = "CARD";
-        public const string NEWCARD = "NEWCARD";
-        public const string ACCOUNT = "ACCOUNT";
-        public const string NEWACCOUNT = "NEWACCOUNT";
-        public const string PARTPAYMENT = "PARTPAYMENT";
-        public const string INVOICE = "INVOICE";
-    }
-
-    public static class UnitMeasureType
-    {
-        public const string ST = "st";
     }
 }

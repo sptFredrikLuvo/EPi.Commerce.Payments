@@ -19,10 +19,9 @@
             </td>
         </tr>
         <tr>
-            <td class="FormLabelCell">Lanuage:</td>
+            <td class="FormLabelCell">Include shipment costs:</td>
             <td class="FormFieldCell">
-                <asp:TextBox runat="server" ID="txtLanguage"  />
-                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtPassword" ErrorMessage="The shared secret is required." />
+                <asp:CheckBox runat="server" ID="chkIncludeShippingCost"  />
             </td>
         </tr>
     </tbody>
