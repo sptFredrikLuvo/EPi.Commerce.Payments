@@ -8,6 +8,7 @@ using EPiServer.Framework.Cache;
 using EPiServer.Framework.Localization;
 using EPiServer.Logging;
 using EPiServer.ServiceLocation;
+using Geta.Epi.Commerce.Payments.Resurs.Checkout.Extensions;
 using Geta.EPi.Commerce.Payments.Resurs.Checkout.Extensions;
 using Geta.Resurs.Checkout;
 using Geta.Resurs.Checkout.Model;
@@ -347,22 +348,15 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
                 return true;
             }
 
-            var freezeStatus = false;
-            try
-            {
-                freezeStatus = resursPayment.GetBool(ResursConstants.PaymentFreezeStatus);
-            }
-            catch (Exception)
-            {
-                Logger.Debug($"{ResursConstants.PaymentFreezeStatus} not set");
-            }
-            if (freezeStatus)
+            if (resursPayment.GetResursFreezeStatus())
             {
                 resursPayment.Status = PaymentStatus.Pending.ToString();
             }
 
             return true;
         }
+
+        
 
         public List<PaymentMethodResponse> GetResursPaymentMethods(string lang, string custType, decimal amount)
         {
