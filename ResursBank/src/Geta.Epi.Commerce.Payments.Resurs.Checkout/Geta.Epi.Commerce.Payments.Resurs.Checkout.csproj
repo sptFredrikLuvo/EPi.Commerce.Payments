@@ -209,6 +209,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web">
       <Private>True</Private>
     </Reference>
@@ -248,6 +249,7 @@
     <Compile Include="Business\ResursCheckoutPaymentGateway.cs" />
     <Compile Include="Extensions\LineItemExtensions.cs" />
     <Compile Include="Extensions\MetaStorageExtensions.cs" />
+    <Compile Include="Extensions\PaymentExtensions.cs" />
     <Compile Include="Extensions\PaymentMethodsExtensions.cs" />
     <Compile Include="MetadataInitialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

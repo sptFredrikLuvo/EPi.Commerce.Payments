@@ -49,21 +49,12 @@ namespace Geta.EPi.Payments.Resurs.CommerceManager.Apps.Order.Payments.Plugins.R
         protected global::System.Web.UI.WebControls.RequiredFieldValidator val3;
         
         /// <summary>
-        /// txtLanguage control.
+        /// chkIncludeShippingCost control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLanguage;
-        
-        /// <summary>
-        /// RequiredFieldValidator1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator RequiredFieldValidator1;
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeShippingCost;
     }
 }

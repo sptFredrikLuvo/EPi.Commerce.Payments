@@ -37,6 +37,9 @@ namespace Geta.EPi.Commerce.Payments.Resurs.Checkout
             var cardNumber = GetOrCreateCardNumberField(mdContext);
             JoinField(mdContext, cardNumber, ResursConstants.OtherPaymentClass);
 
+            var freezeStatus = GetOrCreateFreezeStatusField(mdContext);
+            JoinField(mdContext, freezeStatus, ResursConstants.OtherPaymentClass);
+
             var customerIpAddress = GetOrCreateCustomerIpAddressField(mdContext);
             JoinField(mdContext, customerIpAddress, ResursConstants.OtherPaymentClass);
 
@@ -126,6 +129,21 @@ namespace Geta.EPi.Commerce.Payments.Resurs.Checkout
             {
                 Logger.Debug(string.Format("Adding meta field '{0}' for Resurs integration.", ResursConstants.CardNumber));
                 f = MetaField.Create(mdContext, ResursConstants.OrderNamespace, ResursConstants.CardNumber, ResursConstants.CardNumber, string.Empty, MetaDataType.ShortString, 255, true, false, false, false);
+            }
+
+            return f;
+        }
+
+        private MetaField GetOrCreateFreezeStatusField(MetaDataContext mdContext)
+        {
+
+            var f = MetaField.Load(mdContext, ResursConstants.PaymentFreezeStatus);
+            if (f == null)
+            {
+                Logger.Debug($"Adding meta field '{ResursConstants.PaymentFreezeStatus}' for Resurs integration.");
+                f = MetaField.Create(mdContext, ResursConstants.OrderNamespace, ResursConstants.PaymentFreezeStatus,
+                    ResursConstants.PaymentFreezeStatus, string.Empty, MetaDataType.Boolean, 0, true, false, false,
+                    false);
             }
 
             return f;
