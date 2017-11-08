@@ -51,9 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Callbacks\CallbackData.cs" />
+    <Compile Include="Callbacks\CallbackEventType.cs" />
+    <Compile Include="Callbacks\ResursHashCalculator.cs" />
+    <Compile Include="Callbacks\IResursHashCalculator.cs" />
     <Compile Include="CountryCodeDictionary.cs" />
     <Compile Include="GlobalizationConstants.cs" />
     <Compile Include="ICountryCodeDictionary.cs" />
+    <Compile Include="Callbacks\IResursBankCallbackClientFactory.cs" />
+    <Compile Include="Callbacks\IResursBankCallbackClient.cs" />
     <Compile Include="IResursBankServiceClient.cs" />
     <Compile Include="Model\BookPaymentObject.cs" />
     <Compile Include="Model\Card.cs" />
@@ -64,12 +70,20 @@
     <Compile Include="Model\ResursCredential.cs" />
     <Compile Include="Model\WebLink.cs" />
     <Compile Include="Model\PaymentMethodResponse.cs" />
+    <Compile Include="Callbacks\ResursBankCallbackClient.cs" />
+    <Compile Include="Callbacks\ResursBankCallbackClientFactory.cs" />
     <Compile Include="ResursBankServiceClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResursBankServiceSettingFactory.cs" />
+    <Compile Include="Callbacks\ResursCallbackInitialization.cs" />
     <Compile Include="ResursConstants.cs" />
     <Compile Include="ResursPaymentMethodType.cs" />
     <Compile Include="Service References\AfterShopFlowService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\ConfigurationService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -154,6 +168,52 @@
     <None Include="Service References\AfterShopFlowService\Geta.Resurs.Checkout.AfterShopFlowService.withdrawBonusPointsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Include="Service References\ConfigurationService\common.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ConfigurationService\configuration.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ConfigurationService\ConfigurationService.wsdl" />
+    <None Include="Service References\ConfigurationService\ConfigurationServiceMessages.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ConfigurationService\Exceptions.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.addPasswordResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.changePasswordResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.getInvoiceDataResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.getRegisteredEventCallbackResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.invoiceData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.peekInvoiceSequenceResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.registerEventCallbackResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.removePasswordResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.setInvoiceDataResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.setInvoiceSequenceResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigurationService\Geta.Resurs.Checkout.ConfigurationService.unregisterEventCallbackResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="Service References\SimplifiedShopFlowService\common.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -209,11 +269,18 @@
     <None Include="Service References\SimplifiedShopFlowService\SimplifiedShopFlowServiceMessages.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\ConfigurationService\configuration91.svcinfo" />
+    <None Include="Service References\ConfigurationService\configuration.svcinfo" />
+    <None Include="Service References\ConfigurationService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="web.config.install.xdt" />
     <Content Include="web.config.uninstall.xdt" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\AfterShopFlowService\" />
+    <WCFMetadataStorage Include="Service References\ConfigurationService\" />
     <WCFMetadataStorage Include="Service References\SimplifiedShopFlowService\" />
   </ItemGroup>
   <ItemGroup>
