@@ -32,17 +32,20 @@ namespace Geta.Resurs.Checkout.Callbacks
 
         public void RegisterCallbackUrl(CallbackEventType callbackEventType, string url)
         {
+            if (url == null) throw new ArgumentNullException(nameof(url));
+            var urlWithEventType = GetUrlWithEventType(callbackEventType, url);
+
             var currentCallback =
                 _configurationService.getRegisteredEventCallback(callbackEventType.ToString());
 
-            if (!string.IsNullOrWhiteSpace(currentCallback) && !currentCallback.Equals(url, StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(currentCallback) && !currentCallback.Equals(urlWithEventType, StringComparison.InvariantCultureIgnoreCase))
             {
                 _configurationService.unregisterEventCallback(callbackEventType.ToString());
             }
 
             _configurationService.registerEventCallback(
                 callbackEventType.ToString(),
-                url,
+                urlWithEventType,
                 null,
                 null,
                 new digestConfiguration
@@ -52,6 +55,8 @@ namespace Geta.Resurs.Checkout.Callbacks
                     digestSalt = GetSalt()
                 });
         }
+
+       
 
         public void UnRegisterCallbackUrl(CallbackEventType callbackEventType)
         {
@@ -78,6 +83,13 @@ namespace Geta.Resurs.Checkout.Callbacks
             // update order
 
             return false;
+        }
+
+        protected virtual string GetUrlWithEventType(CallbackEventType callbackEventType, string url)
+        {
+            return url.Contains("?")
+                ? $"{url}&eventType={callbackEventType.ToString().ToUpper()}"
+                : $"{url}?eventType={callbackEventType.ToString().ToUpper()}";
         }
 
         public virtual bool CheckDigest(CallbackData callbackData, string digest)
