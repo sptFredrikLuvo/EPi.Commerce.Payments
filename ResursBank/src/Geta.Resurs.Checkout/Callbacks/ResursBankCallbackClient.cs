@@ -43,8 +43,8 @@ namespace Geta.Resurs.Checkout.Callbacks
             _configurationService.registerEventCallback(
                 callbackEventType.ToString(),
                 url,
-                string.Empty,
-                string.Empty,
+                null,
+                null,
                 new digestConfiguration
                 {
                     digestAlgorithm = GetDigestAlgorithm(),
@@ -66,9 +66,12 @@ namespace Geta.Resurs.Checkout.Callbacks
 
         public bool ProcessCallback(CallbackData callbackData, string digest)
         {
+            if (callbackData == null) throw new ArgumentNullException(nameof(callbackData));
+            if (digest == null) throw new ArgumentNullException(nameof(digest));
+
             if (!CheckDigest(callbackData, digest))
             {
-                return false;
+                throw new ArgumentException(nameof(digest));
             }
 
             // get order
