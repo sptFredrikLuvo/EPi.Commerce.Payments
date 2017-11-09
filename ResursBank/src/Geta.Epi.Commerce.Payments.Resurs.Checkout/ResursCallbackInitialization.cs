@@ -1,9 +1,11 @@
 using System;
 using System.Configuration;
+using System.Linq;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Logging;
 using EPiServer.ServiceLocation;
+using Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks;
 using Geta.Resurs.Checkout.Callbacks;
 
 namespace Geta.Epi.Commerce.Payments.Resurs.Checkout
@@ -35,9 +37,11 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout
                 else
                 {
                     _logger.Error("ResursCallbackInitialization ResursBank:CallbackUrl is empty, unregistering callbacks");
-
-                    configurationClient.UnRegisterCallbackUrl(CallbackEventType.UNFREEZE);
-                    configurationClient.UnRegisterCallbackUrl(CallbackEventType.ANNULMENT);
+                    var callbackEventTypes = Enum.GetValues(typeof(CallbackEventType)).Cast<CallbackEventType>();
+                    foreach (var callbackEventType in callbackEventTypes)
+                    {
+                        configurationClient.UnRegisterCallbackUrl(callbackEventType);
+                    }
                 }
             }
             catch (Exception ex)
