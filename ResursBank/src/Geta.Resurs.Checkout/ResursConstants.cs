@@ -14,7 +14,7 @@
         public const string VatPercent = "VatPercent";
         public const string OrderId = "OrderId";
         public const string ResursBankPaymentType = "ResursBankPaymentType";
-        public const string PaymentId = "PaymentId";
+        public const string ResursPaymentId = "ResursPaymentId";
         public const string PaymentFreezeStatus = "PaymentFreezeStatus";
 
         public const string PaymentResultCookieName = "ResursPaymentBookResult";
