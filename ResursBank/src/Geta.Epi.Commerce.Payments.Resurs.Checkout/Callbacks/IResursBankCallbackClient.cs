@@ -1,4 +1,6 @@
-﻿namespace Geta.Resurs.Checkout.Callbacks
+﻿using Geta.Resurs.Checkout.Callbacks;
+
+namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
 {
     public interface IResursBankCallbackClient
     {

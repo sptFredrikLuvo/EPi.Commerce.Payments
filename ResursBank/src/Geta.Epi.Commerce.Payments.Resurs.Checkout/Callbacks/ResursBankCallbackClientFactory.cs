@@ -2,7 +2,7 @@ using System.Configuration;
 using EPiServer.ServiceLocation;
 using Geta.Resurs.Checkout.Model;
 
-namespace Geta.Resurs.Checkout.Callbacks
+namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
 {
     [ServiceConfiguration(typeof(IResursBankCallbackClientFactory), Lifecycle = ServiceInstanceScope.Singleton)]
     public class ResursBankCallbackClientFactory : IResursBankCallbackClientFactory
