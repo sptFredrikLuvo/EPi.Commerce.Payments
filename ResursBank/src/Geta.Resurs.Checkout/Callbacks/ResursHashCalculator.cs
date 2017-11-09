@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using EPiServer.ServiceLocation;
+using StructureMap;
 
 namespace Geta.Resurs.Checkout.Callbacks
 {
@@ -8,10 +9,13 @@ namespace Geta.Resurs.Checkout.Callbacks
     public class ResursHashCalculator : IResursHashCalculator
     {
         private readonly HashAlgorithm _algorithm;
+
+        [DefaultConstructor]
         public ResursHashCalculator()
         {
             _algorithm = new SHA1CryptoServiceProvider();
         }
+
         public ResursHashCalculator(HashAlgorithm algorithm)
         {
             _algorithm = algorithm;
