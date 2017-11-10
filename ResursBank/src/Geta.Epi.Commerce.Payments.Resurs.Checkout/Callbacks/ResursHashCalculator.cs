@@ -3,7 +3,7 @@ using System.Text;
 using EPiServer.ServiceLocation;
 using StructureMap;
 
-namespace Geta.Resurs.Checkout.Callbacks
+namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
 {
     [ServiceConfiguration(typeof(IResursHashCalculator))]
     public class ResursHashCalculator : IResursHashCalculator

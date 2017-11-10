@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Geta.Resurs.Checkout.Callbacks
+namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
 {
     public class CallbackData
     {

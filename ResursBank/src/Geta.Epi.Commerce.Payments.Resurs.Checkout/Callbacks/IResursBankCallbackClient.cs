@@ -1,5 +1,4 @@
-﻿using Geta.Resurs.Checkout.Callbacks;
-using Mediachase.Commerce.Orders;
+﻿using Mediachase.Commerce.Orders;
 
 namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
 {
