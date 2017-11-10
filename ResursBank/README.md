@@ -87,3 +87,4 @@ To setup your own demo environment (local or otherwise): [local demo setup](docs
 ## Release notes
 
 * [Changes in version 1.0.0.7](docs/release-notes-1.md)
+* [Changes in version 1.0.0.10](docs/release-notes-2.md)
