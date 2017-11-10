@@ -57,10 +57,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Callbacks\CallbackData.cs" />
-    <Compile Include="Callbacks\CallbackEventType.cs" />
-    <Compile Include="Callbacks\ResursHashCalculator.cs" />
-    <Compile Include="Callbacks\IResursHashCalculator.cs" />
     <Compile Include="CountryCodeDictionary.cs" />
     <Compile Include="GlobalizationConstants.cs" />
     <Compile Include="ICountryCodeDictionary.cs" />

@@ -1,4 +1,4 @@
-﻿namespace Geta.Resurs.Checkout.Callbacks
+﻿namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
 {
     public interface IResursHashCalculator
     {

@@ -7,7 +7,6 @@ using EPiServer.ServiceLocation;
 using Geta.Epi.Commerce.Payments.Resurs.Checkout.Extensions;
 using Geta.EPi.Commerce.Payments.Resurs.Checkout.Extensions;
 using Geta.Resurs.Checkout;
-using Geta.Resurs.Checkout.Callbacks;
 using Geta.Resurs.Checkout.ConfigurationService;
 using Geta.Resurs.Checkout.Model;
 using Mediachase.Commerce.Orders;

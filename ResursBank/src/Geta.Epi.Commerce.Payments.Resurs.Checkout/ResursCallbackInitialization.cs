@@ -6,7 +6,6 @@ using EPiServer.Framework.Initialization;
 using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks;
-using Geta.Resurs.Checkout.Callbacks;
 
 namespace Geta.Epi.Commerce.Payments.Resurs.Checkout
 {

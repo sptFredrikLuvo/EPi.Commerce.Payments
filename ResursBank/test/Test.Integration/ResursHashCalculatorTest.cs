@@ -1,5 +1,5 @@
 ﻿using System.Security.Cryptography;
-using Geta.Resurs.Checkout.Callbacks;
+using Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks;
 using Xunit;
 
 namespace Test.Integration
