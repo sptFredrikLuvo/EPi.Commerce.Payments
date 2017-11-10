@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 using EPiServer.Commerce.Order;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using Geta.Epi.Commerce.Payments.Resurs.Checkout.Extensions;
 using Geta.EPi.Commerce.Payments.Resurs.Checkout.Extensions;
@@ -10,13 +11,16 @@ using Geta.Resurs.Checkout.Callbacks;
 using Geta.Resurs.Checkout.ConfigurationService;
 using Geta.Resurs.Checkout.Model;
 using Mediachase.Commerce.Orders;
-using Mediachase.Commerce.Orders.Search;
 using Mediachase.Commerce.Orders.Managers;
+using Mediachase.Commerce.Orders.Search;
+using Newtonsoft.Json;
 
 namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
 {
     public class ResursBankCallbackClient : IResursBankCallbackClient
     {
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(ResursBankCallbackClient));
+
         private Injected<IResursHashCalculator> InjectedHashCalculator { get; set; }
         private static readonly Injected<IOrderRepository> _orderRepository;
 
@@ -78,46 +82,95 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
             }
         }
 
-        public bool ProcessCallback(CallbackData callbackData, string digest)
+        public void ProcessCallback(CallbackData callbackData, string digest)
         {
             if (callbackData == null) throw new ArgumentNullException(nameof(callbackData));
             if (digest == null) throw new ArgumentNullException(nameof(digest));
 
+            _logger.Information($"ProcessCallback: Start processing {JsonConvert.SerializeObject(callbackData)} {digest}");
+
             if (!CheckDigest(callbackData, digest))
             {
+                _logger.Debug($"ProcessCallback: Wrong digest {digest} for {JsonConvert.SerializeObject(callbackData)}");
                 throw new ArgumentException(nameof(digest));
             }
 
-            // Get order
             var order = GetOrderByPayment(callbackData.PaymentId);
             if (order == null)
             {
-                return false;
+                _logger.Debug($"ProcessCallback: Can't find order for {JsonConvert.SerializeObject(callbackData)}");
+                throw new ArgumentException(nameof(callbackData.PaymentId));
             }
             var payment = GetPayment(callbackData, order);
             if (payment == null)
             {
-                return false;
+                _logger.Debug($"ProcessCallback: Can't find payment for {JsonConvert.SerializeObject(callbackData)}");
+                throw new ArgumentException(nameof(callbackData.PaymentId));
             }
 
+            bool processed;
             switch (callbackData.EventType)
             {
                 case CallbackEventType.UNFREEZE:
-                    OrderStatusManager.ReleaseHoldOnOrder(order);
-                    payment.Status = PaymentStatus.Processed.ToString();
-                    payment.AcceptChanges();
+                    processed = ProcessUnfreeze(order, payment);
                     break;
                 case CallbackEventType.ANNULMENT:
-                    OrderStatusManager.CancelOrder(order);
-                    payment.Status = PaymentStatus.Failed.ToString();
-                    payment.AcceptChanges();
+                    processed = ProcessAnnulment(order, payment);
                     break;
+                case CallbackEventType.BOOKED:
+                case CallbackEventType.AUTOMATIC_FRAUD_CONTROL:
+                case CallbackEventType.FINALIZATION:
+                case CallbackEventType.UPDATE:
+                case CallbackEventType.TEST:
+                    return;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            if (!processed)
+            {
+                _logger.Information($"ProcessCallback: Didn't process {JsonConvert.SerializeObject(callbackData)}");
+                return;
             }
 
             // Add order note
-            var message = $"ResursBankCallback: {callbackData.EventType}";
+            var message = $"ResursBankCallback: processed {callbackData.EventType}";
             order.AddNote(message, message);
 
+            _logger.Information($"ProcessCallback: Processed {JsonConvert.SerializeObject(callbackData)}");
+        }
+
+        protected virtual bool CheckOrderFrozenStatus(PurchaseOrder order, Payment payment)
+        {
+            if (order.Status.Equals(OrderStatus.OnHold.ToString()) && payment.GetResursFreezeStatus())
+            {
+                return true;
+            }
+
+            _logger.Information($"Order not on hold or payment not frozen. ResursPaymentId: {payment.GetString(ResursConstants.ResursPaymentId)} PO: {order.TrackingNumber} OrderGroupId: {order.OrderGroupId}");
+            return false;
+        }
+
+        protected virtual bool ProcessUnfreeze(PurchaseOrder order, Payment payment)
+        {
+            if (!CheckOrderFrozenStatus(order, payment)) return false;
+
+            order.Status = OrderStatus.InProgress.ToString();
+            order.AcceptChanges();
+            payment.SetMetaField(ResursConstants.PaymentFreezeStatus, false);
+            payment.Status = PaymentStatus.Processed.ToString();
+            payment.AcceptChanges();
+            return true;
+        }
+
+        protected virtual bool ProcessAnnulment(PurchaseOrder order, Payment payment)
+        {
+            if (!CheckOrderFrozenStatus(order, payment)) return false;
+            order.Status = OrderStatus.Cancelled.ToString();
+            order.AcceptChanges();
+            payment.SetMetaField(ResursConstants.PaymentFreezeStatus, false);
+            payment.Status = PaymentStatus.Failed.ToString();
+            payment.AcceptChanges();
             return true;
         }
 
@@ -163,6 +216,36 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
                 return false;
             }
             return digest.Equals(InjectedHashCalculator.Service.Compute(callbackData, GetSalt()));
+        }
+
+        public void ProcessFrozenPayments(PurchaseOrder purchaseOrder)
+        {
+            // Hold order and set payment(s) to pending
+            var frozenPayments =
+                purchaseOrder
+                    .OrderForms
+                    .SelectMany(x => x.Payments)
+                    .Where(payment => payment.GetResursFreezeStatus())
+                    .ToList();
+            if (!frozenPayments.Any())
+            {
+                _logger.Information($"ProcessFrozenPayments: no frozen payments for order {purchaseOrder.TrackingNumber} - {purchaseOrder.OrderGroupId}");
+                return;
+            }
+
+            foreach (var frozenPayment in frozenPayments)
+            {
+                frozenPayment.Status = PaymentStatus.Pending.ToString();
+                frozenPayment.AcceptChanges();
+            }
+
+            OrderStatusManager.HoldOrder(purchaseOrder);
+            purchaseOrder.AcceptChanges();
+
+            var message = "Order on hold due to FROZEN payment status";
+            purchaseOrder.AddNote(message, message);
+
+            _logger.Information($"ProcessFrozenPayments: {message}. {purchaseOrder.TrackingNumber} - {purchaseOrder.OrderGroupId}");
         }
 
         protected virtual digestAlgorithm GetDigestAlgorithm()
