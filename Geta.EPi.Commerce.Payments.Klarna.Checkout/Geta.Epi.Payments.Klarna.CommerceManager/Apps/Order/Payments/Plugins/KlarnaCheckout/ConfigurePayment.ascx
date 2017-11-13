@@ -8,6 +8,12 @@
             <td class="FormLabelCell">Is production:</td>
             <td class="FormFieldCell">
                 <asp:CheckBox runat="server" id="cbIsProduction" />
+            </td> 
+        </tr>
+        <tr>
+            <td class="FormLabelCell">Newsletter default checked:</td>
+            <td class="FormFieldCell">
+                <asp:CheckBox runat="server" id="cbNewsletterDefaultChecked" />
             </td>
         </tr>
         <tr>
@@ -26,7 +32,6 @@
                 <asp:RequiredFieldValidator ID="val3" runat="server" ControlToValidate="txtSecret" ErrorMessage="The shared secret is required." />
             </td>
         </tr>
-    </tbody>
         <tr>
             <td class="FormLabelCell">Locale:</td>
             <td class="FormFieldCell">

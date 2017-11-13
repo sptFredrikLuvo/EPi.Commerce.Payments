@@ -39,7 +39,7 @@ namespace Tests.Integration
         [Fact]
         public void it_cancel_reservation()
         {
-            var orderApiClient = new OrderApiClient(Int32.Parse(TestConfig.MerchantId), TestConfig.SharedSecret, TestConfig.Locale, false);
+            var orderApiClient = new OrderApiClient(Int32.Parse(TestConfig.MerchantId), TestConfig.SharedSecret, TestConfig.Locale, false, false);
 
             var cancelResult = orderApiClient.CancelReservation("1226560000");
     

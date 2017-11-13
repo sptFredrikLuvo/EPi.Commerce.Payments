@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Geta.Klarna.Checkout.Models;
 using Klarna.Api;
 using Encoding = Klarna.Api.Encoding;
@@ -15,13 +12,15 @@ namespace Geta.Klarna.Checkout
         public string SharedSecret { get; private set; }
         public Locale Locale { get; private set; }
         public bool IsLiveMode { get; private set; }
+        public bool NewsletterDefaultChecked { get; private set; }
 
-        public OrderApiClient(int merchantId, string sharedSecret, Locale currentLocale, bool isLiveMode)
+        public OrderApiClient(int merchantId, string sharedSecret, Locale currentLocale, bool isLiveMode, bool newsletterDefaultChecked)
         {
             MerchantId = merchantId;
             SharedSecret = sharedSecret;
             Locale = currentLocale;
             IsLiveMode = isLiveMode;
+            NewsletterDefaultChecked = newsletterDefaultChecked;
         }
 
         /// <summary>
@@ -171,7 +170,8 @@ namespace Geta.Klarna.Checkout
                 config = new Configuration(Country.Code.AT, Language.Code.DE, Currency.Code.EUR,
                     Encoding.Austria);
             }
-            else {
+            else
+            {
                 // default to Sweden
                 config = new Configuration(Country.Code.SE, Language.Code.SV, Currency.Code.SEK,
                     Encoding.Sweden);
