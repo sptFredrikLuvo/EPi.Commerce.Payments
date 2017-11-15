@@ -101,7 +101,7 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Business
 			            bookPaymentObject.Signing = CreateSigning(payment);
 			            bookPaymentObject.CallbackUrl = !string.IsNullOrEmpty(resursBankPayment.CallBackUrl)
 			                ? resursBankPayment.CallBackUrl
-			                : "/";
+			                : null;
 
 			            bookPaymentObject.Card = CreateCustomerCard(payment, bookPaymentObject);
 			            bookPaymentObject.InvoiceData = CreateInvoiceData(payment, bookPaymentObject);
