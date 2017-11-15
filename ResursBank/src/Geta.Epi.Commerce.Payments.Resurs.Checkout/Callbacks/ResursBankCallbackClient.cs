@@ -238,7 +238,7 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
                 frozenPayment.AcceptChanges();
             }
 
-            OrderStatusManager.HoldOrder(purchaseOrder);
+            purchaseOrder.Status = OrderStatus.OnHold.ToString();
             purchaseOrder.AcceptChanges();
 
             var message = "Order on hold due to FROZEN payment status";
