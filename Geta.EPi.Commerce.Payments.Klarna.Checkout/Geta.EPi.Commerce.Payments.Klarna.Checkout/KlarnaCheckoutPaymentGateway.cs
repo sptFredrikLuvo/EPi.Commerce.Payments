@@ -64,7 +64,6 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                 {
                     _klarnaSettings = new ProviderSettings(
                         bool.Parse(Settings[KlarnaConstants.IsProduction]),
-                        bool.Parse(Settings[KlarnaConstants.NewsletterDefaultChecked]),
                         Settings[KlarnaConstants.MerchantId],
                         Settings[KlarnaConstants.Secret],
                         Settings[KlarnaConstants.Locale]);
@@ -104,7 +103,7 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
 
             var transactionType = payment.TransactionType.ToUpper();
 
-            var orderApiClient = new OrderApiClient(Int32.Parse(KlarnaSettings.MerchantId), KlarnaSettings.Secret, KlarnaSettings.CurrentLocale, KlarnaSettings.IsProduction, KlarnaSettings.NewsletterDefaultChecked);
+            var orderApiClient = new OrderApiClient(Int32.Parse(KlarnaSettings.MerchantId), KlarnaSettings.Secret, KlarnaSettings.CurrentLocale, KlarnaSettings.IsProduction);
 
             try
             {

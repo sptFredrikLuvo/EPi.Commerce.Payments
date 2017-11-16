@@ -22,15 +22,6 @@ namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.K
         protected global::System.Web.UI.WebControls.CheckBox cbIsProduction;
         
         /// <summary>
-        /// cbNewsletterDefaultChecked control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbNewsletterDefaultChecked;
-        
-        /// <summary>
         /// txtMerchantId control.
         /// </summary>
         /// <remarks>

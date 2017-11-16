@@ -12,15 +12,13 @@ namespace Geta.Klarna.Checkout
         public string SharedSecret { get; private set; }
         public Locale Locale { get; private set; }
         public bool IsLiveMode { get; private set; }
-        public bool NewsletterDefaultChecked { get; private set; }
 
-        public OrderApiClient(int merchantId, string sharedSecret, Locale currentLocale, bool isLiveMode, bool newsletterDefaultChecked)
+        public OrderApiClient(int merchantId, string sharedSecret, Locale currentLocale, bool isLiveMode)
         {
             MerchantId = merchantId;
             SharedSecret = sharedSecret;
             Locale = currentLocale;
             IsLiveMode = isLiveMode;
-            NewsletterDefaultChecked = newsletterDefaultChecked;
         }
 
         /// <summary>

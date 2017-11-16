@@ -6,10 +6,9 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
 {
     public class ProviderSettings
     {
-        public ProviderSettings(bool isProduction, bool newsletterDefaultChecked, string merchant, string secret, string localeCode)
+        public ProviderSettings(bool isProduction, string merchant, string secret, string localeCode)
         {
             IsProduction = isProduction;
-            NewsletterDefaultChecked = newsletterDefaultChecked;
             CurrentLocale = Locale.Locales.FirstOrDefault(l => l.LocaleCode == localeCode);
             MerchantId = merchant;
             Secret = secret;
@@ -17,7 +16,6 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
         }
 
         public bool IsProduction { get; private set; }
-        public bool NewsletterDefaultChecked { get; private set; }
         public Locale CurrentLocale { get; private set; }
         public string MerchantId { get; private set; }
         public string Secret { get; private set; }

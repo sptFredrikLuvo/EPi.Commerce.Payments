@@ -9,13 +9,7 @@
             <td class="FormFieldCell">
                 <asp:CheckBox runat="server" id="cbIsProduction" />
             </td> 
-        </tr>
-        <tr>
-            <td class="FormLabelCell">Newsletter default checked:</td>
-            <td class="FormFieldCell">
-                <asp:CheckBox runat="server" id="cbNewsletterDefaultChecked" />
-            </td>
-        </tr>
+        </tr>        
         <tr>
             <td class="FormLabelCell">Merchant ID (EID):</td>
             <td class="FormFieldCell">

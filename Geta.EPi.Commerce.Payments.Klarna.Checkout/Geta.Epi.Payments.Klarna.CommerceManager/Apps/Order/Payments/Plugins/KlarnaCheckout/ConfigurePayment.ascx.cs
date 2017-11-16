@@ -24,10 +24,7 @@ namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.K
 
             var isProduction = bool.Parse(paymentMethod.GetParameter(KlarnaConstants.IsProduction, "false"));
             cbIsProduction.Checked = isProduction;
-
-            var newsletterDefaultChecked = bool.Parse(paymentMethod.GetParameter(KlarnaConstants.NewsletterDefaultChecked, "false"));
-            cbNewsletterDefaultChecked.Checked = newsletterDefaultChecked;
-
+            
             txtMerchantId.Text = paymentMethod.GetParameter(KlarnaConstants.MerchantId, "");
             txtSecret.Text = paymentMethod.GetParameter(KlarnaConstants.Secret, "");
 
@@ -56,7 +53,6 @@ namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.K
             }
 
             paymentMethod.SetParameter(KlarnaConstants.IsProduction, cbIsProduction.Checked ? "true" : "false");
-            paymentMethod.SetParameter(KlarnaConstants.NewsletterDefaultChecked, cbNewsletterDefaultChecked.Checked ? "true" : "false");
             paymentMethod.SetParameter(KlarnaConstants.MerchantId, txtMerchantId.Text);
             paymentMethod.SetParameter(KlarnaConstants.Secret, txtSecret.Text);
             paymentMethod.SetParameter(KlarnaConstants.Locale, ddlLocale.SelectedValue);

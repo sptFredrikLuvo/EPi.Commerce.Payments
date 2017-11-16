@@ -45,7 +45,6 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
         {
             return new ProviderSettings(
                 bool.Parse(klarnaPaymentMethodDto.GetParameter(KlarnaConstants.IsProduction)),
-                bool.Parse(klarnaPaymentMethodDto.GetParameter(KlarnaConstants.NewsletterDefaultChecked)),
                 klarnaPaymentMethodDto.GetParameter(KlarnaConstants.MerchantId),
                 klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Secret),
                 klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Locale)
