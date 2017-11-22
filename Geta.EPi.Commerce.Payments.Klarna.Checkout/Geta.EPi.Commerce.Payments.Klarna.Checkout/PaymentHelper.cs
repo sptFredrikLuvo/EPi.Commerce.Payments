@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Geta.EPi.Commerce.Payments.Klarna.Checkout.Extensions;
-using Geta.Klarna.Checkout.Models;
 using Mediachase.Commerce;
 using Mediachase.Commerce.Orders.Dto;
 using Mediachase.Commerce.Orders.Managers;
@@ -48,7 +47,8 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                     bool.Parse(klarnaPaymentMethodDto.GetParameter(KlarnaConstants.IsProduction)),
                     klarnaPaymentMethodDto.GetParameter(KlarnaConstants.MerchantId),
                     klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Secret),
-                    klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Locale)
+                    klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Locale),
+                    bool.Parse(klarnaPaymentMethodDto.GetParameter(KlarnaConstants.EnableOrganizationCheckout))
                 );
         }
 

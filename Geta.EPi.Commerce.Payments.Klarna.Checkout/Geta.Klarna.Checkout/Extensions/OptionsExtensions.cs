@@ -12,6 +12,12 @@ namespace Geta.Klarna.Checkout.Extensions
                 {"allow_separate_shipping_address", options.AllowSeparateShippingAddress}
             };
 
+            if (options.EnableOrganizationCheckout)
+            {
+                optionsData.Add("allowed_customer_types", new List<string> { "organization", "person" });
+                
+            }
+
             if (options.ColorOptions == null)
             {
                 return optionsData;

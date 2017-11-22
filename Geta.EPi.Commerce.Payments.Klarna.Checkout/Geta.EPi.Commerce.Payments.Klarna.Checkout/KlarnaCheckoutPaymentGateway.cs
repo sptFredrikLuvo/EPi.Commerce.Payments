@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Geta.EPi.Commerce.Payments.Klarna.Checkout.Extensions;
 using Geta.Klarna.Checkout;
 using Mediachase.Commerce.Orders;
@@ -247,9 +244,10 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
                 {
                     _klarnaSettings = new ProviderSettings(
                         bool.Parse(Settings[KlarnaConstants.IsProduction]),
-                            Settings[KlarnaConstants.MerchantId],
-                                Settings[KlarnaConstants.Secret],
-                                        Settings[KlarnaConstants.Locale]);
+                        Settings[KlarnaConstants.MerchantId],
+                        Settings[KlarnaConstants.Secret],
+                        Settings[KlarnaConstants.Locale],
+                        bool.Parse(Settings[KlarnaConstants.EnableOrganizationCheckout]));
                 }
                 Logger.Debug(string.Format("Active Klarna merchant id is {0}. Is testing environment: {1}", _klarnaSettings.MerchantId, !_klarnaSettings.IsProduction));
                 return _klarnaSettings;

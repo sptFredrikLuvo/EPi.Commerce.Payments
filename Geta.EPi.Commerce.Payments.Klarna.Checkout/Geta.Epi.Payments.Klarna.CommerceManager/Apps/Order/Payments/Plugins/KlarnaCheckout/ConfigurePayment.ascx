@@ -26,6 +26,12 @@
                 <asp:RequiredFieldValidator ID="val3" runat="server" ControlToValidate="txtSecret" ErrorMessage="The shared secret is required." />
             </td>
         </tr>
+    <tr>
+        <td class="FormLabelCell">Enable organization checkout:</td>
+        <td class="FormFieldCell">
+            <asp:CheckBox runat="server" ID="cbEnableOrganizationCheckout" />            
+        </td>
+    </tr>
     </tbody>
         <tr>
             <td class="FormLabelCell">Locale:</td>

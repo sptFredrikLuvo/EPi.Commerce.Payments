@@ -25,10 +25,11 @@ namespace Geta.Klarna.Checkout
         public bool AllowSeparateShippingAddress { get; private set; }
         public ColorOptions ColorOptions { get; private set; }
         public bool DisableAutoFocus { get; private set; }
+        public bool EnableOrganizationCheckout { get; set; }
 
         const string ContentType = "application/vnd.klarna.checkout.aggregated-order-v2+json";
 
-        public CheckoutClient(Uri orderBaseUri, string merchantId, string sharedSecret, bool allowSeparateShippingAddress = false, ColorOptions colorOptions = null, bool disableAutoFocus = false)
+        public CheckoutClient(Uri orderBaseUri, string merchantId, string sharedSecret, bool allowSeparateShippingAddress = false, ColorOptions colorOptions = null, bool disableAutoFocus = false, bool enableOrganizationCheckout = false)
         {
             if (orderBaseUri == null) throw new ArgumentNullException("orderBaseUri");
             if (merchantId == null) throw new ArgumentNullException("merchantId");
@@ -39,6 +40,7 @@ namespace Geta.Klarna.Checkout
             AllowSeparateShippingAddress = allowSeparateShippingAddress;
             ColorOptions = colorOptions;
             DisableAutoFocus = disableAutoFocus;
+            EnableOrganizationCheckout = enableOrganizationCheckout;
         }
 
         public CheckoutResponse Checkout(IEnumerable<ICartItem> cartItems, Locale locale, CheckoutUris checkoutUris, string orderId = null, ShippingAddress address = null)
@@ -82,7 +84,7 @@ namespace Geta.Klarna.Checkout
                     checkoutUris.Terms,
                     checkoutUris.Validation);
                 var cart = new Cart(cartItems);
-                var options = new Options(AllowSeparateShippingAddress);
+                var options = new Options(AllowSeparateShippingAddress, EnableOrganizationCheckout);
                 var gui = new Gui(DisableAutoFocus);
                 if (ColorOptions != null)
                     options.ColorOptions = ColorOptions;

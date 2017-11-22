@@ -110,6 +110,7 @@ namespace Geta.Klarna.Checkout.Extensions
             address.EmailAddress = addr.email;
             address.PhoneNumber = addr.phone;
             address.Title = addr.title;
+            address.OrganizationName = addr.organization_name;
         }
     }
 }

@@ -25,6 +25,8 @@ namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.K
             txtMerchantId.Text = paymentMethod.GetParameter(KlarnaConstants.MerchantId, "");
             txtSecret.Text = paymentMethod.GetParameter(KlarnaConstants.Secret, "");
 
+            cbEnableOrganizationCheckout.Checked = bool.Parse(paymentMethod.GetParameter(KlarnaConstants.EnableOrganizationCheckout, "false"));
+
             ddlLocale.DataSource = Locale.Locales.OrderBy(c => c.Country)
                     .Select(c => new ListItem(c.Country, c.LocaleCode)).ToList();
             ddlLocale.DataBind();
@@ -48,6 +50,7 @@ namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.K
             paymentMethod.SetParameter(KlarnaConstants.IsProduction, cbIsProduction.Checked ? "true" : "false");
             paymentMethod.SetParameter(KlarnaConstants.MerchantId, txtMerchantId.Text);
             paymentMethod.SetParameter(KlarnaConstants.Secret, txtSecret.Text);
+            paymentMethod.SetParameter(KlarnaConstants.EnableOrganizationCheckout, cbEnableOrganizationCheckout.Checked ? "true" : "false");
 
             paymentMethod.SetParameter(KlarnaConstants.Locale, ddlLocale.SelectedValue);
         }
