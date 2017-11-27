@@ -1,4 +1,4 @@
-27/11/2017 - Version 1.1.8.9000
+27/11/2017 - Version 2.0.3.11000
 Added possiblillity to enable organization checkout
 
 12/9/2017 - Version 1.1.7.9000
