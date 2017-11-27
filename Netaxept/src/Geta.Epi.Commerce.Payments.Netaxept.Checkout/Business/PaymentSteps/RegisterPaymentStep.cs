@@ -37,7 +37,7 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <param name="orderGroup"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public override bool Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup, ref string message)
+        public override PaymentStepResult Process(IPayment payment, IOrderForm orderForm, IOrderGroup orderGroup)
         {
             var paymentMethodDto = PaymentManager.GetPaymentMethod(payment.PaymentMethodId);
 
@@ -51,13 +51,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 catch (Exception ex)
                 {
                     Logger.Error(ex.Message);
-                    message = ex.Message;
                     AddNoteAndSaveChanges(orderGroup, "Payment Registered - Error", "Payment Registered - Error: " + ex.Message);
-                    return false;
+                    return Fail(ex.Message);
                 }
 
                 AddNoteAndSaveChanges(orderGroup, "Payment - Registered", $"Payment - Registered with transactionId {transactionId}");
-
 
                 var url = new UriBuilder(GetTerminalUrl(paymentMethodDto));
                 var nvc = new NameValueCollection
@@ -67,20 +65,14 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                     };
 
                 url.Query = string.Join("&", nvc.AllKeys.Select(key => string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(nvc[key]))));
-
-
-                if (!HttpContext.Current.Response.IsRequestBeingRedirected)
-                {
-                    HttpContext.Current.Response.Redirect(url.ToString(), true);
-                }
-
-                return true;
+                return Success(url.ToString());
             }
             else if (Successor != null)
             {
-                return Successor.Process(payment, orderForm, orderGroup, ref message);
+                return Successor.Process(payment, orderForm, orderGroup);
             }
-            return true;
+
+            return Fail(null);
         }
 
         /// <summary>
@@ -141,8 +133,6 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
                 request.CustomerPostcode = billingAddress.PostalCode;
                 request.CustomerTown = billingAddress.City;
                 request.CustomerCountry = ConvertThreeLetterNameToTwoLetterName(billingAddress.CountryCode);
-
-                System.Text.RegularExpressions.Regex.IsMatch("123", @"^(\+[\-\s]?)\d{10}$");
                 request.CustomerPhoneNumber = GetValidPhonenumber(billingAddress.DaytimePhoneNumber ?? billingAddress.EveningPhoneNumber);
             }
             return request;
@@ -155,6 +145,11 @@ namespace Geta.Epi.Commerce.Payments.Netaxept.Checkout.Business.PaymentSteps
         /// <returns></returns>
         private string GetValidPhonenumber(string value)
         {
+            if (value == null)
+            {
+                return string.Empty;
+            }
+
             if (!Regex.IsMatch(value, @"^(\+[\-\s]?)\d{10}$"))
             {
                 return string.Empty;

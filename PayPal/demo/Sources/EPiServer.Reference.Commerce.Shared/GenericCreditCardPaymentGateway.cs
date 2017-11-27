@@ -30,5 +30,10 @@ namespace EPiServer.Reference.Commerce.Shared
 
             return true;
         }
+
+        public PaymentProcessingResult ProcessPayment(IOrderGroup orderGroup, IPayment payment)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

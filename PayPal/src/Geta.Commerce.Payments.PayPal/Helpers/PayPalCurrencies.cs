@@ -11,7 +11,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
     /// </summary>
     public class PayPalCurrencies
     {
-        private readonly IList<string> PayPalSupportedCurrencies = new List<string>()
+        private readonly IList<string> _payPalSupportedCurrencies = new List<string>()
         {
             "AUD", "BRL", "CAD",
             "CZK", "DKK", "EUR", "HKD", "HUF", "ILS", "JPY", "MYR",
@@ -19,7 +19,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             "SEK", "CHF", "TWD", "THB", "USD"
         };
 
-        private SiteContext _siteContext;
+        private readonly SiteContext _siteContext;
 
         public PayPalCurrencies() : this(SiteContext.Current)
         { }
@@ -37,10 +37,9 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         public CurrencyCodeType GetCurrencyCode(Currency currency)
         {
             var currencyCode = !string.IsNullOrEmpty(currency) ? currency.CurrencyCode.ToUpperInvariant() : _siteContext.Currency.CurrencyCode.ToUpperInvariant();
-            if (PayPalSupportedCurrencies.Contains(currencyCode))
+            if (_payPalSupportedCurrencies.Contains(currencyCode))
             {
-                CurrencyCodeType currencyCodeType;
-                if (Enum.TryParse(currencyCode, out currencyCodeType))
+                if (Enum.TryParse(currencyCode, out CurrencyCodeType currencyCodeType))
                 {
                     return currencyCodeType;
                 }

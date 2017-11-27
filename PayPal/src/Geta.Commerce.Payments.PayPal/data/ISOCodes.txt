@@ -1,8 +1,8 @@
-ABW    AW    Aruba
+ï»¿ABW    AW    Aruba
 AFG    AF    Afghanistan
 AGO    AO    Angola
 AIA    AI    Anguilla
-ALA    AX    Åland Islands
+ALA    AX    Ã…land Islands
 ALB    AL    Albania
 AND    AD    Andorra
 ANT    AN    Netherlands Antilles
@@ -25,7 +25,7 @@ BGR    BG    Bulgaria
 BHR    BH    Bahrain
 BHS    BS    Bahamas
 BIH    BA    Bosnia and Herzegovina
-BLM    BL    Saint Barthélemy
+BLM    BL    Saint BarthÃ©lemy
 BLR    BY    Belarus
 BLZ    BZ    Belize
 BMU    BM    Bermuda
@@ -42,7 +42,7 @@ CCK    CC    Cocos Islands
 CHE    CH    Switzerland
 CHL    CL    Chile
 CHN    CN    China
-CIV    CI    Côte d'Ivoire
+CIV    CI    CÃ´te d'Ivoire
 CMR    CM    Cameroon
 COD    CD    Congo, The Democratic Republic of the
 COG    CG    Congo
@@ -184,7 +184,7 @@ PRY    PY    Paraguay
 PSE    PS    Palestinian Territory
 PYF    PF    French Polynesia
 QAT    QA    Qatar
-REU    RE    Réunion
+REU    RE    RÃ©union
 ROU    RO    Romania
 RUS    RU    Russian Federation
 RWA    RW    Rwanda

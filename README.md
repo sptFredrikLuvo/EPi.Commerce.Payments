@@ -10,3 +10,6 @@ For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/
 
 ## Netaxept (EasyPayments)
 For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/blob/master/Netaxept).
+
+## PayPal
+For more information see [README](https://github.com/Geta/EPi.Commerce.Payments/tree/master/PayPal).

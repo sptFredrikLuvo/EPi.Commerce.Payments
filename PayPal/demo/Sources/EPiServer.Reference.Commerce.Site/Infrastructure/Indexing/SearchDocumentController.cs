@@ -5,7 +5,6 @@ using EPiServer.Core;
 using EPiServer.Reference.Commerce.Shared.CatalogIndexer;
 using EPiServer.Reference.Commerce.Site.Features.Product.Models;
 using EPiServer.Reference.Commerce.Site.Features.Shared.Services;
-using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
 using Mediachase.Commerce.Catalog;
 using Mediachase.Commerce.Pricing;
 using Mediachase.Search.Extensions;
@@ -27,15 +26,13 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
         private readonly ReferenceConverter _referenceConverter;
         private readonly AssetUrlResolver _assetUrlResolver;
         private readonly IRelationRepository _relationRepository;
-        private readonly AppContextFacade _appContext;
 
         public SearchDocumentController(IPriceService priceService,
             IPromotionService promotionService,
             IContentLoader contentLoader,
             ReferenceConverter referenceConverter,
             AssetUrlResolver assetUrlResolver,
-            IRelationRepository relationRepository,
-            AppContextFacade appContext)
+            IRelationRepository relationRepository)
         {
             _priceService = priceService;
             _promotionService = promotionService;
@@ -43,7 +40,6 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
             _referenceConverter = referenceConverter;
             _assetUrlResolver = assetUrlResolver;
             _relationRepository = relationRepository;
-            _appContext = appContext;
         }
 
         [Route("searchdocuments/{language}/{code}", Name = "PopulateSearchDocument")]
@@ -74,7 +70,7 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
             if (fashionProduct != null)
             {
                 var variants = _contentLoader.GetItems(fashionProduct.GetVariants(_relationRepository), CultureInfo.GetCultureInfo(language)).OfType<FashionVariant>().ToList();
-                AddPrices(document, variants.Select(v => new CatalogKey(_appContext.ApplicationId, v.Code)));
+                AddPrices(document, variants.Select(v => new CatalogKey(v.Code)));
                 AddColors(document, variants);
                 AddSizes(document, variants);
                 AddCodes(document, variants);
@@ -82,7 +78,7 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Indexing
             }
             else if (fashionPackage != null)
             {
-                AddPrices(document, new [] { new CatalogKey(_appContext.ApplicationId, fashionPackage.Code) });
+                AddPrices(document, new [] { new CatalogKey(fashionPackage.Code) });
             }
             document.Fields.Add(new RestSearchField("code", entryContent.Code, new[] { SearchField.Store.YES, SearchField.IncludeInDefaultSearch.YES }));
             document.Fields.Add(new RestSearchField("displayname", entryContent.DisplayName));

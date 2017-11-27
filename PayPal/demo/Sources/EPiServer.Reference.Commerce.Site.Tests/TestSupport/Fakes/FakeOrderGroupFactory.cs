@@ -14,6 +14,11 @@ namespace EPiServer.Reference.Commerce.Site.Tests.TestSupport.Fakes
             throw new NotImplementedException();
         }
 
+        public IPayment CreatePayment(IOrderGroup orderGroup, Type paymentType)
+        {
+            throw new NotImplementedException();
+        }
+
         public ICreditCardPayment CreateCardPayment(IOrderGroup orderGroup)
         {
             throw new NotImplementedException();

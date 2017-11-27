@@ -14,21 +14,21 @@ using PayPal.PayPalAPIInterfaceService.Model;
 
 namespace Geta.Commerce.Payments.PayPal.Helpers
 {
-    public class PayPalAPIHelper
+    public class PayPalApiHelper
     {
         private readonly ITaxCalculator _taxCalculator;
         private readonly IShippingCalculator _shippingCalculator;
         private readonly LocalizationService _localizationService;
         private readonly PayPalCurrencies _paypalCurrencies;
 
-        public PayPalAPIHelper() : this(
+        public PayPalApiHelper() : this(
             ServiceLocator.Current.GetInstance<IShippingCalculator>(),
             ServiceLocator.Current.GetInstance<ITaxCalculator>(),
             ServiceLocator.Current.GetInstance<LocalizationService>(),
             new PayPalCurrencies())
         { }
 
-        public PayPalAPIHelper(
+        public PayPalApiHelper(
             IShippingCalculator shippingCalculator,
             ITaxCalculator taxCalculator,
             LocalizationService localizationService,
@@ -44,15 +44,17 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         /// Setup the PayPal API caller service, use the profile setting with pre-configured parameters.
         /// </summary>
         /// <param name="payPalConfiguration">The PayPal payment configuration.</param>
-        public static PayPalAPIInterfaceServiceService GetPayPalAPICallerServices(PayPalConfiguration payPalConfiguration)
+        public static PayPalAPIInterfaceServiceService GetPayPalApiCallerServices(PayPalConfiguration payPalConfiguration)
         {
-            var configMap = new Dictionary<string, string>();
-            configMap.Add("mode", payPalConfiguration.SandBox == "1" ? "sandbox" : "live");
+            var configMap = new Dictionary<string, string>
+            {
+                {"mode", payPalConfiguration.SandBox == "1" ? "sandbox" : "live"},
+                {"account1.apiUsername", payPalConfiguration.User},
+                {"account1.apiPassword", payPalConfiguration.Password},
+                {"account1.apiSignature", payPalConfiguration.ApiSignature}
+            };
 
             // Signature Credential
-            configMap.Add("account1.apiUsername", payPalConfiguration.User);
-            configMap.Add("account1.apiPassword", payPalConfiguration.Password);
-            configMap.Add("account1.apiSignature", payPalConfiguration.APISignature);
 
             return new PayPalAPIInterfaceServiceService(configMap);
         }
@@ -110,7 +112,6 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         /// though this difference is very small (~0.01 currency).
         /// We adjust this into an additional item to ensure PayPal shows the same total number with Commerce.
         /// We also add the Order discount (if any) as and special item with negative price to PayPal payment detail.
-        /// See detail about PayPal structure type in this link <seealso cref="https://cms.paypal.com/mx/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_soap_r_GetExpressCheckoutDetails#id0848IH0064Y__id099MB0BB0UX"/>
         /// </remarks>
         /// <param name="payment">The payment to take info (Total, LineItem, ...) from</param>
         /// <param name="orderGroup">The order group (to be InvoiceID to pass to PayPal)</param>
@@ -120,10 +121,14 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
         public PaymentDetailsType GetPaymentDetailsType(IPayment payment, IOrderGroup orderGroup, string orderNumber, string notifyUrl)
         {
             var orderForm = orderGroup.Forms.First(form => form.Payments.Contains(payment));
-            var paymentDetailsType = new PaymentDetailsType();
+            var paymentDetailsType = new PaymentDetailsType
+            {
+                ButtonSource = "Episerver_Cart_EC",
+                InvoiceID = orderNumber
+            };
 
-            paymentDetailsType.ButtonSource = "Episerver_Cart_EC"; // (Optional) An identification code for use by third-party applications to identify transactions. Character length and limitations: 32 single-byte alphanumeric characters
-            paymentDetailsType.InvoiceID = orderNumber;  // Character length and limitations: 127 single-byte alphanumeric characters
+            // (Optional) An identification code for use by third-party applications to identify transactions. Character length and limitations: 32 single-byte alphanumeric characters
+            // Character length and limitations: 127 single-byte alphanumeric characters
             paymentDetailsType.Custom = orderGroup.CustomerId + "|" + paymentDetailsType.InvoiceID; // A free-form field for your own use. Character length and limitations: 256 single-byte alphanumeric characters
                                                                                                     // NOTE: paymentDetailsType.OrderDescription = 127 single-byte alphanumeric characters string
                                                                                                     // NOTE: paymentDetailsType.TransactionId = string, provided if you have transactionId in your Commerce system // (Optional) Transaction identification number of the transaction that was created.;
@@ -220,7 +225,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
             paymentDetailsType.PaymentDetailsItem = paymentDetailItems;
             paymentDetailsType.ShipToAddress = AddressHandling.ToAddressType(orderForm.Shipments.First().ShippingAddress);
 
-            if (orderForm.Shipments.Count() > 1)
+            if (orderForm.Shipments.Count > 1)
             {
                 // (Optional) The value 1 indicates that this payment is associated with multiple shipping addresses. Character length and limitations: Four single-byte numeric characters.
                 paymentDetailsType.MultiShipping = "1";
@@ -237,8 +242,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
                 BuyerEmail = payment.BillingAddress.Email
             };
 
-            TransactionType transactionType;
-            if (Enum.TryParse(payment.TransactionType, out transactionType))
+            if (Enum.TryParse(payment.TransactionType, out TransactionType transactionType))
             {
                 if (transactionType == TransactionType.Authorization)
                 {
@@ -289,7 +293,7 @@ namespace Geta.Commerce.Payments.PayPal.Helpers
                 payPalAddress.Phone = payerInfo.ContactPhone;
             }
 
-            AddressHandling.UpdateOrderAddress(orderAddress, customerAddressType, payPalAddress, payerInfo.Payer);
+            AddressHandling.UpdateOrderAddress(orderAddress, customerAddressType, payPalAddress, payerInfo?.Payer);
 
             return string.Empty;
         }

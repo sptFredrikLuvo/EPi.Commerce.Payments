@@ -23,10 +23,10 @@ namespace Geta.PayPal
         public const string PaymentActionParameter = "PayPalPaymentAction";
         public const string UserParameter = "PayPalAPIUser";
         public const string PasswordParameter = "PayPalAPIPassword";
-        public const string APISignatureParameter = "PayPalAPISignature";
-        public const string PALParameter = "PayPalPAL";
+        public const string ApiSignatureParameter = "PayPalAPISignature";
+        public const string PalParameter = "PayPalPAL";
         public const string SandBoxParameter = "PayPalSandBox";
-        public const string ExpChkoutURLParameter = "PayPalExpChkoutURL";
+        public const string ExpChkoutUrlParameter = "PayPalExpChkoutURL";
         public const string SkipConfirmPageParameter = "SkipConfirmPage";
         public const string SuccessUrlParameter = "PayPalSuccessUrl";
         public const string CancelUrlParameter = "PayPalCancelUrl";
@@ -45,13 +45,13 @@ namespace Geta.PayPal
 
         public string Password { get; protected set; }
 
-        public string APISignature { get; protected set; }
+        public string ApiSignature { get; protected set; }
 
-        public string PAL { get; protected set; }
+        public string Pal { get; protected set; }
 
         public string SandBox { get; protected set; }
 
-        public string ExpChkoutURL { get; protected set; }
+        public string ExpChkoutUrl { get; protected set; }
 
         public string SkipConfirmPage { get; protected set; }
 
@@ -59,8 +59,9 @@ namespace Geta.PayPal
 
         public string CancelUrl { get; protected set; }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of <see cref="PayPalConfiguration"/>.
+        /// Initializes a new instance of <see cref="T:Geta.PayPal.PayPalConfiguration" />.
         /// </summary>
         public PayPalConfiguration() : this(null)
         {
@@ -72,6 +73,7 @@ namespace Geta.PayPal
         /// <param name="settings">The specific settings.</param>
         public PayPalConfiguration(IDictionary<string, string> settings)
         {
+            // ReSharper disable once VirtualMemberCallInConstructor
             Initialize(settings);
         }
 
@@ -83,7 +85,9 @@ namespace Geta.PayPal
         /// <returns>The parameter row.</returns>
         public static PaymentMethodDto.PaymentMethodParameterRow GetParameterByName(PaymentMethodDto paymentMethodDto, string parameterName)
         {
-            var rowArray = (PaymentMethodDto.PaymentMethodParameterRow[])paymentMethodDto.PaymentMethodParameter.Select(string.Format("Parameter = '{0}'", parameterName));
+            var rowArray = (PaymentMethodDto.PaymentMethodParameterRow[])paymentMethodDto
+                .PaymentMethodParameter
+                .Select($"Parameter = '{parameterName}'");
             return rowArray.Length > 0 ? rowArray[0] : null;
         }
 
@@ -123,10 +127,10 @@ namespace Geta.PayPal
                 PaymentAction = GetParameterValue(PaymentActionParameter);
                 User = GetParameterValue(UserParameter);
                 Password = GetParameterValue(PasswordParameter);
-                APISignature = GetParameterValue(APISignatureParameter);
-                PAL = GetParameterValue(PALParameter);
+                ApiSignature = GetParameterValue(ApiSignatureParameter);
+                Pal = GetParameterValue(PalParameter);
                 SandBox = GetParameterValue(SandBoxParameter);
-                ExpChkoutURL = GetParameterValue(ExpChkoutURLParameter);
+                ExpChkoutUrl = GetParameterValue(ExpChkoutUrlParameter);
                 SkipConfirmPage = GetParameterValue(SkipConfirmPageParameter);
                 SuccessUrl = GetParameterValue(SuccessUrlParameter);
                 CancelUrl = GetParameterValue(CancelUrlParameter);
@@ -135,14 +139,14 @@ namespace Geta.PayPal
 
         private string GetParameterValue(string parameterName)
         {
-            string parameterValue;
-            return _settings.TryGetValue(parameterName, out parameterValue) ? parameterValue : string.Empty;
+            return _settings.TryGetValue(parameterName, out var parameterValue) ? parameterValue : string.Empty;
         }
 
         private Guid GetPaymentMethodId()
         {
-            var paymentMethodRow = _paymentMethodDto.PaymentMethod.Rows[0] as PaymentMethodDto.PaymentMethodRow;
-            return paymentMethodRow != null ? paymentMethodRow.PaymentMethodId : Guid.Empty;
+            return _paymentMethodDto.PaymentMethod.Rows[0] is PaymentMethodDto.PaymentMethodRow paymentMethodRow
+                ? paymentMethodRow.PaymentMethodId
+                : Guid.Empty;
         }
     }
 }

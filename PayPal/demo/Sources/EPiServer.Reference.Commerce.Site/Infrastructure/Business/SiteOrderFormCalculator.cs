@@ -14,9 +14,9 @@ namespace EPiServer.Reference.Commerce.Site.Infrastructure.Business
         private ILineItemCalculator _lineItemCalculator;
 
         public SiteOrderFormCalculator(IShippingCalculator shippingCalculator, ILineItemCalculator lineItemCalculator, ITaxCalculator taxCalculator) 
-            : base(shippingCalculator, lineItemCalculator, taxCalculator)
+            : base(shippingCalculator, taxCalculator)
         {
-            _lineItemCalculator = lineItemCalculator;             
+            _lineItemCalculator = lineItemCalculator;
         }
 
         protected override Money CalculateSubtotal(IOrderForm orderForm, Currency currency)

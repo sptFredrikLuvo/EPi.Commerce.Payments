@@ -5,16 +5,18 @@ using Mediachase.MetaDataPlus.Configurator;
 
 namespace Geta.Commerce.Payments.PayPal
 {
+    /// <inheritdoc />
     /// <summary>
     /// Represents Payment class for PayPal.
     /// </summary>
     [Serializable]
-    public class PayPalPayment : Mediachase.Commerce.Orders.Payment
+    public class PayPalPayment : Payment
     {
         private static MetaClass _metaClass;
 
+        /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of the <see cref="PayPalPayment"/> class.
+        /// Initializes a new instance of the <see cref="T:Geta.Commerce.Payments.PayPal.PayPalPayment" /> class.
         /// </summary>
         public PayPalPayment()
             : base(PayPalPaymentMetaClass)
@@ -23,8 +25,9 @@ namespace Geta.Commerce.Payments.PayPal
             ImplementationClass = GetType().AssemblyQualifiedName; // need to have assembly name in order to retrieve the correct type in ClassInfo
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of the <see cref="PayPalPayment"/> class.
+        /// Initializes a new instance of the <see cref="T:Geta.Commerce.Payments.PayPal.PayPalPayment" /> class.
         /// </summary>
         /// <param name="info">The info.</param>
         /// <param name="context">The context.</param>
@@ -46,8 +49,8 @@ namespace Geta.Commerce.Payments.PayPal
         /// </summary>
         public string PayPalOrderNumber
         {
-            get { return GetString(PayPalPaymentGateway.PayPalOrderNumberPropertyName); }
-            set { this[PayPalPaymentGateway.PayPalOrderNumberPropertyName] = value; }
+            get => GetString(PayPalPaymentGateway.PayPalOrderNumberPropertyName);
+            set => this[PayPalPaymentGateway.PayPalOrderNumberPropertyName] = value;
         }
 
         /// <summary>
@@ -55,8 +58,8 @@ namespace Geta.Commerce.Payments.PayPal
         /// </summary>
         public string PayPalExpToken
         {
-            get { return GetString(PayPalPaymentGateway.PayPalExpTokenPropertyName); }
-            set { this[PayPalPaymentGateway.PayPalExpTokenPropertyName] = value; }
+            get => GetString(PayPalPaymentGateway.PayPalExpTokenPropertyName);
+            set => this[PayPalPaymentGateway.PayPalExpTokenPropertyName] = value;
         }
     }
 }
