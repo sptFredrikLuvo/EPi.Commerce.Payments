@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Geta.Klarna.Checkout.Models;
 using Klarna.Api;
 using Encoding = Klarna.Api.Encoding;
@@ -171,7 +168,8 @@ namespace Geta.Klarna.Checkout
                 config = new Configuration(Country.Code.AT, Language.Code.DE, Currency.Code.EUR,
                     Encoding.Austria);
             }
-            else {
+            else
+            {
                 // default to Sweden
                 config = new Configuration(Country.Code.SE, Language.Code.SV, Currency.Code.SEK,
                     Encoding.Sweden);
