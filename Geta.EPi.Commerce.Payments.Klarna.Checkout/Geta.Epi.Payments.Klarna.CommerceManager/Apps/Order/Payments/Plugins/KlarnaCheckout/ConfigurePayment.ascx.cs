@@ -41,11 +41,16 @@ namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.K
         public void SaveChanges(object dto)
         {
             if (!Visible)
+            {
                 return;
+            }
+                
 
             var paymentMethod = dto as PaymentMethodDto;
             if (paymentMethod == null)
+            {
                 return;
+            }
 
             paymentMethod.SetParameter(KlarnaConstants.IsProduction, cbIsProduction.Checked ? "true" : "false");
             paymentMethod.SetParameter(KlarnaConstants.MerchantId, txtMerchantId.Text);
