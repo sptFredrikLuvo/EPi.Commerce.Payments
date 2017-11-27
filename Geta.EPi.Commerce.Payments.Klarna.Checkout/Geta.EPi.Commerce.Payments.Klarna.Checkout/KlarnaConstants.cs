@@ -7,6 +7,7 @@
         public static readonly string Secret = "Secret";
         public static readonly string IsProduction = "IsProduction";
         public static readonly string Locale = "Locale";
+        public static readonly string EnableOrganizationCheckout = "EnableOrganizationCheckout";
         public const string ProductionBaseUri = "https://checkout.klarna.com/checkout/orders";
         public const string TestBaseUri = "https://checkout.testdrive.klarna.com/checkout/orders";
     }

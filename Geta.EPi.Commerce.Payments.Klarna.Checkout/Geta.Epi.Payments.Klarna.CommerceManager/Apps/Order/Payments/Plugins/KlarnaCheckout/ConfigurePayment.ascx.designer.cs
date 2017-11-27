@@ -67,6 +67,15 @@ namespace Geta.EPi.Payments.Klarna.CommerceManager.Apps.Order.Payments.Plugins.K
         protected global::System.Web.UI.WebControls.RequiredFieldValidator val3;
         
         /// <summary>
+        /// cbEnableOrganizationCheckout control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbEnableOrganizationCheckout;
+        
+        /// <summary>
         /// ddlLocale control.
         /// </summary>
         /// <remarks>

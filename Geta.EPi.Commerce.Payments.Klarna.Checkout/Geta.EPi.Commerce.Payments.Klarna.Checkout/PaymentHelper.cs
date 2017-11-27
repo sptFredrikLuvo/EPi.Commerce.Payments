@@ -44,11 +44,12 @@ namespace Geta.EPi.Commerce.Payments.Klarna.Checkout
         private static ProviderSettings GetProviderSettings(PaymentMethodDto klarnaPaymentMethodDto)
         {
             return new ProviderSettings(
-                bool.Parse(klarnaPaymentMethodDto.GetParameter(KlarnaConstants.IsProduction)),
-                klarnaPaymentMethodDto.GetParameter(KlarnaConstants.MerchantId),
-                klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Secret),
-                klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Locale)
-            );
+                    bool.Parse(klarnaPaymentMethodDto.GetParameter(KlarnaConstants.IsProduction)),
+                    klarnaPaymentMethodDto.GetParameter(KlarnaConstants.MerchantId),
+                    klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Secret),
+                    klarnaPaymentMethodDto.GetParameter(KlarnaConstants.Locale),
+                    bool.Parse(klarnaPaymentMethodDto.GetParameter(KlarnaConstants.EnableOrganizationCheckout))
+                );
         }
 
     }
