@@ -3,13 +3,22 @@ Library for Netaxept (EasyPayments) Checkout integration with EPiServer Commerce
 
 ![](http://tc.geta.no/app/rest/builds/buildType:(id:TeamFrederik_EPiCommercePaymentsKlarnaCheckout_Debug)/statusIcon)
 
-## What is Geta.EPi.Commerce.Payments.Netaxept.Checkout?
+## Description
 
 Geta.EPi.Commerce.Payments.Netaxept.Checkout is a library which helps to integrate Netaxept Checkout as one of the payment options in your EPiServer Commerce sites.
 This library consists of three assemblies: 
 * Geta.Netaxept.Checkout is wrapper for Netaxept Checkout API and simplifies API usage 
 * Geta.EPi.Commerce.Payments.Netaxept.Checkout contains extensions and helpers for easier EPiServer Commerce and Klarna Checkout integration 
 * Geta.EPi.Payments.Netaxept.CommerceManager contains .ascx for payment method settings for Commerce Manager
+
+## Features
+- Supports only payments by credit card
+- Amount is captured when shipment is completed in Commerce Manager
+- Amount is credited when returns is created in Commerce Manager
+- Easy payments
+- Payment step history saved on order notes
+- Configurations in Commerce Manager
+
 
 ### Payment process
 
@@ -283,3 +292,5 @@ The card information of the payment is saved on payment object and the customer 
 </p>
 ```
 
+## Package maintainer
+https://github.com/patkleef
