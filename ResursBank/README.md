@@ -1,6 +1,6 @@
 # Resurs Bank Checkout integration with EPiServer Commerce
 
-## What is Geta.EPi.Commerce.Payments.Resurs.Checkout?
+## Description
 
 Geta.EPi.Commerce.Payments.Resurs.Checkout is library which helps to integrate Resurs Bank Checkout as one of the payment options in your EPiServer Commerce site.
 
@@ -8,6 +8,11 @@ There are three NuGet packages:
 * Geta.Resurs.Checkout is wrapper for Resurs Checkout API and simplifies API usage 
 * Geta.EPi.Commerce.Payments.Resurs.Checkout contains extensions and helpers for easier EPiServer Commerce and Resurs Bank Checkout integration 
 * Geta.EPi.Payments.Resurs.CommerceManager contains .ascx for payment method settings for Commerce Manager
+
+## Features
+* Multiple payment methods
+* Fraud check
+* Configurations in Commerce Manager
 
 ## How to get started?
 
@@ -78,6 +83,9 @@ Project contains _pack.bat_ file for easier packaging. It calls _nuget.exe_ (ass
 ## Demo
 
 To setup your own demo environment (local or otherwise): [local demo setup](docs/local-demo-setup.md).
+
+## Package maintainer
+https://github.com/patkleef
 
 
 ## Release notes
