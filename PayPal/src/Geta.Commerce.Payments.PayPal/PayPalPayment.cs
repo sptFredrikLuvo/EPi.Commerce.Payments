@@ -5,12 +5,12 @@ using Mediachase.MetaDataPlus.Configurator;
 
 namespace Geta.Commerce.Payments.PayPal
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="IPayPalPayment" />
     /// <summary>
     /// Represents Payment class for PayPal.
     /// </summary>
     [Serializable]
-    public class PayPalPayment : Payment
+    public class PayPalPayment : Payment, IPayPalPayment
     {
         private static MetaClass _metaClass;
 

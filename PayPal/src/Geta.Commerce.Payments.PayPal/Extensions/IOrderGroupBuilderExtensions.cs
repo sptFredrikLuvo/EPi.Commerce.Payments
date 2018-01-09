@@ -1,4 +1,5 @@
 ﻿using EPiServer.Commerce.Order;
+using EPiServer.Commerce.Order.Internal;
 
 namespace Geta.Commerce.Payments.PayPal.Extensions
 {
@@ -6,7 +7,12 @@ namespace Geta.Commerce.Payments.PayPal.Extensions
     {
         public static IPayment CreatePayPalPayment(this IOrderGroupBuilder orderGroupBuilder)
         {
-            return (IPayment)new PayPalPayment();
+            if (orderGroupBuilder is SerializableCartBuilder)
+            {
+                return new SerializablePayPalPayment();
+            }
+
+            return new PayPalPayment();
         }
     }
 }
