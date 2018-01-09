@@ -310,11 +310,13 @@
     <Compile Include="Helpers\State.cs" />
     <Compile Include="Helpers\CanadianUsStates.cs" />
     <Compile Include="Helpers\Utilities.cs" />
+    <Compile Include="IPayPalPayment.cs" />
     <Compile Include="MetadataConstants.cs" />
     <Compile Include="MetaDataInitialization.cs" />
     <Compile Include="PayPalPayment.cs" />
     <Compile Include="PayPalPaymentGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializablePayPalPayment.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Geta.PayPal\Geta.PayPal.csproj">
