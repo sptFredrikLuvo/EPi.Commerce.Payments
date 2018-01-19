@@ -21,7 +21,6 @@ namespace Geta.Epi.Commerce.Payments.Resurs.Checkout.Callbacks
         private readonly ILogger _logger = LogManager.GetLogger(typeof(ResursBankCallbackClient));
 
         private Injected<IResursHashCalculator> InjectedHashCalculator { get; set; }
-        private static readonly Injected<IOrderRepository> _orderRepository;
 
         private readonly ConfigurationWebServiceClient _configurationService;
 
