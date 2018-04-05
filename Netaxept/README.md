@@ -1,3 +1,6 @@
+[Deprecated] this repository is moved => https://github.com/Geta/Netaxept/
+=============
+
 Library for Netaxept (EasyPayments) Checkout integration with EPiServer Commerce
 =============
 
