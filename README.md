@@ -13,3 +13,6 @@ Moved to a separate repository => https://github.com/Geta/Netaxept/
 
 ## PayPal
 Moved to a separate repository => https://github.com/Geta/paypal/
+
+## Veriphone
+Moved to a separate repository => https://github.com/Geta/veriphone/
