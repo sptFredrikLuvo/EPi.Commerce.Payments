@@ -1,3 +1,5 @@
+[Deprecated] this repository is moved => https://github.com/Geta/paypal/
+
 PayPal payment provider for EPiServer Commerce
 =============
 
