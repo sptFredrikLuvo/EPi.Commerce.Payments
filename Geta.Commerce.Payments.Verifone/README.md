@@ -1,1 +1,2 @@
-[Deprecated] this repository is moved => https://github.com/Geta/Netaxept/
+[Deprecated] this repository is moved => https://github.com/Geta/veriphone/
+=============
