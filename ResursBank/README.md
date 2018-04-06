@@ -1,3 +1,7 @@
+
+[Deprecated] this repository is moved => https://github.com/Geta/ResursBank
+=============
+
 # Resurs Bank Checkout integration with EPiServer Commerce
 
 ## Description
